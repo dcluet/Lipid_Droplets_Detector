@@ -1,3 +1,5 @@
+macro "Lipid_Droplets"{
+
 //Key parameters
 seuil = 5;
 Iterations = 5;
@@ -242,3 +244,5 @@ function MontageFilm(Sstart, Send){
 	run("Delete Slice");
 	}
 }
+
+}//END MACRO
