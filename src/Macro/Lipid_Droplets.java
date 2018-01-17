@@ -10,66 +10,71 @@ enlargement = 5; //3 thus far
 //Clean roiManager
 roiManager("reset");
 
-//Choose image file and open it
-Path = File.openDialog("Choose file");
-open(Path);
+    //Choose image file and open it
+    Path = File.openDialog("Choose file");
+    open(Path);
 
-//Remove the non pixel unit
-run("Properties...", "channels=1 slices="+nSlices()+" frames=1 unit=pixel pixel_width=1 pixel_height=1 voxel_depth=1.0000000");
-//Get the size of the current image
-W = getWidth();
-H = getHeight();
-T = getTitle();
+    //Remove the non pixel unit
+    run("Properties...", "channels=1 slices="+nSlices()+" frames=1 unit=pixel pixel_width=1 pixel_height=1 voxel_depth=1.0000000");
+    //Get the size of the current image
+    W = getWidth();
+    H = getHeight();
+    T = getTitle();
 
-//Duplication of the image
-makeRectangle(0,0,W,H);
-run("Duplicate...", "title=Raw duplicate");
+    //Duplication of the image
+    makeRectangle(0,0,W,H);
+    run("Duplicate...", "title=Raw duplicate");
 
-//Create the Crop movie
-waitForUser("Set on the starting slice");
-Sstart = getSliceNumber();
-waitForUser("Set on the ending slice");
-Send = getSliceNumber();
+    //Create the Crop movie
+    waitForUser("Set on the starting slice");
+    Sstart = getSliceNumber();
+    waitForUser("Set on the ending slice");
+    Send = getSliceNumber();
 
-selectWindow("Raw");
-MontageFilm(Sstart, Send);
+    //Crop the Stack
+    PathM1 = getDirectory("macros")
+    PathM1 += "Droplets"+File.separator
+    PathM1 += "Stack_Editing.java"
 
-//Draw Neuropil
-selectWindow("Raw");
-run("Enhance Contrast", "saturated=0.35");
-waitForUser("Draw the neuropil");
-getSelectionCoordinates(NeuroPilX, NeuroPilY);
-resetMinAndMax();
-roiManager("reset");
+    ARG1 = "Raw" + "\t";
+    ARG1 += "" + Sstart + "\t";
+    ARG1 += "" + Send + "\t";
 
-/*
-    Close everything
-    strat setbatchMode
-    Reopen and redo
-*/
+    runMacro(PathM1, ARG1);
 
-selectWindow(T);
-run("Close");
-selectWindow("Raw");
-run("Close");
-//Clean roiManager
-selectWindow("ROI Manager");
-run("Close");
+    //Draw Neuropil
+    selectWindow("Raw");
+    run("Enhance Contrast", "saturated=0.35");
+    waitForUser("Draw the neuropil");
+    getSelectionCoordinates(NeuroPilX, NeuroPilY);
+    resetMinAndMax();
+    roiManager("reset");
 
-setBatchMode(true)
-open(Path);
+    /*
+        Close everything
+        strat setbatchMode
+        Reopen and redo
+    */
 
-//Remove the non pixel unit
-run("Properties...", "channels=1 slices="+nSlices()+" frames=1 unit=pixel pixel_width=1 pixel_height=1 voxel_depth=1.0000000");
-//Get the size of the current image
-W = getWidth();
-H = getHeight();
-T = getTitle();
+    selectWindow(T);
+    run("Close");
+    selectWindow("Raw");
+    run("Close");
 
-makeRectangle(0,0,W,H);
-run("Duplicate...", "title=Raw duplicate");
-selectWindow("Raw");
-MontageFilm(Sstart, Send);
+    //Clean roiManager
+    selectWindow("ROI Manager");
+    run("Close");
+
+    setBatchMode(true)
+    open(Path);
+
+    //Remove the non pixel unit
+    run("Properties...", "channels=1 slices="+nSlices()+" frames=1 unit=pixel pixel_width=1 pixel_height=1 voxel_depth=1.0000000");
+
+    makeRectangle(0,0,W,H);
+    run("Duplicate...", "title=Raw duplicate");
+
+    runMacro(PathM1, ARG1);
 
 //Prepare Report
 run("Duplicate...", "title=Report duplicate");
@@ -230,19 +235,5 @@ selectWindow(T);
 run("Close");
 
 waitForUser("Analysis is over")
-
-
-function MontageFilm(Sstart, Send){
-	N=nSlices+1;
-
-	for (i=Send+1; i <N; i++){		//Delete all frames present after the ending frame
-	setSlice(Send+1);
-	run("Delete Slice");
-	}
-	for (i=1; i <Sstart; i++){		//Delete all frames present before the starting one
-	setSlice(1);
-	run("Delete Slice");
-	}
-}
 
 }//END MACRO

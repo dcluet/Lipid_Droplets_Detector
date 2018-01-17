@@ -27,6 +27,7 @@ PathOutput = getDirectory("macros")+"NUKE-BREAK"+File.separator;
 Listing = newArray();
 Listing = Array.concat("Lipid_Droplets.java", Listing);
 Listing = Array.concat("Command_Line.txt", Listing);
+Listing = Array.concat("Stack_Editing.java", Listing);
 
 //Create the installation folder if required
 if(File.exists(PathOutput)==0){
