@@ -153,7 +153,7 @@ roiManager("reset");
     waitForUser("Analysis is over");
 
 /*
-==============================================================================
+================================================================================
 */
 
 function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
@@ -255,6 +255,10 @@ function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
             }
         }
 }//END TWIN_KILLER
+
+/*
+================================================================================
+*/
 
 function Order_ROI(it){
 
