@@ -184,7 +184,13 @@ function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
         Yr = List.getValue("Y");
         Ar = List.getValue("Area");
         Sr = getSliceNumber();
-
+        if(Sr==nSlices){
+            /*
+                When arriving to the last one no need to continue
+            */
+            N = 10 * roiManager("count");
+            n = 10 * roiManager("count");
+        }
             for(N=n+1; N<roiManager("count"); N++){
                 message = "Iteration " + it;
                 message += " ROI " + n;
@@ -219,11 +225,6 @@ function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
                     /*
                         If more than z slices => No need to compare this
                         one the others -> Break
-                    */
-                    N = 10 * roiManager("count");
-                }else if(S==nSlices){
-                    /*
-                        When arriving to the last one no need to continue
                     */
                     N = 10 * roiManager("count");
                 }
