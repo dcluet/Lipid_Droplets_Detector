@@ -11,11 +11,11 @@ macro "Refresh" {
     PathOutput = getDirectory("macros")+"Droplets"+File.separator;
 
     //Listing of the files to instal
-    Listing = newArray();
-    Listing = Array.concat("Lipid_Droplets.java", Listing);
-    Listing = Array.concat("Command_Line.txt", Listing);
-    Listing = Array.concat("Stack_Editing.java", Listing);
-
+    Listing = newArray("Lipid_Droplets.java",
+                        "Command_Line.txt", 
+                        "Stack_Editing.java",
+                        "Twins_Killer.java",
+                        "Order_ROI.java");
 
     //Create the installation folder if required
     if(File.exists(PathOutput)==0){

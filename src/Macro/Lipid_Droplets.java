@@ -65,9 +65,9 @@ roiManager("reset");
     selectWindow("ROI Manager");
     run("Close");
 
-    setBatchMode(true)
+    //setBatchMode(true)
     open(Path);
-
+    roiManager("reset");
     //Remove the non pixel unit
     run("Properties...", "channels=1 slices="+nSlices()+" frames=1 unit=pixel pixel_width=1 pixel_height=1 voxel_depth=1.0000000");
 
@@ -76,164 +76,110 @@ roiManager("reset");
 
     runMacro(PathM1, ARG1);
 
-//Prepare Report
-run("Duplicate...", "title=Report duplicate");
-run("RGB Color");
+    //Prepare Report
+    run("Duplicate...", "title=Report duplicate");
+    run("RGB Color");
 
-
-
-//Process the image to detect the lipid droplets
-selectWindow("Raw");
-makeRectangle(0,0,W,H);
-run("Gaussian Blur...", "sigma=1 stack");
-run("Maximum...", "radius=5 stack");
-
-nROI = 0;
-
-//Iteratively detect the strongest particles and remove them
-for (it=0; it<Iterations; it++){
+    //Process the image to detect the lipid droplets
     selectWindow("Raw");
     makeRectangle(0,0,W,H);
-    run("Duplicate...", "title=Temp duplicate");
-    run("Convert to Mask", "method=MaxEntropy background=Dark calculate");
-    run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add stack");
+    run("Gaussian Blur...", "sigma=1 stack");
+    run("Maximum...", "radius=5 stack");
 
-    //I removed exclude to allow detection of ugly stuff masking true signal
-    // -> to clean later
-    //run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" circularity=0.30-1.00 add stack");
-    run("Close");
-    if (nROI<roiManager("count")){
-    selectWindow("Raw");
-	for (n =0; n< roiManager("count"); n++){
-        setForegroundColor (0,0,0);
-		roiManager("Select", n);
-		Erase=0;
-		List.setMeasurements;
-		Xr = List.getValue("X");
-		Yr = List.getValue("Y");
-		Ar = List.getValue("Area");
-        Sr = getSliceNumber();
+    nROI = 0;
 
-			for(N=n+1; N<roiManager("count"); N++){
-                message = "Iteration " + it;
-                message += " ROI " + n;
-                message += " vs ROI " + N;
-                message += " out of " + roiManager("count");
-                message += " last score " + nROI;
-                showStatus(message);
-				roiManager("Select", N);
-				List.setMeasurements;
-				X = List.getValue("X");
-				Y = List.getValue("Y");
-				A = List.getValue("Area");
-                S = getSliceNumber();
-                if ((abs(S-Sr)<=zDistance) && (abs(S-Sr)>0)){
-    				d = sqrt( (X-Xr)*(X-Xr) + (Y-Yr)*(Y-Yr) );
-    				if (d<seuil){
-    					if(A>Ar){
-    					Xr = X;
-    					Yr = Y;
-    					Ar = A;
-    					Erase = 1;
-    					}
-    					if(A<Ar){
-    					roiManager("Select", N);
-                        run("Enlarge...", "enlarge=" + enlargement);
-    					run("Fill", "slice");
-    					roiManager("Delete");
-    					N = N -1;
-    					}
-    				}
-                }
-			}
-        //Delete the detected particle from the image
-        //If ok still in the Manager else it has to be deleted anyway
-        roiManager("Select", n);
-        run("Enlarge...", "enlarge=" + enlargement);
-        run("Fill", "slice");
-        if(Erase==1){
-            roiManager("Select", n);
-            //run("Fill", "slice");
-            roiManager("Delete");
-            n=n-1;
-            N=N-1;
-           }
+    //Iteratively detect the strongest particles and remove them
+    for (it=1; it<=Iterations; it++){
 
-   }
-   nROI = roiManager("count");
-   //Rename the ROI
-   selectWindow("Raw");
-   setForegroundColor (0,0,0);
-		for(i=0; i<roiManager("count"); i++){
-			roiManager("Select",i);
-			myName = Roi.getName;
-            X = List.getValue("X");
-            Y = List.getValue("Y");
-            if(lastIndexOf(myName, "_")==-1){
-                roiManager("Rename",""+it+"_"+i);
-                }
-		}
-    }
-//waitForUser("Fin iteration n°: " +  it);
-}// End of Iterations
-newImage("Neuropil", "8-bit white", 2048, 2048, 1);
-makeSelection("polygon", NeuroPilX, NeuroPilY);
-setForegroundColor (0,0,0);
-run("Fill");
-for(i=0; i<roiManager("count"); i++){
-    selectWindow("Neuropil");
-    roiManager("Select",i);
-    myName = Roi.getName;
-    getStatistics(area, mean);
-    if (mean<255){
-        roiManager("Select",i);
-        roiManager("Rename", "NP_"+myName);
+        selectWindow("Raw");
+        makeRectangle(0,0,W,H);
+        run("Duplicate...", "title=Temp duplicate");
+        makeRectangle(0,0,W,H);
+        run("Convert to Mask", "method=MaxEntropy background=Dark calculate");
+        run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add stack");
+
+        selectWindow("Temp");
+        run("Close");
+
+        if (nROI<roiManager("count")){
+
+
+            //Remove all twins
+            PathM2 = getDirectory("macros");
+            PathM2 += "Droplets"+File.separator();
+            PathM2 += "Twins_Killer.java";
+
+            ARG2 = "Raw" + "\t";
+            ARG2 += "" + nROI + "\t";
+            ARG2 += "" + it + "\t";
+            ARG2 += "" + seuil + "\t";
+            ARG2 += "" + zDistance + "\t";
+            ARG2 += "" + enlargement + "\t";
+            runMacro(PathM2, ARG2);
+
+            //Update the total number of ROI validated
+            nROI = roiManager("count");
         }
-}
+    }// End of Iterations
 
-/*
-    REFINE PARTICLES WITH LOCAL (ROI) VALUES?
-*/
+    newImage("Neuropil", "8-bit white", 2048, 2048, 1);
+    makeSelection("polygon", NeuroPilX, NeuroPilY);
+    setForegroundColor (0,0,0);
+    run("Fill");
+    for(i=0; i<roiManager("count"); i++){
+        selectWindow("Neuropil");
+        roiManager("Select",i);
+        myName = Roi.getName;
+        getStatistics(area, mean);
+        if (mean<255){
+            roiManager("Select",i);
+            roiManager("Rename", "NP_"+myName);
+            }
+    }
 
-//Draw ROI on Report
-selectWindow("Report");
-setForegroundColor(255,0,255);
+    /*
+        REFINE PARTICLES WITH LOCAL (ROI) VALUES?
+    */
 
-run("Line Width...", "line=3");
-for(i=0; i<roiManager("count"); i++){
-    roiManager("Select",i);
-    run("Draw", "slice");
-}
-setForegroundColor(0,255,255);
-makeSelection("polygon", NeuroPilX, NeuroPilY);
-run("Draw", "stack");
-saveAs("Tiff", Path + "_report.tif");
-run("Close");
+    //Draw ROI on Report
+    selectWindow("Report");
+    setForegroundColor(255,0,255);
 
-//Create the result files (to be tested)
-selectWindow("Raw");
-makeSelection("polygon", NeuroPilX, NeuroPilY);
-roiManager("Add");
-roiManager("Select", roiManager("count")-1);
-roiManager("Rename", "Neuropil");
-roiManager("Deselect");
-roiManager("Save", Path + "_RoiSet.zip");
-run("Set Measurements...", "area centroid display redirect=None decimal=3");
-roiManager("Measure");
-saveAs("Results", Path + "_Results.csv");
-run("Clear Results");
+    run("Line Width...", "line=3");
+    for(i=0; i<roiManager("count"); i++){
+        roiManager("Select",i);
+        run("Draw", "slice");
+    }
+    setForegroundColor(0,255,255);
+    makeSelection("polygon", NeuroPilX, NeuroPilY);
+    run("Draw", "stack");
+    saveAs("Tiff", Path + "_report.tif");
+    run("Close");
+
+    //Create the result files (to be tested)
+    selectWindow("Raw");
+    makeSelection("polygon", NeuroPilX, NeuroPilY);
+    roiManager("Add");
+    roiManager("Select", roiManager("count")-1);
+    roiManager("Rename", "Neuropil");
+    roiManager("Deselect");
+    roiManager("Save", Path + "_RoiSet.zip");
+    run("Set Measurements...", "area centroid display redirect=None decimal=3");
+    roiManager("Measure");
+    saveAs("Results", Path + "_Results.csv");
+    run("Clear Results");
 
 
-//Close all non required images.
-selectWindow("Neuropil");
-run("Close");
+    //Close all non required images.
+    selectWindow("Neuropil");
+    run("Close");
 
-selectWindow("Raw");
-run("Close");
+    selectWindow("Raw");
+    run("Close");
 
-selectWindow(T);
-run("Close");
+    selectWindow(T);
+    run("Close");
 
-waitForUser("Analysis is over")
+    waitForUser("Analysis is over")
 
 }//END MACRO
