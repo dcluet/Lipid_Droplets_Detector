@@ -26,10 +26,9 @@ PathOutput = getDirectory("macros")+"NUKE-BREAK"+File.separator;
 //Listing of the files to instal
 
 Listing = newArray("Lipid_Droplets.java",
-			"Command_Line.txt", 
-			"Stack_Editing.java",
-			"Twins_Killer.java",
-			"Order_ROI.java");
+                "Command_Line.txt", 
+                "Stack_Editing.java",
+                "Close_Images.java");
 
 //Create the installation folder if required
 if(File.exists(PathOutput)==0){

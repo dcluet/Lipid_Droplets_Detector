@@ -48,35 +48,20 @@ roiManager("reset");
     waitForUser("Draw the neuropil");
     getSelectionCoordinates(NeuroPilX, NeuroPilY);
     resetMinAndMax();
-    roiManager("reset");
 
-    /*
-        Close everything
-        strat setbatchMode
-        Reopen and redo
-    */
-
+    //Start BatchMode
     selectWindow(T);
-    run("Close");
+    setBatchMode("hide");
     selectWindow("Raw");
-    run("Close");
-
-    //Clean roiManager
+    setBatchMode("hide");
     selectWindow("ROI Manager");
     run("Close");
-
-    //setBatchMode(true)
-    open(Path);
+    setBatchMode(true);
     roiManager("reset");
-    //Remove the non pixel unit
-    run("Properties...", "channels=1 slices="+nSlices()+" frames=1 unit=pixel pixel_width=1 pixel_height=1 voxel_depth=1.0000000");
-
-    makeRectangle(0,0,W,H);
-    run("Duplicate...", "title=Raw duplicate");
-
-    runMacro(PathM1, ARG1);
 
     //Prepare Report
+    selectWindow("Raw");
+    makeRectangle(0,0,W,H);
     run("Duplicate...", "title=Report duplicate");
     run("RGB Color");
 
@@ -105,17 +90,7 @@ roiManager("reset");
 
 
             //Remove all twins
-            PathM2 = getDirectory("macros");
-            PathM2 += "Droplets"+File.separator();
-            PathM2 += "Twins_Killer.java";
-
-            ARG2 = "Raw" + "\t";
-            ARG2 += "" + nROI + "\t";
-            ARG2 += "" + it + "\t";
-            ARG2 += "" + seuil + "\t";
-            ARG2 += "" + zDistance + "\t";
-            ARG2 += "" + enlargement + "\t";
-            runMacro(PathM2, ARG2);
+            Twins_Killer("Raw", nROI, it, seuil, zDistance, enlargement);
 
             //Update the total number of ROI validated
             nROI = roiManager("count");
@@ -156,7 +131,7 @@ roiManager("reset");
     saveAs("Tiff", Path + "_report.tif");
     run("Close");
 
-    //Create the result files (to be tested)
+    //Create the result files
     selectWindow("Raw");
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     roiManager("Add");
@@ -171,15 +146,150 @@ roiManager("reset");
 
 
     //Close all non required images.
-    selectWindow("Neuropil");
-    run("Close");
+    PathM3 = getDirectory("macros");
+    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Close_Images.java";
 
-    selectWindow("Raw");
-    run("Close");
+    waitForUser("Analysis is over");
 
-    selectWindow(T);
-    run("Close");
+/*
+==============================================================================
+*/
 
-    waitForUser("Analysis is over")
+function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
+
+    /*
+        To increase speed I will sort the ROI by name
+        The first 4 numbers are the slice.
+        Thus at each iteration the program will assemble the ROI of each slice
+        When the zDistance is to big I can break the twin_killer loop.
+
+        PB: ImageJ as this format:
+        slice 1: 0001
+        slice 10: 00010
+        ?????
+        I have to rename myself firs and reorder
+    */
+
+    selectWindow(myStack);
+    //Rename and sort all found ROIs
+    Order_ROI(it);
+
+    for (n =0; n< roiManager("count"); n++){
+        setForegroundColor (0,0,0);
+        roiManager("Select", n);
+        Erase=0;
+        List.setMeasurements;
+        Xr = List.getValue("X");
+        Yr = List.getValue("Y");
+        Ar = List.getValue("Area");
+        Sr = getSliceNumber();
+
+            for(N=n+1; N<roiManager("count"); N++){
+                message = "Iteration " + it;
+                message += " ROI " + n;
+                message += " vs ROI " + N;
+                message += " out of " + roiManager("count");
+                message += " last score " + nROI;
+                showStatus(message);
+                roiManager("Select", N);
+                List.setMeasurements;
+                X = List.getValue("X");
+                Y = List.getValue("Y");
+                A = List.getValue("Area");
+                S = getSliceNumber();
+                if ((abs(S-Sr)<=zDistance) && (abs(S-Sr)>0)){
+                    d = sqrt( (X-Xr)*(X-Xr) + (Y-Yr)*(Y-Yr) );
+                    if (d<seuil){
+                        if(A>Ar){
+                            Xr = X;
+                            Yr = Y;
+                            Ar = A;
+                            Erase = 1;
+                        }
+                        if(A<Ar){
+                            roiManager("Select", N);
+                            run("Enlarge...", "enlarge=" + enlargement);
+                            run("Fill", "slice");
+                            roiManager("Delete");
+                            N = N -1;
+                        }
+                    }
+                }else if(abs(S-Sr)>zDistance){
+                    /*
+                        If more than z slices => No need to compare this
+                        one the others -> Break
+                    */
+                    N = 10 * roiManager("count");
+                }else if(S==nSlices){
+                    /*
+                        When arriving to the last one no need to continue
+                    */
+                    N = 10 * roiManager("count");
+                }
+            }
+
+        if(Erase==1){
+            roiManager("Select", n);
+            setForegroundColor (0,0,0);
+            run("Fill", "slice");
+            roiManager("Delete");
+            n=n-1;
+            N=N-1;
+         }
+
+    }
+
+    //Rename the ROI
+    //To increase the speed fill only new particles
+    selectWindow(myStack);
+    setForegroundColor (0,0,0);
+        for(i=0; i<roiManager("count"); i++){
+            roiManager("Select",i);
+            myName = Roi.getName;
+            if(lastIndexOf(myName, "*")==-1){
+                run("Enlarge...", "enlarge=" + enlargement);
+                run("Fill", "slice");
+                newName =myName + "*";
+                roiManager("Rename", newName);
+            }
+        }
+}//END TWIN_KILLER
+
+function Order_ROI(it){
+
+    for (roi=0; roi<roiManager("count"); roi++){
+
+        //Only rename new ones
+        roiManager("Select", roi);
+        myName = Roi.getName;
+        if(lastIndexOf(myName, "_")==-1){
+            S = getSliceNumber();
+            if (S>=10){
+                Prefix = "";
+            }else if(S<10){
+                Prefix = "0";
+            }
+
+            PrefixRoi = "";
+            if (roi<10000){
+                PrefixRoi += "0";
+            }
+            if (roi<1000){
+                PrefixRoi += "0";
+            }
+            if (roi<100){
+                PrefixRoi += "0";
+            }
+            if (roi<10){
+                PrefixRoi += "0";
+            }
+
+            newName = Prefix + S + "_" + it + "_" + PrefixRoi + roi;
+            roiManager("Rename", newName);
+        }
+    }
+    roiManager("sort");
+}//END Order_ROI
 
 }//END MACRO
