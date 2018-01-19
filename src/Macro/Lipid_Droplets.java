@@ -1,5 +1,11 @@
 macro "Lipid_Droplets"{
 
+/*
+===============================================================================
+                            MAIN VARIABLES
+===============================================================================
+*/
+
 //Key parameters
 seuil = 5;
 Iterations = 5;
@@ -13,15 +19,38 @@ CircMinC = 0.5;
 CircMaxC = 1;
 zDistance = 5;
 enlargement = 5; //3 thus far
-//Clean roiManager
-roiManager("reset");
 
-    //Choose image file and open it
+    //Close all non required images.
+    PathM3 = getDirectory("macros");
+    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Close_Images.java";
+    runMacro(PathM3);
+
+    //Clean roiManager
+    roiManager("reset");
+
+    //Choose image file
     Path = File.openDialog("Choose file");
-    open(Path);
+
+    //Command for Bioformat Importer
+    CMD1 = "open=/";
+    CMD1 += Path;
+    CMD1 += " autoscale";
+    CMD1 += " color_mode=Default";
+    CMD1 += " rois_import=[ROI manager]";
+    CMD1 += " view=Hyperstack stack_order=XYCZT";
+    run("Bio-Formats Importer", CMD1);
 
     //Remove the non pixel unit
-    run("Properties...", "channels=1 slices="+nSlices()+" frames=1 unit=pixel pixel_width=1 pixel_height=1 voxel_depth=1.0000000");
+    CMD2 = "channels=1";
+    CMD2 += " slices=" + nSlices();
+    CMD2 += " frames=1";
+    CMD2 += " unit=pixel";
+    CMD2 += " pixel_width=1";
+    CMD2 += " pixel_height=1";
+    CMD2 += " voxel_depth=1.0000000";
+    run("Properties...", CMD2);
+
     //Get the size of the current image
     W = getWidth();
     H = getHeight();
@@ -162,7 +191,7 @@ roiManager("reset");
     PathM3 = getDirectory("macros");
     PathM3 += "Droplets"+File.separator;
     PathM3 += "Close_Images.java";
-
+    runMacro(PathM3);
     waitForUser("Analysis is over");
 
 /*
