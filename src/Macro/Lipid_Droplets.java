@@ -5,6 +5,12 @@ seuil = 5;
 Iterations = 5;
 SizeMin = 20;
 SizeMax = 2000;
+
+//Parameters for Cleaning the false positive (but still remove them
+//from the stack)
+SizeMaxC = 1500;
+CircMinC = 0.5;
+CircMaxC = 1;
 zDistance = 5;
 enlargement = 5; //3 thus far
 //Clean roiManager
@@ -49,7 +55,7 @@ roiManager("reset");
     getSelectionCoordinates(NeuroPilX, NeuroPilY);
     resetMinAndMax();
 
-    //Start BatchMode
+    //Start BatchModecircularity=0.50-1.00
     selectWindow(T);
     setBatchMode("hide");
     selectWindow("Raw");
@@ -90,7 +96,14 @@ roiManager("reset");
 
 
             //Remove all twins
-            Twins_Killer("Raw", nROI, it, seuil, zDistance, enlargement);
+            Twins_Killer("Raw",
+                            nROI,
+                            it,
+                            seuil,
+                            zDistance,
+                            enlargement,
+                            CircMinC,
+                            SizeMaxC);
 
             //Update the total number of ROI validated
             nROI = roiManager("count");
@@ -131,7 +144,7 @@ roiManager("reset");
     saveAs("Tiff", Path + "_report.tif");
     run("Close");
 
-    //Create the result files
+    //Create the result filesCircMinC, SizeMaxC
     selectWindow("Raw");
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     roiManager("Add");
@@ -156,7 +169,14 @@ roiManager("reset");
 ================================================================================
 */
 
-function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
+function Twins_Killer(myStack,
+                        nROI,
+                        it,
+                        seuil,
+                        zDistance,
+                        enlargement,
+                        CircMinC,
+                        SizeMaxC){
 
     /*
         To increase speed I will sort the ROI by name
@@ -183,14 +203,13 @@ function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
         Xr = List.getValue("X");
         Yr = List.getValue("Y");
         Ar = List.getValue("Area");
+        Cr = List.getValue("Circ.");
         Sr = getSliceNumber();
-        if(Sr==nSlices){
-            /*
-                When arriving to the last one no need to continue
-            */
-            N = 10 * roiManager("count");
-            n = 10 * roiManager("count");
-        }
+
+        if((Cr<CircMinC)||(Ar>SizeMaxC)){
+            //Clean false positive
+            Erase = 1;
+        }else{
             for(N=n+1; N<roiManager("count"); N++){
                 message = "Iteration " + it;
                 message += " ROI " + n;
@@ -203,7 +222,16 @@ function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
                 X = List.getValue("X");
                 Y = List.getValue("Y");
                 A = List.getValue("Area");
+                C = List.getValue("Circ.");
                 S = getSliceNumber();
+                if((C<CircMinC)||(A>SizeMaxC)){
+                    //Clean false positive
+                    roiManager("Select", N);
+                    run("Enlarge...", "enlarge=" + enlargement);
+                    run("Fill", "slice");
+                    roiManager("Delete");
+                    N = N -1;
+                }else{
                 if ((abs(S-Sr)<=zDistance) && (abs(S-Sr)>0)){
                     d = sqrt( (X-Xr)*(X-Xr) + (Y-Yr)*(Y-Yr) );
                     if (d<seuil){
@@ -229,7 +257,8 @@ function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
                     N = 10 * roiManager("count");
                 }
             }
-
+        }
+        }
         if(Erase==1){
             roiManager("Select", n);
             setForegroundColor (0,0,0);
@@ -238,7 +267,6 @@ function Twins_Killer(myStack, nROI, it, seuil, zDistance, enlargement){
             n=n-1;
             N=N-1;
          }
-
     }
 
     //Rename the ROI
