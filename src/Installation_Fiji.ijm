@@ -21,7 +21,7 @@ Dialog.show();
 //Prepare key paths
 PathSUM = getDirectory("macros")+File.separator+"StartupMacros.fiji.ijm";	
 PathFolderInput =File.directory+File.separator+"Macro"+File.separator;					
-PathOutput = getDirectory("macros")+"NUKE-BREAK"+File.separator;
+PathOutput = getDirectory("macros")+"Droplets"+File.separator;
 
 //Listing of the files to instal
 
@@ -32,7 +32,7 @@ Listing = newArray("Lipid_Droplets.java",
 
 //Create the installation folder if required
 if(File.exists(PathOutput)==0){
-File.makeDirectory(getDirectory("macros")+File.separator+"NUKE-BREAK");
+File.makeDirectory(getDirectory("macros")+File.separator+"Droplets");
 }
 
 //Installation of all files of the listing
