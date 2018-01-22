@@ -139,7 +139,7 @@ enlargement = 5; //3 thus far
         }
     }// End of Iterations
 
-    newImage("Neuropil", "8-bit white", 2048, 2048, 1);
+    newImage("Neuropil", "8-bit white", W, H, 1);
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     setForegroundColor (0,0,0);
     run("Fill");
