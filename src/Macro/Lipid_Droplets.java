@@ -94,6 +94,11 @@ enlargement = 5; //3 thus far
     setBatchMode(true);
     roiManager("reset");
 
+    /*
+        INSERT HERE DETECTION OF THE BRAIN
+    */
+
+
     //Prepare Report
     selectWindow("Raw");
     makeRectangle(0,0,W,H);
@@ -110,6 +115,10 @@ enlargement = 5; //3 thus far
 
     //Iteratively detect the strongest particles and remove them
     for (it=1; it<=Iterations; it++){
+
+        /*
+            INSERT A LOOP FOR DETECTION IN BRAIN WITHIN EACH SLICE
+        */
 
         selectWindow("Raw");
         makeRectangle(0,0,W,H);
