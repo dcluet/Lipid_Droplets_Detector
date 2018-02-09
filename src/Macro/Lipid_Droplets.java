@@ -77,17 +77,18 @@ enlargement = 5; //3 thus far
 
     runMacro(PathM1, ARG1);
 
-    //Duplicate the stack for Brain processing
+    //Duplicate the stack for Brain detection
     selectWindow("Raw");
     run("Duplicate...", "title=Brain duplicate");
-    PathM2 = getDirectory("macros");
-    PathM2 += "Droplets"+File.separator;
-    PathM2 += "Brain_Detection.java";
 
-    ARG2 = "Brain" + "\t";
-    ARG2 += Path;
+    selectWindow("ROI Manager");
+    run("Close");
 
-    runMacro(PathM2, ARG2);
+    Detect_Brain("Brain", Path);
+
+    selectWindow("Brain");
+    close();
+    roiManager("reset");
 
     //Draw Neuropil
     selectWindow("Raw");
@@ -134,7 +135,16 @@ enlargement = 5; //3 thus far
         run("Duplicate...", "title=Temp duplicate");
         makeRectangle(0,0,W,H);
         run("Convert to Mask", "method=MaxEntropy background=Dark calculate");
-        run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add stack");
+
+        for (S=1; S<nSlices; S++){
+            /*
+                First slice is one but its corresponding ROI is in line 0 in
+                the txt compression file
+            */
+            ROIopen(Path + "_Brain_Slices.txt", S-1);
+            waitForUser("Brain highlighted");
+            run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add stack");
+        }
 
         selectWindow("Temp");
         run("Close");
@@ -211,6 +221,128 @@ enlargement = 5; //3 thus far
     PathM3 += "Close_Images.java";
     runMacro(PathM3);
     waitForUser("Analysis is over");
+
+/*
+================================================================================
+*/
+
+function Highlander(initial){
+    for (r=nROI; r<roiManager("count"); r++){
+        toDel = 0;
+        roiManager("Select", r);
+        List.setMeasurements;
+        Aref = List.getValue("Area");
+        for (r2 = r+1; r2<roiManager("count"); r2++){
+            roiManager("Select", r2);
+            List.setMeasurements;
+            Atest = List.getValue("Area");
+            if (Atest<Aref){
+                roiManager("Select", r2);
+                roiManager("Delete");
+                r2 += -1;
+            } else {
+                toDel = 1;
+            }
+        }
+
+        if (toDel==1){
+            roiManager("Select", r);
+            roiManager("Delete");
+            r += -1;
+        }
+    }
+}//END HIGHLANDER
+
+/*
+===============================================================================
+*/
+
+function ROIsave(path, option){
+    /*
+        Recognized options:
+        -"overwrite"
+        -"append"
+
+        Structure of the roi:
+        "Name*X0;X1;...;Xn*Y0;Y1;...;Yn"
+    */
+    //create the file if not existing
+    if(File.exists(path)==0){
+        f = File.open(path);
+        File.close(f);
+    }
+
+    //clear the file if overwriting is ordered
+    if(option=="overwrite"){
+        f = File.open(path);
+        File.close(f);
+    }
+
+    //Loop of saving the ROIs
+    for(roi=0; roi<roiManager("count"); roi++){
+        roiManager("Select", roi);
+        Roi.getCoordinates(xpoints, ypoints);
+        Nom = Roi.getName();
+
+        //Convert coordinates arrays as a single string
+        X = "";
+        Y = "";
+
+        for(x=0; x<xpoints.length; x++){
+            X += "" + xpoints[x];
+            Y += "" + ypoints[x];
+
+            if(x!=xpoints.length-1){
+                X += ";";
+                Y += ";";
+            }
+        }
+
+        //Append the roi to the file
+        File.append(Nom + "*" + X + "*" + Y,
+                    path);
+    }
+}
+
+/*
+===============================================================================
+*/
+
+function Detect_Brain(myImage, myPath){
+
+    selectWindow(myImage);
+
+    for (S=1; S<=nSlices; S++){
+        nROI = roiManager("count");
+        setSlice(S);
+        makeRectangle(0,0,getWidth,getHeight);
+        run("Gaussian Blur...", "sigma=5 slice");
+        setAutoThreshold("Huang dark");
+        run("Analyze Particles...", "size=100000-Infinity pixel show=Nothing add slice");
+
+        if (roiManager("count") > nROI+1){
+
+            Highlander(nROI);
+            roiManager("Select", nROI);
+            roiManager("Rename", "Brain slice "+S);
+
+
+        }else if(roiManager("count") == nROI+1){
+
+            roiManager("Select", nROI);
+            roiManager("Rename", "Brain slice "+S);
+
+
+        }else if(roiManager("count") == nROI){
+
+            waitForUser("PROBLEM:\nNO BRAIN DETECTED IN THIS SLICE");
+        }
+
+    }
+
+    //Save ROIs
+    ROIsave(myPath + "_Brain_Slices.txt", "overwrite");
+}
 
 /*
 ================================================================================
@@ -378,7 +510,7 @@ function Order_ROI(it){
 
 function ROIopen(path, index){
     /*
-        index = "ALL" will open all ROI
+        index = -1 will open all ROI
         a specific number will open only the desired one but will not be added
         to the ROI manager
     */
@@ -387,7 +519,7 @@ function ROIopen(path, index){
     //Separate the ROI
     ROI = split(T, "\n");
 
-    if (index=="ALL"){
+    if (index==-1){
         for(roi=0; roi<ROI.length; roi++){
             segments = split(ROI[roi], "*");
             Nom = segments[0];
