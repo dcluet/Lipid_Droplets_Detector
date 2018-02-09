@@ -25,10 +25,10 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 - Express the number/size of the droplets particles as a distribution standardized on the area of brain studied.
 - Create the distribution graph script.
 - Create a more "readable" output table.
-- Final output stack:
-    - Brain in black.
+- Final output stack **Done 2018/02/09**:
+    - Brain section in Grey.
     - If possible Neuropiles in color.
-    - Droplets in white.
+    - Droplets in white surrounded in purple (detected).
 - Use the surface of the central Neuropil as a reference to validate that all brain have been studied in the same conditions?
 
 
