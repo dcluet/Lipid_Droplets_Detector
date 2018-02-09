@@ -1,6 +1,7 @@
 Automated Detection of Lipid Droplets in *Drosophila M.* brain
 ===
 
+
 **Test version available**
 --
 
@@ -10,9 +11,11 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 - Tested and validated on ImageJ linux (Java bundle) 1.51t.
 - Tested and validated on FIJI linux 1.51t.
 
-|![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|![LBMC](doc/Logo_LBMC.jpg)![ENS](doc/Logo_ens.jpg)![CNRS](doc/Logo_cnrs.jpg)|
-|-------------------------------------|-----------------------------------|-----------------------------------|
+
+|![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|
+|-------------------------------------|-----------------------------------|
 |**ORIGINAL**   |**TREATED**   |
+
 
 **On progress**
 --
@@ -41,9 +44,13 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 --
 The `LIPID_DROPLETS` macro requires `ImageJ v1.49g` or higher ([Download](https://imagej.nih.gov/ij/download.html)).
 
+To read Markdown files, use the `Markdown Preview Plus` extension for `Chrome`. In the `Extension menu` allow access to files URL.
+
+
 **Installation**
 --
 The `LIPID_DROPLETS` macro requires can be automatically installed with all required files in `ImageJ` and `FIJI`. Please follow the specific instructions described below.
+
 
 ![ImageJ Logo](doc/IJ.jpg)
 ---
@@ -54,7 +61,8 @@ The `LIPID_DROPLETS` macro requires can be automatically installed with all requ
 5. The window will be closed automatically and all required files will be installed in the `ImageJ/macros/Droplets` folder. The shortcut `Plugins/Macros/LIPID_DROPLETS` will be added in the Menu bar.
 6. Restart `ImageJ` to refresh the Menu bar.
 
-![FIJJ Logo](doc/FIJI.jpg)
+
+![FIJI Logo](doc/FIJI.jpg)
 ---
 1. Open `FIJI`.
 2. Open the `src` folder of the `LIPID_DROPLETS` macro.
@@ -62,6 +70,7 @@ The `LIPID_DROPLETS` macro requires can be automatically installed with all requ
 4. In the console select the `Run` option.
 5. All required files will be installed in the `Fiji.app/macros/Droplets` folder. The shortcut `Plugins/Macros/LIPID_DROPLETS` will be added in the Menu bar.
 6. Restart `FIJI` to refresh the Menu bar.
+
 
 Update
 ---

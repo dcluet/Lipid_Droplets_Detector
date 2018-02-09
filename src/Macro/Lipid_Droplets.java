@@ -67,15 +67,27 @@ enlargement = 5; //3 thus far
     Send = getSliceNumber();
 
     //Crop the Stack
-    PathM1 = getDirectory("macros")
-    PathM1 += "Droplets"+File.separator
-    PathM1 += "Stack_Editing.java"
+    PathM1 = getDirectory("macros");
+    PathM1 += "Droplets"+File.separator;
+    PathM1 += "Stack_Editing.java";
 
     ARG1 = "Raw" + "\t";
     ARG1 += "" + Sstart + "\t";
     ARG1 += "" + Send + "\t";
 
     runMacro(PathM1, ARG1);
+
+    //Duplicate the stack for Brain processing
+    selectWindow("Raw");
+    run("Duplicate...", "title=Brain duplicate");
+    PathM2 = getDirectory("macros");
+    PathM2 += "Droplets"+File.separator;
+    PathM2 += "Brain_Detection.java";
+
+    ARG2 = "Brain" + "\t";
+    ARG2 += Path;
+
+    runMacro(PathM2, ARG2);
 
     //Draw Neuropil
     selectWindow("Raw");
@@ -84,7 +96,8 @@ enlargement = 5; //3 thus far
     getSelectionCoordinates(NeuroPilX, NeuroPilY);
     resetMinAndMax();
 
-    //Start BatchModecircularity=0.50-1.00
+    //Start BatchMode
+    /*
     selectWindow(T);
     setBatchMode("hide");
     selectWindow("Raw");
@@ -93,11 +106,7 @@ enlargement = 5; //3 thus far
     run("Close");
     setBatchMode(true);
     roiManager("reset");
-
-    /*
-        INSERT HERE DETECTION OF THE BRAIN
     */
-
 
     //Prepare Report
     selectWindow("Raw");
@@ -362,5 +371,44 @@ function Order_ROI(it){
     }
     roiManager("sort");
 }//END Order_ROI
+
+/*
+===============================================================================
+*/
+
+function ROIopen(path, index){
+    /*
+        index = "ALL" will open all ROI
+        a specific number will open only the desired one but will not be added
+        to the ROI manager
+    */
+    T = File.openAsString(path);
+
+    //Separate the ROI
+    ROI = split(T, "\n");
+
+    if (index=="ALL"){
+        for(roi=0; roi<ROI.length; roi++){
+            segments = split(ROI[roi], "*");
+            Nom = segments[0];
+            xpoints = split(segments[1], ";");
+            ypoints = split(segments[2], ";");
+            makeSelection("polygon", xpoints, ypoints);
+            roiManager("Add");
+            roiManager("Select", roiManager("count")-1);
+            roiManager("Rename", Nom);
+        }
+    }else{
+        segments = split(ROI[index], "*");
+        Nom = segments[0];
+        xpoints = split(segments[1], ";");
+        ypoints = split(segments[2], ";");
+        makeSelection("polygon", xpoints, ypoints);
+    }
+}
+
+/*
+===============================================================================
+*/
 
 }//END MACRO
