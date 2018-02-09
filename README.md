@@ -20,8 +20,8 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 **On progress**
 --
 - The script for automated batch analysis is ready. It will be added in the final stage, as usual.
-- Automated detection of the brain for every slice of the Stack.
-- Integration within the loop.
+- Automated detection of the brain for every slice of the Stack. **Detection has been implemented 2018/02/09**. Still issues to detect holes.
+- Integration within the loop. **Done 2018/02/09**.
 - Express the number/size of the droplets particles as a distribution standardized on the area of brain studied.
 - Create the distribution graph script.
 - Create a more "readable" output table.

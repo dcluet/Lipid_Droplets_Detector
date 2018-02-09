@@ -98,7 +98,7 @@ enlargement = 5; //3 thus far
     resetMinAndMax();
 
     //Start BatchMode
-    /*
+
     selectWindow(T);
     setBatchMode("hide");
     selectWindow("Raw");
@@ -107,7 +107,7 @@ enlargement = 5; //3 thus far
     run("Close");
     setBatchMode(true);
     roiManager("reset");
-    */
+
 
     //Prepare Report
     selectWindow("Raw");
@@ -136,13 +136,14 @@ enlargement = 5; //3 thus far
         makeRectangle(0,0,W,H);
         run("Convert to Mask", "method=MaxEntropy background=Dark calculate");
 
-        for (S=1; S<nSlices; S++){
+        for (S=1; S<=nSlices; S++){
             /*
                 First slice is one but its corresponding ROI is in line 0 in
                 the txt compression file
             */
+            setSlice(S);
             ROIopen(Path + "_Brain_Slices.txt", S-1);
-            waitForUser("Brain highlighted");
+
             run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add stack");
         }
 
@@ -188,9 +189,21 @@ enlargement = 5; //3 thus far
 
     //Draw ROI on Report
     selectWindow("Report");
-    setForegroundColor(255,0,255);
 
     run("Line Width...", "line=3");
+
+    setForegroundColor(175,175,175);
+    for (S=1; S<=nSlices; S++){
+        /*
+            First slice is one but its corresponding ROI is in line 0 in
+            the txt compression file
+        */
+        setSlice(S);
+        ROIopen(Path + "_Brain_Slices.txt", S-1);
+        run("Draw", "slice");
+    }
+
+    setForegroundColor(255,0,255);
     for(i=0; i<roiManager("count"); i++){
         roiManager("Select",i);
         run("Draw", "slice");
@@ -533,6 +546,7 @@ function ROIopen(path, index){
     }else{
         segments = split(ROI[index], "*");
         Nom = segments[0];
+
         xpoints = split(segments[1], ";");
         ypoints = split(segments[2], ";");
         makeSelection("polygon", xpoints, ypoints);
