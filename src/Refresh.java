@@ -14,7 +14,8 @@ macro "Refresh" {
     Listing = newArray("Lipid_Droplets.java",
                         "Command_Line.txt",
                         "Stack_Editing.java",
-                        "Close_Images.java");
+                        "Close_Images.java",
+                        "Distribution.java");
 
     //Create the installation folder if required
     if(File.exists(PathOutput)==0){
