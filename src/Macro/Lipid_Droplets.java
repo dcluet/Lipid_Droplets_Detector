@@ -258,8 +258,6 @@ enlargement = 5; //3 thus far
             CMD);
     }
 
-
-
     run("Close");
 
     //Draw Distribution

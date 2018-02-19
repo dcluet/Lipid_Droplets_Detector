@@ -15,7 +15,8 @@ macro "Refresh" {
                         "Command_Line.txt",
                         "Stack_Editing.java",
                         "Close_Images.java",
-                        "Distribution.java");
+                        "Distribution.java",
+                        "LayOut.md");
 
     //Create the installation folder if required
     if(File.exists(PathOutput)==0){
