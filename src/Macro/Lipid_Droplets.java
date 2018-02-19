@@ -8,6 +8,7 @@ macro "Lipid_Droplets"{
 
 //Key parameters
 seuil = 5;
+nBins = 100;
 Iterations = 5;
 SizeMin = 20;
 SizeMax = 2000;
@@ -67,15 +68,41 @@ enlargement = 5; //3 thus far
     Send = getSliceNumber();
 
     //Crop the Stack
-    PathM1 = getDirectory("macros")
-    PathM1 += "Droplets"+File.separator
-    PathM1 += "Stack_Editing.java"
+    PathM1 = getDirectory("macros");
+    PathM1 += "Droplets"+File.separator;
+    PathM1 += "Stack_Editing.java";
 
     ARG1 = "Raw" + "\t";
     ARG1 += "" + Sstart + "\t";
     ARG1 += "" + Send + "\t";
 
     runMacro(PathM1, ARG1);
+
+    //Duplicate the stack for Brain detection
+    selectWindow("Raw");
+    run("Duplicate...", "title=Brain duplicate");
+
+    selectWindow("ROI Manager");
+    run("Close");
+
+    Detect_Brain("Brain", Path);
+
+    //Create array of Brain areas. Start with 0 to have same index as slices
+    ABrains = newArray();
+    ABrains = Array.concat(ABrains, 0);
+
+    for (S=1; S<=nSlices; S++){
+        setSlice(S);
+        ROIopen(Path + "_Brain_Slices.txt", S-1);
+        getStatistics(area);
+        ABrains = Array.concat(ABrains, area/1000000);
+    }
+
+    //Array.show(ABrains);
+
+    selectWindow("Brain");
+    close();
+    roiManager("reset");
 
     //Draw Neuropil
     selectWindow("Raw");
@@ -84,7 +111,8 @@ enlargement = 5; //3 thus far
     getSelectionCoordinates(NeuroPilX, NeuroPilY);
     resetMinAndMax();
 
-    //Start BatchModecircularity=0.50-1.00
+    //Start BatchMode
+
     selectWindow(T);
     setBatchMode("hide");
     selectWindow("Raw");
@@ -93,6 +121,7 @@ enlargement = 5; //3 thus far
     run("Close");
     setBatchMode(true);
     roiManager("reset");
+
 
     //Prepare Report
     selectWindow("Raw");
@@ -111,12 +140,26 @@ enlargement = 5; //3 thus far
     //Iteratively detect the strongest particles and remove them
     for (it=1; it<=Iterations; it++){
 
+        /*
+            INSERT A LOOP FOR DETECTION IN BRAIN WITHIN EACH SLICE
+        */
+
         selectWindow("Raw");
         makeRectangle(0,0,W,H);
         run("Duplicate...", "title=Temp duplicate");
         makeRectangle(0,0,W,H);
         run("Convert to Mask", "method=MaxEntropy background=Dark calculate");
-        run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add stack");
+
+        for (S=1; S<=nSlices; S++){
+            /*
+                First slice is one but its corresponding ROI is in line 0 in
+                the txt compression file
+            */
+            setSlice(S);
+            ROIopen(Path + "_Brain_Slices.txt", S-1);
+
+            run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add stack");
+        }
 
         selectWindow("Temp");
         run("Close");
@@ -158,20 +201,83 @@ enlargement = 5; //3 thus far
         REFINE PARTICLES WITH LOCAL (ROI) VALUES?
     */
 
+    //Create Array of area values
+    AValues = "";
+    AValuesCorr = "";
+
     //Draw ROI on Report
     selectWindow("Report");
-    setForegroundColor(255,0,255);
 
     run("Line Width...", "line=3");
+
+    setForegroundColor(175,175,175);
+    for (S=1; S<=nSlices; S++){
+        /*
+            First slice is one but its corresponding ROI is in line 0 in
+            the txt compression file
+        */
+        setSlice(S);
+        ROIopen(Path + "_Brain_Slices.txt", S-1);
+        run("Draw", "slice");
+    }
+
+    setForegroundColor(255,0,255);
     for(i=0; i<roiManager("count"); i++){
         roiManager("Select",i);
+        List.setMeasurements;
+        A = List.getValue("Area");
+        ACorr = A/ABrains[getSliceNumber];
+        AValues += "" + A + "-";
+        AValuesCorr += "" + ACorr + "-";
         run("Draw", "slice");
     }
     setForegroundColor(0,255,255);
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     run("Draw", "stack");
-    saveAs("Tiff", Path + "_report.tif");
+    //saveAs("Tiff", Path + "_report.tif");
+
+    /* CMD for FIJI?
+    CMD = "name=Report "
+    CMD += "" + "set_global_lookup_table_options=[Do not use] "
+    CMD += "" + "optional=[] "
+    CMD += "" + "image=[No Disposal] "
+    CMD += "" + "set=500 "
+    CMD += "" + "number=-1 "
+    CMD += "" + "transparency=[No Transparency] "
+    CMD += "" + "red=0 green=0 blue=0 index=0 "
+    CMD += "" + "filename=" + Path + "_report.gif"
+    */
+    CMD = "save=" + Path + "_report.gif";
+
+    run("Animated Gif... ",
+        CMD);
     run("Close");
+
+    //Draw Distribution
+    PathM2 = getDirectory("macros");
+    PathM2 += "Droplets"+File.separator;
+    PathM2 += "Distribution.java";
+
+    ARG2 = "" + SizeMin + "\t";
+    ARG2 += "" + SizeMaxC + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "Raw_Values" + "\t";
+    ARG2 += AValues;
+
+    runMacro(PathM2, ARG2);
+
+    //Corrected Distribution (per million of pixel of brain surface);
+    ARG2 = "" + SizeMin/2 + "\t";
+    ARG2 += "" + SizeMaxC/2 + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size per million pixels Brain" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "Corrected_Values" + "\t";
+    ARG2 += AValues;
+
+    runMacro(PathM2, ARG2);
 
     //Create the result filesCircMinC, SizeMaxC
     selectWindow("Raw");
@@ -193,6 +299,128 @@ enlargement = 5; //3 thus far
     PathM3 += "Close_Images.java";
     runMacro(PathM3);
     waitForUser("Analysis is over");
+
+/*
+================================================================================
+*/
+
+function Highlander(initial){
+    for (r=nROI; r<roiManager("count"); r++){
+        toDel = 0;
+        roiManager("Select", r);
+        List.setMeasurements;
+        Aref = List.getValue("Area");
+        for (r2 = r+1; r2<roiManager("count"); r2++){
+            roiManager("Select", r2);
+            List.setMeasurements;
+            Atest = List.getValue("Area");
+            if (Atest<Aref){
+                roiManager("Select", r2);
+                roiManager("Delete");
+                r2 += -1;
+            } else {
+                toDel = 1;
+            }
+        }
+
+        if (toDel==1){
+            roiManager("Select", r);
+            roiManager("Delete");
+            r += -1;
+        }
+    }
+}//END HIGHLANDER
+
+/*
+===============================================================================
+*/
+
+function ROIsave(path, option){
+    /*
+        Recognized options:
+        -"overwrite"
+        -"append"
+
+        Structure of the roi:
+        "Name*X0;X1;...;Xn*Y0;Y1;...;Yn"
+    */
+    //create the file if not existing
+    if(File.exists(path)==0){
+        f = File.open(path);
+        File.close(f);
+    }
+
+    //clear the file if overwriting is ordered
+    if(option=="overwrite"){
+        f = File.open(path);
+        File.close(f);
+    }
+
+    //Loop of saving the ROIs
+    for(roi=0; roi<roiManager("count"); roi++){
+        roiManager("Select", roi);
+        Roi.getCoordinates(xpoints, ypoints);
+        Nom = Roi.getName();
+
+        //Convert coordinates arrays as a single string
+        X = "";
+        Y = "";
+
+        for(x=0; x<xpoints.length; x++){
+            X += "" + xpoints[x];
+            Y += "" + ypoints[x];
+
+            if(x!=xpoints.length-1){
+                X += ";";
+                Y += ";";
+            }
+        }
+
+        //Append the roi to the file
+        File.append(Nom + "*" + X + "*" + Y,
+                    path);
+    }
+}
+
+/*
+===============================================================================
+*/
+
+function Detect_Brain(myImage, myPath){
+
+    selectWindow(myImage);
+
+    for (S=1; S<=nSlices; S++){
+        nROI = roiManager("count");
+        setSlice(S);
+        makeRectangle(0,0,getWidth,getHeight);
+        run("Gaussian Blur...", "sigma=5 slice");
+        setAutoThreshold("Huang dark");
+        run("Analyze Particles...", "size=100000-Infinity pixel show=Nothing add slice");
+
+        if (roiManager("count") > nROI+1){
+
+            Highlander(nROI);
+            roiManager("Select", nROI);
+            roiManager("Rename", "Brain slice "+S);
+
+
+        }else if(roiManager("count") == nROI+1){
+
+            roiManager("Select", nROI);
+            roiManager("Rename", "Brain slice "+S);
+
+
+        }else if(roiManager("count") == nROI){
+
+            waitForUser("PROBLEM:\nNO BRAIN DETECTED IN THIS SLICE");
+        }
+
+    }
+
+    //Save ROIs
+    ROIsave(myPath + "_Brain_Slices.txt", "overwrite");
+}
 
 /*
 ================================================================================
@@ -353,5 +581,45 @@ function Order_ROI(it){
     }
     roiManager("sort");
 }//END Order_ROI
+
+/*
+===============================================================================
+*/
+
+function ROIopen(path, index){
+    /*
+        index = -1 will open all ROI
+        a specific number will open only the desired one but will not be added
+        to the ROI manager
+    */
+    T = File.openAsString(path);
+
+    //Separate the ROI
+    ROI = split(T, "\n");
+
+    if (index==-1){
+        for(roi=0; roi<ROI.length; roi++){
+            segments = split(ROI[roi], "*");
+            Nom = segments[0];
+            xpoints = split(segments[1], ";");
+            ypoints = split(segments[2], ";");
+            makeSelection("polygon", xpoints, ypoints);
+            roiManager("Add");
+            roiManager("Select", roiManager("count")-1);
+            roiManager("Rename", Nom);
+        }
+    }else{
+        segments = split(ROI[index], "*");
+        Nom = segments[0];
+
+        xpoints = split(segments[1], ";");
+        ypoints = split(segments[2], ";");
+        makeSelection("polygon", xpoints, ypoints);
+    }
+}
+
+/*
+===============================================================================
+*/
 
 }//END MACRO

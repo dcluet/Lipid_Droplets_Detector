@@ -1,31 +1,37 @@
 Automated Detection of Lipid Droplets in *Drosophila M.* brain
 ===
 
+
 **Test version available**
 --
 
-2018/02/08
-- SetBatchMode activated.
-- Only single stack analysis for now.
-- Tested and validated on ImageJ linux (Java bundle) 1.51t.
-- Tested and validated on FIJI linux 1.51t.
+2018/02/19
 
-|![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|![LBMC](doc/Logo_LBMC.jpg)![ENS](doc/Logo_ens.jpg)![CNRS](doc/Logo_cnrs.jpg)|
-|-------------------------------------|-----------------------------------|-----------------------------------|
-|**ORIGINAL**   |**TREATED**   |
+**WARNING WORKING ONLY ON IJ FOR NOW!!!**
+The command to save the report file for pre-integration in the MD output file is different between IJ and FIJI. I will solve this issue later.
+
+- Integration of the Droplets size Distribution function.
+- Correction of the droplet size per million of Brain pixel area of the corresponding slice.
+- Tested and validated on ImageJ linux (Java bundle) 1.51t.
+
+
+|![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|![Example distribution](doc/Distribution.jpg)|![Example corrected distribution](doc/CDistribution.jpg)
+|-------------------------------------|-----------------------------------|-----------------------------------|-----------------------------------|
+|**ORIGINAL**   |**TREATED**   |**DISTRIBUTION**   |**CORRECTED DISTRIBUTION**   |
+
 
 **On progress**
 --
 - The script for automated batch analysis is ready. It will be added in the final stage, as usual.
-- Automated detection of the brain for every slice of the Stack.
-- Integration within the loop.
-- Express the number/size of the droplets particles as a distribution standardized on the area of brain studied.
-- Create the distribution graph script.
+- Automated detection of the brain for every slice of the Stack. **Detection has been implemented 2018/02/09**. Still issues to detect holes.
+- Integration within the loop. **Done 2018/02/09**.
+- Express the number/size of the droplets particles as a distribution standardized on the area of brain studied. **Started 2018/02/19**
+- Create the distribution graph script. **Started 2018/02/19**
 - Create a more "readable" output table.
-- Final output stack:
-    - Brain in black.
+- Final output stack **Done 2018/02/09**:
+    - Brain section in Grey.
     - If possible Neuropiles in color.
-    - Droplets in white.
+    - Droplets in white surrounded in purple (detected).
 - Use the surface of the central Neuropil as a reference to validate that all brain have been studied in the same conditions?
 
 
@@ -41,9 +47,13 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 --
 The `LIPID_DROPLETS` macro requires `ImageJ v1.49g` or higher ([Download](https://imagej.nih.gov/ij/download.html)).
 
+To read Markdown files, use the `Markdown Preview Plus` extension for `Chrome`. In the `Extension menu` allow access to files URL.
+
+
 **Installation**
 --
 The `LIPID_DROPLETS` macro requires can be automatically installed with all required files in `ImageJ` and `FIJI`. Please follow the specific instructions described below.
+
 
 ![ImageJ Logo](doc/IJ.jpg)
 ---
@@ -54,7 +64,8 @@ The `LIPID_DROPLETS` macro requires can be automatically installed with all requ
 5. The window will be closed automatically and all required files will be installed in the `ImageJ/macros/Droplets` folder. The shortcut `Plugins/Macros/LIPID_DROPLETS` will be added in the Menu bar.
 6. Restart `ImageJ` to refresh the Menu bar.
 
-![FIJJ Logo](doc/FIJI.jpg)
+
+![FIJI Logo](doc/FIJI.jpg)
 ---
 1. Open `FIJI`.
 2. Open the `src` folder of the `LIPID_DROPLETS` macro.
@@ -62,6 +73,7 @@ The `LIPID_DROPLETS` macro requires can be automatically installed with all requ
 4. In the console select the `Run` option.
 5. All required files will be installed in the `Fiji.app/macros/Droplets` folder. The shortcut `Plugins/Macros/LIPID_DROPLETS` will be added in the Menu bar.
 6. Restart `FIJI` to refresh the Menu bar.
+
 
 Update
 ---

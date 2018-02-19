@@ -3,10 +3,10 @@ macro "Installation_2018-01-17"{
 version = "1.0a 2018-01-17";
 
 
-//IJ version verification and close the macro's window 
-//selectWindow("Installation.ijm");			
-//run("Close");						
-requires("1.49g");					
+//IJ version verification and close the macro's window
+//selectWindow("Installation.ijm");
+//run("Close");
+requires("1.49g");
 
 //Initialisation of the error counter
 Errors=0;
@@ -19,16 +19,17 @@ Dialog.addMessage("This program will install the Lipid_Droplets macro.\nShortcut
 Dialog.show();
 
 //Prepare key paths
-PathSUM = getDirectory("macros")+File.separator+"StartupMacros.fiji.ijm";	
-PathFolderInput =File.directory+File.separator+"Macro"+File.separator;					
+PathSUM = getDirectory("macros")+File.separator+"StartupMacros.fiji.ijm";
+PathFolderInput =File.directory+File.separator+"Macro"+File.separator;
 PathOutput = getDirectory("macros")+"Droplets"+File.separator;
 
 //Listing of the files to instal
 
 Listing = newArray("Lipid_Droplets.java",
-                "Command_Line.txt", 
-                "Stack_Editing.java",
-                "Close_Images.java");
+                    "Command_Line.txt",
+                    "Stack_Editing.java",
+                    "Close_Images.java",
+                    "Distribution.java");
 
 //Create the installation folder if required
 if(File.exists(PathOutput)==0){
@@ -47,11 +48,11 @@ for(i=0; i<lengthOf(Listing); i++){
 
 
 //Create the shortcut in IJ macro menu for the first installation (Main program)
-PCommandLine = PathFolderInput+ "Command_Line.txt"; 
+PCommandLine = PathFolderInput+ "Command_Line.txt";
 SUM = File.openAsString(PathSUM);
 pos =lastIndexOf(SUM, "//End_Lipid_droplets");
 if(pos == -1){
-	SUM = SUM + "\n\n" + File.openAsString(PCommandLine); 
+	SUM = SUM + "\n\n" + File.openAsString(PCommandLine);
 	Startup = File.open(PathSUM);
 	print(Startup, SUM);
 	File.close(Startup);
