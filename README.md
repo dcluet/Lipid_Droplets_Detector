@@ -7,12 +7,11 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 
 2018/02/19
 
-**WARNING WORKING ONLY ON IJ FOR NOW!!!**
-The command to save the report file for pre-integration in the MD output file is different between IJ and FIJI. I will solve this issue later.
-
 - Integration of the Droplets size Distribution function.
 - Correction of the droplet size per million of Brain pixel area of the corresponding slice.
-- Tested and validated on ImageJ linux (Java bundle) 1.51t.
+- Tested and validated on ImageJ and FIJI linux (Java bundle) 1.51t.
+
+**NB: FIJI is 2 to 3 times slower than ImageJ**
 
 
 |![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|![Example distribution](doc/Distribution.jpg)|![Example corrected distribution](doc/CDistribution.jpg)
@@ -23,11 +22,11 @@ The command to save the report file for pre-integration in the MD output file is
 **On progress**
 --
 - The script for automated batch analysis is ready. It will be added in the final stage, as usual.
-- Automated detection of the brain for every slice of the Stack. **Detection has been implemented 2018/02/09**. Still issues to detect holes.
+- Automated detection of the brain for every slice of the Stack. **Done 2018/02/09**. Still issues to detect holes.
 - Integration within the loop. **Done 2018/02/09**.
-- Express the number/size of the droplets particles as a distribution standardized on the area of brain studied. **Started 2018/02/19**
-- Create the distribution graph script. **Started 2018/02/19**
-- Create a more "readable" output table.
+- Express the number/size of the droplets particles as a distribution standardized on the area of brain studied. **Done 2018/02/19**
+- Create the distribution graph script. **Done 2018/02/19**
+- Create a more "readable" output table. **Done 2018/02/19**
 - Final output stack **Done 2018/02/09**:
     - Brain section in Grey.
     - If possible Neuropiles in color.

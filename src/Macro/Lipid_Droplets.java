@@ -6,6 +6,8 @@ macro "Lipid_Droplets"{
 ===============================================================================
 */
 
+IJVersion = getVersion();
+
 //Key parameters
 seuil = 5;
 nBins = 100;
@@ -30,6 +32,13 @@ enlargement = 5; //3 thus far
     //Clean roiManager
     roiManager("reset");
 
+    //Open the Markdown File
+    PathMD = getDirectory("macros");
+    PathMD += "Droplets"+File.separator;
+    PathMD += "LayOut.md";
+    MD = File.openAsString(PathMD);
+    myCSV = "Name" + "\t" + "Area" + "\t" + "Corrected" + "\n";
+
     //Choose image file
     Path = File.openDialog("Choose file");
 
@@ -41,6 +50,16 @@ enlargement = 5; //3 thus far
     CMD1 += " rois_import=[ROI manager]";
     CMD1 += " view=Hyperstack stack_order=XYCZT";
     run("Bio-Formats Importer", CMD1);
+
+    myimage = getTitle();
+    getPixelSize(unit, pixelWidth, pixelHeight);
+    reso = "" + pixelWidth + " " + unit + " x " + pixelHeight + " " + unit;
+
+    MD = replace(MD, "MYIMAGE", myimage);
+    MD = replace(MD, "MYOS", getInfo("os.name"));
+    MD = replace(MD, "MYJAVA", getInfo("java.version"));
+    MD = replace(MD, "MYIJ", IJVersion);
+    MD = replace(MD, "MYRESOLUTION", reso);
 
     //Remove the non pixel unit
     CMD2 = "channels=1";
@@ -158,7 +177,7 @@ enlargement = 5; //3 thus far
             setSlice(S);
             ROIopen(Path + "_Brain_Slices.txt", S-1);
 
-            run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add stack");
+            run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add slice");
         }
 
         selectWindow("Temp");
@@ -186,6 +205,7 @@ enlargement = 5; //3 thus far
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     setForegroundColor (0,0,0);
     run("Fill");
+    numberNP = 0;
     for(i=0; i<roiManager("count"); i++){
         selectWindow("Neuropil");
         roiManager("Select",i);
@@ -194,8 +214,11 @@ enlargement = 5; //3 thus far
         if (mean<255){
             roiManager("Select",i);
             roiManager("Rename", "NP_"+myName);
+            numberNP += 1;
             }
     }
+    MD = replace(MD, "MYDROPLETS", "" + roiManager("count"));
+    MD = replace(MD, "MYNEUROPIL", "" + numberNP);
 
     /*
         REFINE PARTICLES WITH LOCAL (ROI) VALUES?
@@ -204,6 +227,7 @@ enlargement = 5; //3 thus far
     //Create Array of area values
     AValues = "";
     AValuesCorr = "";
+    NValuesCorr = "";
 
     //Draw ROI on Report
     selectWindow("Report");
@@ -224,11 +248,16 @@ enlargement = 5; //3 thus far
     setForegroundColor(255,0,255);
     for(i=0; i<roiManager("count"); i++){
         roiManager("Select",i);
+        roiName=Roi.getName;
         List.setMeasurements;
         A = List.getValue("Area");
         ACorr = A/ABrains[getSliceNumber];
+        myCSV += "" + roiName + "\t" + A + "\t" + ACorr + "\n";
         AValues += "" + A + "-";
         AValuesCorr += "" + ACorr + "-";
+        if (lastIndexOf(roiName,"NP_") != -1){
+            NValuesCorr += "" + ACorr + "-";
+        }
         run("Draw", "slice");
     }
     setForegroundColor(0,255,255);
@@ -236,28 +265,36 @@ enlargement = 5; //3 thus far
     run("Draw", "stack");
     //saveAs("Tiff", Path + "_report.tif");
 
-    /* CMD for FIJI?
-    CMD = "name=Report "
-    CMD += "" + "set_global_lookup_table_options=[Do not use] "
-    CMD += "" + "optional=[] "
-    CMD += "" + "image=[No Disposal] "
-    CMD += "" + "set=500 "
-    CMD += "" + "number=-1 "
-    CMD += "" + "transparency=[No Transparency] "
-    CMD += "" + "red=0 green=0 blue=0 index=0 "
-    CMD += "" + "filename=" + Path + "_report.gif"
-    */
-    CMD = "save=" + Path + "_report.gif";
+    if (lastIndexOf(IJVersion,"/") == -1){
+        //ImageJ
+        CMD = "save=" + Path + "_report.gif";
+        run("Animated Gif... ",
+            CMD);
+    }else{
+        //FIJI
+        CMD = "name=Report ";
+        CMD += "" + "set_global_lookup_table_options=[Do not use] ";
+        CMD += "" + "optional=[] ";
+        CMD += "" + "image=[No Disposal] ";
+        CMD += "" + "set=500 ";
+        CMD += "" + "number=-1 ";
+        CMD += "" + "transparency=[No Transparency] ";
+        CMD += "" + "red=0 green=0 blue=0 index=0 ";
+        CMD += "" + "filename=" + Path + "_report.gif";
+        run("Animated Gif ... ",
+            CMD);
+    }
 
-    run("Animated Gif... ",
-        CMD);
     run("Close");
+    MD = replace(MD, "MYGIF", myimage + "_report.gif");
+
 
     //Draw Distribution
     PathM2 = getDirectory("macros");
     PathM2 += "Droplets"+File.separator;
     PathM2 += "Distribution.java";
 
+    /* INACTIVATED
     ARG2 = "" + SizeMin + "\t";
     ARG2 += "" + SizeMaxC + "\t";
     ARG2 += "" + nBins + "\t";
@@ -267,17 +304,33 @@ enlargement = 5; //3 thus far
     ARG2 += AValues;
 
     runMacro(PathM2, ARG2);
+    */
 
     //Corrected Distribution (per million of pixel of brain surface);
-    ARG2 = "" + SizeMin/2 + "\t";
+    ARG2 = "" + 0 + "\t";
     ARG2 += "" + SizeMaxC/2 + "\t";
     ARG2 += "" + nBins + "\t";
     ARG2 += "" + "Droplet size per million pixels Brain" + "\t";
     ARG2 += "" + Path + "\t";
-    ARG2 += "" + "Corrected_Values" + "\t";
-    ARG2 += AValues;
+    ARG2 += "" + "_Corrected_Values_ALL" + "\t";
+    ARG2 += AValuesCorr;
+
 
     runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTJPG", myimage + "_Corrected_Values_ALL_Distribution.jpg");
+
+    //Corrected Distribution for Neuropil
+    ARG2 = "" + 0 + "\t";
+    ARG2 += "" + SizeMaxC/2 + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size per million pixels Brain" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "_Corrected_Values_NP" + "\t";
+    ARG2 += NValuesCorr;
+
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "NPJPG", myimage + "_Corrected_Values_NP_Distribution.jpg");
 
     //Create the result filesCircMinC, SizeMaxC
     selectWindow("Raw");
@@ -287,11 +340,10 @@ enlargement = 5; //3 thus far
     roiManager("Rename", "Neuropil");
     roiManager("Deselect");
     roiManager("Save", Path + "_RoiSet.zip");
-    run("Set Measurements...", "area centroid display redirect=None decimal=3");
-    roiManager("Measure");
-    saveAs("Results", Path + "_Results.csv");
-    run("Clear Results");
 
+    //Save MD and CSV
+    File.saveString(MD, Path + "_REPORT.md");
+    File.saveString(myCSV, Path + "_data.csv");
 
     //Close all non required images.
     PathM3 = getDirectory("macros");
