@@ -31,18 +31,21 @@ macro "Distribution" {
         v = (binBlocks[index] + binBlocks[index+1])/2;
         binValues = Array.concat(binValues, v);
     }
+    Array.show(binBlocks);
+
 
     //reOrder mySet
     mySet = Array.sort(mySet);
+    Array.show(mySet);
 
     //Determine the distribution
-    Results = newArray()
-    j = 0;Xaxis
+    myResults = newArray();
+    j = 0;
 
     for (max = 1; max <binBlocks.length; max++){
         nbElements = 0;
         for (i=j; i<mySet.length; i++){
-            if ((mySet[i]<=binBlocks[max]) && (mySet[i]>binBlocks[max-1])){
+            if ((mySet[i]<binBlocks[max]) && (mySet[i]>=binBlocks[max-1])){
                 nbElements += 1;
             }else{
                 //Break the loop
@@ -50,15 +53,16 @@ macro "Distribution" {
                 i = mySet.length * 10;
             }
         }
-        //Update Results
-        Results =  Array.concat(Results, nbElements);
+        //Update myResults
+        myResults =  Array.concat(myResults, nbElements);
     }
+    Array.show(myResults);
 
     Plot.create("Distribution",
                 Xaxis,
                 "Counts",
                 binValues,
-                Results);
+                myResults);
     Plot.setFrameSize(1000, 500);
     Plot.show();
 

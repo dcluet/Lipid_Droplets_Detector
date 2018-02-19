@@ -1,4 +1,4 @@
-MYIMAGE
+Analysis of MYIMAGE
 ===
 
 **Parameters**
@@ -12,3 +12,11 @@ MYIMAGE
 
 **Output**
 --
+
+- Number of identified droplets: **MYDROPLETS**
+- Number of droplets in Neuropil: **MYNEUROPIL**
+
+|**RESULT**|![Result](MYGIF)|
+|-------------------------------------|-----------------------------------|
+|**Distribution (ALL)**|![Distribution](DISTJPG)|
+|**Distribution (NEUROPIL)**|![Distribution Neuropil](NPJPG)|
