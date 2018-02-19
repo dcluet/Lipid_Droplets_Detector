@@ -6,6 +6,8 @@ macro "Lipid_Droplets"{
 ===============================================================================
 */
 
+IJVersion = getVersion();
+
 //Key parameters
 seuil = 5;
 nBins = 100;
@@ -236,21 +238,28 @@ enlargement = 5; //3 thus far
     run("Draw", "stack");
     //saveAs("Tiff", Path + "_report.tif");
 
-    /* CMD for FIJI?
-    CMD = "name=Report "
-    CMD += "" + "set_global_lookup_table_options=[Do not use] "
-    CMD += "" + "optional=[] "
-    CMD += "" + "image=[No Disposal] "
-    CMD += "" + "set=500 "
-    CMD += "" + "number=-1 "
-    CMD += "" + "transparency=[No Transparency] "
-    CMD += "" + "red=0 green=0 blue=0 index=0 "
-    CMD += "" + "filename=" + Path + "_report.gif"
-    */
-    CMD = "save=" + Path + "_report.gif";
+    if (lastIndexOf(IJVersion,"/") != -1){
+        //ImageJ
+        CMD = "save=" + Path + "_report.gif";
+        run("Animated Gif... ",
+            CMD);
+    }else{
+        //FIJI
+        CMD = "name=Report "
+        CMD += "" + "set_global_lookup_table_options=[Do not use] "
+        CMD += "" + "optional=[] "
+        CMD += "" + "image=[No Disposal] "
+        CMD += "" + "set=500 "
+        CMD += "" + "number=-1 "
+        CMD += "" + "transparency=[No Transparency] "
+        CMD += "" + "red=0 green=0 blue=0 index=0 "
+        CMD += "" + "filename=" + Path + "_report.gif"
+        run("Animated Gif ... ",
+            CMD);
+    }
 
-    run("Animated Gif... ",
-        CMD);
+
+
     run("Close");
 
     //Draw Distribution
