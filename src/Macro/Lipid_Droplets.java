@@ -8,6 +8,7 @@ macro "Lipid_Droplets"{
 
 //Key parameters
 seuil = 5;
+nBins = 100;
 Iterations = 5;
 SizeMin = 20;
 SizeMax = 2000;
@@ -85,6 +86,19 @@ enlargement = 5; //3 thus far
     run("Close");
 
     Detect_Brain("Brain", Path);
+
+    //Create array of Brain areas. Start with 0 to have same index as slices
+    ABrains = newArray();
+    ABrains = Array.concat(ABrains, 0);
+
+    for (S=1; S<=nSlices; S++){
+        setSlice(S);
+        ROIopen(Path + "_Brain_Slices.txt", S-1);
+        getStatistics(area);
+        ABrains = Array.concat(ABrains, area/1000000);
+    }
+
+    //Array.show(ABrains);
 
     selectWindow("Brain");
     close();
@@ -187,6 +201,10 @@ enlargement = 5; //3 thus far
         REFINE PARTICLES WITH LOCAL (ROI) VALUES?
     */
 
+    //Create Array of area values
+    AValues = "";
+    AValuesCorr = "";
+
     //Draw ROI on Report
     selectWindow("Report");
 
@@ -206,13 +224,60 @@ enlargement = 5; //3 thus far
     setForegroundColor(255,0,255);
     for(i=0; i<roiManager("count"); i++){
         roiManager("Select",i);
+        List.setMeasurements;
+        A = List.getValue("Area");
+        ACorr = A/ABrains[getSliceNumber];
+        AValues += "" + A + "-";
+        AValuesCorr += "" + ACorr + "-";
         run("Draw", "slice");
     }
     setForegroundColor(0,255,255);
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     run("Draw", "stack");
-    saveAs("Tiff", Path + "_report.tif");
+    //saveAs("Tiff", Path + "_report.tif");
+
+    /* CMD for FIJI?
+    CMD = "name=Report "
+    CMD += "" + "set_global_lookup_table_options=[Do not use] "
+    CMD += "" + "optional=[] "
+    CMD += "" + "image=[No Disposal] "
+    CMD += "" + "set=500 "
+    CMD += "" + "number=-1 "
+    CMD += "" + "transparency=[No Transparency] "
+    CMD += "" + "red=0 green=0 blue=0 index=0 "
+    CMD += "" + "filename=" + Path + "_report.gif"
+    */
+    CMD = "save=" + Path + "_report.gif";
+
+    run("Animated Gif... ",
+        CMD);
     run("Close");
+
+    //Draw Distribution
+    PathM2 = getDirectory("macros");
+    PathM2 += "Droplets"+File.separator;
+    PathM2 += "Distribution.java";
+
+    ARG2 = "" + SizeMin + "\t";
+    ARG2 += "" + SizeMaxC + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "Raw_Values" + "\t";
+    ARG2 += AValues;
+
+    runMacro(PathM2, ARG2);
+
+    //Corrected Distribution (per million of pixel of brain surface);
+    ARG2 = "" + SizeMin/2 + "\t";
+    ARG2 += "" + SizeMaxC/2 + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size per million pixels Brain" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "Corrected_Values" + "\t";
+    ARG2 += AValues;
+
+    runMacro(PathM2, ARG2);
 
     //Create the result filesCircMinC, SizeMaxC
     selectWindow("Raw");

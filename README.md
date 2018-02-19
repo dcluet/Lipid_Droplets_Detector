@@ -5,16 +5,19 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 **Test version available**
 --
 
-2018/02/08
-- SetBatchMode activated.
-- Only single stack analysis for now.
+2018/02/19
+
+**WARNING WORKING ONLY ON IJ FOR NOW!!!**
+The command to save the report file for pre-integration in the MD output file is different between IJ and FIJI. I will solve this issue later.
+
+- Integration of the Droplets size Distribution function.
+- Correction of the droplet size per million of Brain pixel area of the corresponding slice.
 - Tested and validated on ImageJ linux (Java bundle) 1.51t.
-- Tested and validated on FIJI linux 1.51t.
 
 
-|![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|
-|-------------------------------------|-----------------------------------|
-|**ORIGINAL**   |**TREATED**   |
+|![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|![Example distribution](doc/Distribution.jpg)|![Example corrected distribution](doc/CDistribution.jpg)
+|-------------------------------------|-----------------------------------|-----------------------------------|-----------------------------------|
+|**ORIGINAL**   |**TREATED**   |**DISTRIBUTION**   |**CORRECTED DISTRIBUTION**   |
 
 
 **On progress**
