@@ -31,12 +31,10 @@ macro "Distribution" {
         v = (binBlocks[index] + binBlocks[index+1])/2;
         binValues = Array.concat(binValues, v);
     }
-    Array.show(binBlocks);
 
 
     //reOrder mySet
     mySet = Array.sort(mySet);
-    Array.show(mySet);
 
     //Determine the distribution
     myResults = newArray();
@@ -56,7 +54,6 @@ macro "Distribution" {
         //Update myResults
         myResults =  Array.concat(myResults, nbElements);
     }
-    Array.show(myResults);
 
     Plot.create("Distribution",
                 Xaxis,
