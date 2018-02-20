@@ -5,11 +5,15 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 **Test version available**
 --
 
-2018/02/19
+2018/02/20
 
-- Integration of the Droplets size Distribution function.
-- Correction of the droplet size per million of Brain pixel area of the corresponding slice.
+- Implement distribution of non NP droplets.
+- Creation of csv files for the distributions:
+    - All droplets
+    - Non Neuropil droplets
+    - Neuropil droplets
 - Tested and validated on ImageJ and FIJI linux (Java bundle) 1.51t.
+- Cleaning of the repository.
 
 **NB: FIJI is 2 to 3 times slower than ImageJ**
 
