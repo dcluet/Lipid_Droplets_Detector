@@ -56,6 +56,17 @@ enlargement = 5; //3 thus far
     reso = "" + pixelWidth + " " + unit + " x " + pixelHeight + " " + unit;
 
     MD = replace(MD, "MYIMAGE", myimage);
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    mydate = "" + year + "/" + (month+1) + "/" + dayOfMonth + " ";
+    mydate += "" + hour + ":" + minute;
+    MD = replace(MD, "MYDATE", mydate);
     MD = replace(MD, "MYOS", getInfo("os.name"));
     MD = replace(MD, "MYJAVA", getInfo("java.version"));
     MD = replace(MD, "MYIJ", IJVersion);
@@ -228,6 +239,7 @@ enlargement = 5; //3 thus far
     AValues = "";
     AValuesCorr = "";
     NValuesCorr = "";
+    EValuesCorr = "";
 
     //Draw ROI on Report
     selectWindow("Report");
@@ -256,7 +268,11 @@ enlargement = 5; //3 thus far
         AValues += "" + A + "-";
         AValuesCorr += "" + ACorr + "-";
         if (lastIndexOf(roiName,"NP_") != -1){
+            //Neuropil only
             NValuesCorr += "" + ACorr + "-";
+        }else{
+            //Non Neuropil only
+            EValuesCorr += "" + ACorr + "-";
         }
         run("Draw", "slice");
     }
@@ -328,9 +344,20 @@ enlargement = 5; //3 thus far
     ARG2 += "" + "_Corrected_Values_NP" + "\t";
     ARG2 += NValuesCorr;
 
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNPJPG", myimage + "_Corrected_Values_NP_Distribution.jpg");
+
+    //Corrected Distribution for non-Neuropil
+    ARG2 = "" + 0 + "\t";
+    ARG2 += "" + SizeMaxC/2 + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size per million pixels Brain" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "_Corrected_Values_Non-NP" + "\t";
+    ARG2 += EValuesCorr;
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "NPJPG", myimage + "_Corrected_Values_NP_Distribution.jpg");
+    MD = replace(MD, "DISTNNPJPG", myimage + "_Corrected_Values_Non-NP_Distribution.jpg");
 
     //Create the result filesCircMinC, SizeMaxC
     selectWindow("Raw");
