@@ -19,4 +19,5 @@ Analysis of MYIMAGE
 |**RESULT**|![Result](MYGIF)|
 |-------------------------------------|-----------------------------------|
 |**Distribution (ALL)**|![Distribution](DISTJPG)|
-|**Distribution (NEUROPIL)**|![Distribution Neuropil](NPJPG)|
+|**Distribution (NON-NEUROPIL)**|![Distribution](DISTNNPJPG)|
+|**Distribution (NEUROPIL)**|![Distribution Neuropil](DISTNPJPG)|

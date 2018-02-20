@@ -70,15 +70,16 @@ macro "Distribution" {
     run("Copy");
     newImage("Untitled", "8-bit white", W, H, 1);
     run("Paste");
-    selectWindow("Distribution");
-    close();
     saveAs("Jpeg",
             Path + Nom + "_Distribution.jpg");
     close();
+    selectWindow("Distribution");
+    close();
 
-    /*
-        Create CSV file
-    */
-
+    myCSV = "BIN" + "\t" + "Counts" + "\n";
+    for (bin = 0; bin<binValues.length; bin++){
+        myCSV += "" + binValues[bin] + "\t" + myResults[bin] + "\n";
+    }
+    File.saveString(myCSV, Path + Nom + "_Distribution.csv");
 
 }//END macro
