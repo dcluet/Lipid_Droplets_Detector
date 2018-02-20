@@ -56,6 +56,17 @@ enlargement = 5; //3 thus far
     reso = "" + pixelWidth + " " + unit + " x " + pixelHeight + " " + unit;
 
     MD = replace(MD, "MYIMAGE", myimage);
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    mydate = "" + year + "/" + (month+1) + "/" + dayOfMonth + " ";
+    mydate += "" + hour + ":" + minute;
+    MD = replace(MD, "MYDATE", mydate);
     MD = replace(MD, "MYOS", getInfo("os.name"));
     MD = replace(MD, "MYJAVA", getInfo("java.version"));
     MD = replace(MD, "MYIJ", IJVersion);
