@@ -43,8 +43,8 @@ enlargement = 5; //3 thus far
     Path = File.openDialog("Choose file");
 
     //Command for Bioformat Importer
-    CMD1 = "open=/";
-    CMD1 += Path;
+    CMD1 = "open=[";
+    CMD1 += Path + "]";
     CMD1 += " autoscale";
     CMD1 += " color_mode=Default";
     CMD1 += " rois_import=[ROI manager]";
