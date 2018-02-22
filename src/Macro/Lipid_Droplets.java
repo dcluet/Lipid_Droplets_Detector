@@ -37,7 +37,7 @@ enlargement = 5; //3 thus far
     PathMD += "Droplets"+File.separator;
     PathMD += "LayOut.md";
     MD = File.openAsString(PathMD);
-    myCSV = "Name" + "\t" + "Area" + "\t" + "Corrected" + "\n";
+    myCSV = "Name" + "\t" + "Slice" + "\t" + "X" + "\t" + "Y" + "\t" + "Area" + "\t" + "Corrected" + "\n";
 
     //Choose image file
     Path = File.openDialog("Choose file");
@@ -263,8 +263,11 @@ enlargement = 5; //3 thus far
         roiName=Roi.getName;
         List.setMeasurements;
         A = List.getValue("Area");
+        X = List.getValue("X");
+        Y = List.getValue("Y");
         ACorr = A/ABrains[getSliceNumber];
-        myCSV += "" + roiName + "\t" + A + "\t" + ACorr + "\n";
+        myCSV += "" + roiName + "\t" + getSliceNumber + "\t";
+        myCSV +=  "" + X + "\t" + Y + "\t" + A + "\t" + ACorr + "\n";
         AValues += "" + A + "-";
         AValuesCorr += "" + ACorr + "-";
         if (lastIndexOf(roiName,"NP_") != -1){
@@ -568,10 +571,10 @@ function Twins_Killer(myStack,
                     roiManager("Delete");
                     N = N -1;
                 }else{
-                if ((abs(S-Sr)<=zDistance) && (abs(S-Sr)>0)){
+                if ((abs(S-Sr)<=zDistance) && (abs(S-Sr)>=0)){
                     d = sqrt( (X-Xr)*(X-Xr) + (Y-Yr)*(Y-Yr) );
                     if (d<seuil){
-                        if(A>Ar){
+                        if(A>=Ar){
                             Xr = X;
                             Yr = Y;
                             Ar = A;

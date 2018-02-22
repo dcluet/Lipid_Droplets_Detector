@@ -54,6 +54,37 @@ macro "Distribution" {
         //Update myResults
         myResults =  Array.concat(myResults, nbElements);
     }
+    /*
+    Plot.create("Distribution",
+                Xaxis,
+                "Counts",
+                binValues,
+                myResults);
+    Plot.setFrameSize(1000, 500);
+    */
+    //myEquation = "y = a*exp(-(b-x)*(b-x)/(2*c*c))";
+    myEquation = "y = a*exp(-(b-x)*(b-x)/(2*c*c)) + d*exp(-(2*b-x)*(2*b-x)/(2*e*e))";
+    rankPosArr = Array.rankPositions(myResults);
+    myPeak = myResults[rankPosArr[rankPosArr.length-1]];
+    myPeakPos = binValues[rankPosArr[rankPosArr.length-1]];
+
+
+    initialGuesses = newArray(0, myPeakPos, 0, 0, 0);
+    Fit.doFit(myEquation, binValues, myResults, initialGuesses);
+    //Fit.doFit(myEquation, binValues, myResults);
+    a = Fit.p(0);
+    b = Fit.p(1);
+    c = Fit.p(2);
+    d = Fit.p(3);
+    e = Fit.p(4);
+
+    myFit = newArray(myResults.length);
+    for(r=0; r<myResults.length; r++){
+        x = binValues[r];
+        y = a*exp(-(b-x)*(b-x)/(2*c*c)) + d*exp(-(2*b-x)*(2*b-x)/(2*e*e));
+        myFit[r] = y;
+    }
+
 
     Plot.create("Distribution",
                 Xaxis,
@@ -61,24 +92,37 @@ macro "Distribution" {
                 binValues,
                 myResults);
     Plot.setFrameSize(1000, 500);
+    Plot.setColor("blue");
+    Plot.add("line", binValues, myFit);
+    //Plot.setColor("blue");
+    Plot.setLegend("Raw\tGaussian model R2= "+ Fit.rSquared, "top-right")
+
     Plot.show();
 
+
+    T = getTitle();
     W = getWidth();
     H = getHeight();
 
     makeRectangle(0,0,W,H);
     run("Copy");
-    newImage("Untitled", "8-bit white", W, H, 1);
+    newImage("Untitled", "RGB white", W, H, 1);
     run("Paste");
     saveAs("Jpeg",
             Path + Nom + "_Distribution.jpg");
     close();
-    selectWindow("Distribution");
+    selectWindow(T);
     close();
 
-    myCSV = "BIN" + "\t" + "Counts" + "\n";
+
+    myCSV = "Gausian model: " + "\t" + myEquation + "\n";
+    for (p=0; p<Fit.nParams; p++){
+        myCSV+= "" + "\t" + "p["+p+"]=" + "\t" + d2s(Fit.p(p),6) + "\n";
+    }
+    myCSV += "" + "\t" + "R2=" + "\t" + Fit.rSquared + "\n\n";
+    myCSV += "BIN" + "\t" + "Counts" + "\t" + "Gaussian model" + "\n";
     for (bin = 0; bin<binValues.length; bin++){
-        myCSV += "" + binValues[bin] + "\t" + myResults[bin] + "\n";
+        myCSV += "" + binValues[bin] + "\t" + myResults[bin] + "\t" + myFit[bin] + "\n";
     }
     File.saveString(myCSV, Path + Nom + "_Distribution.csv");
 
