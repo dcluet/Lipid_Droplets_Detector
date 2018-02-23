@@ -9,6 +9,7 @@ Analysis of MYIMAGE
 - Java Version: **MYJAVA**
 - ImageJ Version: **MYIJ**
 - Image resolution: **MYRESOLUTION**
+- Number of slices: **MYSLICES**
 
 **Output**
 --

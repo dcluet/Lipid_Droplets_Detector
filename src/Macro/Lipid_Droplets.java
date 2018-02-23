@@ -10,7 +10,7 @@ IJVersion = getVersion();
 
 //Key parameters
 seuil = 5;
-nBins = 100;
+nBins = 200;
 Iterations = 5;
 SizeMin = 20;
 SizeMax = 2000;
@@ -110,6 +110,8 @@ enlargement = 5; //3 thus far
 
     //Duplicate the stack for Brain detection
     selectWindow("Raw");
+    myslices = nSlices;
+    MD = replace(MD, "MYSLICES", "" + myslices);
     run("Duplicate...", "title=Brain duplicate");
 
     selectWindow("ROI Manager");
