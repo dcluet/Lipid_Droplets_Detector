@@ -373,6 +373,18 @@ enlargement = 5; //3 thus far
     roiManager("Deselect");
     roiManager("Save", Path + "_RoiSet.zip");
 
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    mystop = "" + year + "/" + (month+1) + "/" + dayOfMonth + " ";
+    mystop += "" + hour + ":" + minute;
+    MD = replace(MD, "MYSTOP", mystop);
+
     //Save MD and CSV
     File.saveString(MD, Path + "_REPORT.md");
     File.saveString(myCSV, Path + "_data.csv");

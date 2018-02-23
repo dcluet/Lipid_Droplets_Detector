@@ -5,6 +5,7 @@ Analysis of MYIMAGE
 --
 
 - Date: **MYDATE**
+- End: **MYSTOP**
 - Operating system: **MYOS**
 - Java Version: **MYJAVA**
 - ImageJ Version: **MYIJ**
