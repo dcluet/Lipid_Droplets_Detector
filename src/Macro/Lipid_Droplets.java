@@ -10,18 +10,23 @@ IJVersion = getVersion();
 
 //Key parameters
 seuil = 5;
-nBins = 200;
-Iterations = 5;
-SizeMin = 20;
-SizeMax = 2000;
+nBins = 100;
+Iterations = 3;
+SizeMin = 7;
+//SizeMin = 20;
+SizeMax = 15000;
 
 //Parameters for Cleaning the false positive (but still remove them
 //from the stack)
-SizeMaxC = 1500;
+SizeMaxC = 500;
 CircMinC = 0.5;
 CircMaxC = 1;
 zDistance = 5;
 enlargement = 5; //3 thus far
+
+ResWref = 0.156;
+ResHref = 0.156;
+
 
     //Close all non required images.
     PathM3 = getDirectory("macros");
@@ -54,6 +59,14 @@ enlargement = 5; //3 thus far
     myimage = getTitle();
     getPixelSize(unit, pixelWidth, pixelHeight);
     reso = "" + pixelWidth + " " + unit + " x " + pixelHeight + " " + unit;
+
+    //Recalibrating the area values depending on resoltion.
+    RefResolution = ResWref*ResHref;
+    ImResolution = pixelWidth*pixelHeight;
+    Ratio = RefResolution/ImResolution;
+    SizeMin = SizeMin * Ratio;
+    SizeMax = SizeMax * Ratio;
+    SizeMaxC = SizeMaxC * Ratio;
 
     MD = replace(MD, "MYIMAGE", myimage);
     getDateAndTime(year,
@@ -96,6 +109,8 @@ enlargement = 5; //3 thus far
     Sstart = getSliceNumber();
     waitForUser("Set on the ending slice");
     Send = getSliceNumber();
+    MD = replace(MD, "MYSTART", ""+Sstart);
+    MD = replace(MD, "MYEND", ""+Send);
 
     //Crop the Stack
     PathM1 = getDirectory("macros");
@@ -127,8 +142,11 @@ enlargement = 5; //3 thus far
         setSlice(S);
         ROIopen(Path + "_Brain_Slices.txt", S-1);
         getStatistics(area);
-        ABrains = Array.concat(ABrains, area/1000000);
+        ABrains = Array.concat(ABrains, area * pixelWidth * pixelHeight/1000000);
     }
+
+    Array.getStatistics(ABrains, min, max, mean, stdDev);
+    minBrain = min;
 
     //Array.show(ABrains);
 
@@ -144,11 +162,10 @@ enlargement = 5; //3 thus far
     resetMinAndMax();
 
     //Start BatchMode
-
-    selectWindow(T);
-    setBatchMode("hide");
-    selectWindow("Raw");
-    setBatchMode("hide");
+    for (I=1; I<=nImages; I++) {
+        selectImage(I);
+        setBatchMode("hide");
+    }
     selectWindow("ROI Manager");
     run("Close");
     setBatchMode(true);
@@ -177,27 +194,34 @@ enlargement = 5; //3 thus far
         */
 
         selectWindow("Raw");
-        makeRectangle(0,0,W,H);
-        run("Duplicate...", "title=Temp duplicate");
-        makeRectangle(0,0,W,H);
-        run("Convert to Mask", "method=MaxEntropy background=Dark calculate");
 
         for (S=1; S<=nSlices; S++){
-            /*
-                First slice is one but its corresponding ROI is in line 0 in
-                the txt compression file
-            */
             setSlice(S);
-            ROIopen(Path + "_Brain_Slices.txt", S-1);
-
+            makeRectangle(0,0,W,H);
+            setAutoThreshold("MaxEntropy dark");
             run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add slice");
         }
 
-        selectWindow("Temp");
-        run("Close");
+
 
         if (nROI<roiManager("count")){
 
+            //Remove all non brain particles
+            for (p=0; p<roiManager("count"); p++){
+                setForegroundColor(0, 0, 0);
+                selectWindow("Brain-Shape");
+                roiManager("Select", p);
+                List.setMeasurements;
+                M = List.getValue("Mean");
+                if (M!=0){
+                    selectWindow("Raw");
+                    roiManager("Select", p);
+                    run("Enlarge...", "enlarge=" + enlargement);
+                    run("Fill", "slice");
+                    roiManager("Delete");
+                    p = p -1;
+                }
+            }
 
             //Remove all twins
             Twins_Killer("Raw",
@@ -264,7 +288,7 @@ enlargement = 5; //3 thus far
         roiManager("Select",i);
         roiName=Roi.getName;
         List.setMeasurements;
-        A = List.getValue("Area");
+        A = List.getValue("Area") * pixelWidth * pixelHeight;
         X = List.getValue("X");
         Y = List.getValue("Y");
         ACorr = A/ABrains[getSliceNumber];
@@ -281,9 +305,24 @@ enlargement = 5; //3 thus far
         }
         run("Draw", "slice");
     }
+
     setForegroundColor(0,255,255);
     makeSelection("polygon", NeuroPilX, NeuroPilY);
+    roiManager("Add");
+    roiManager("Select", roiManager("count")-1);
+    roiManager("Rename", "Neuropil");
     run("Draw", "stack");
+
+    roiManager("Select",roiManager("count")-1);
+    roiName=Roi.getName;
+    List.setMeasurements;
+    A = List.getValue("Area") * pixelWidth * pixelHeight;
+    X = List.getValue("X");
+    Y = List.getValue("Y");
+    ACorr = A/ABrains[nSlices];
+    myCSV += "" + roiName + "\t" + getSliceNumber + "\t";
+    myCSV +=  "" + X + "\t" + Y + "\t" + A + "\t" + ACorr + "\n";
+
     //saveAs("Tiff", Path + "_report.tif");
 
     if (lastIndexOf(IJVersion,"/") == -1){
@@ -329,9 +368,9 @@ enlargement = 5; //3 thus far
 
     //Corrected Distribution (per million of pixel of brain surface);
     ARG2 = "" + 0 + "\t";
-    ARG2 += "" + SizeMaxC/2 + "\t";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "\t";
     ARG2 += "" + nBins + "\t";
-    ARG2 += "" + "Droplet size per million pixels Brain" + "\t";
+    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
     ARG2 += "" + Path + "\t";
     ARG2 += "" + "_Corrected_Values_ALL" + "\t";
     ARG2 += AValuesCorr;
@@ -342,9 +381,9 @@ enlargement = 5; //3 thus far
 
     //Corrected Distribution for Neuropil
     ARG2 = "" + 0 + "\t";
-    ARG2 += "" + SizeMaxC/2 + "\t";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "\t";
     ARG2 += "" + nBins + "\t";
-    ARG2 += "" + "Droplet size per million pixels Brain" + "\t";
+    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
     ARG2 += "" + Path + "\t";
     ARG2 += "" + "_Corrected_Values_NP" + "\t";
     ARG2 += NValuesCorr;
@@ -354,9 +393,9 @@ enlargement = 5; //3 thus far
 
     //Corrected Distribution for non-Neuropil
     ARG2 = "" + 0 + "\t";
-    ARG2 += "" + SizeMaxC/2 + "\t";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "\t";
     ARG2 += "" + nBins + "\t";
-    ARG2 += "" + "Droplet size per million pixels Brain" + "\t";
+    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
     ARG2 += "" + Path + "\t";
     ARG2 += "" + "_Corrected_Values_Non-NP" + "\t";
     ARG2 += EValuesCorr;
@@ -366,10 +405,7 @@ enlargement = 5; //3 thus far
 
     //Create the result filesCircMinC, SizeMaxC
     selectWindow("Raw");
-    makeSelection("polygon", NeuroPilX, NeuroPilY);
-    roiManager("Add");
     roiManager("Select", roiManager("count")-1);
-    roiManager("Rename", "Neuropil");
     roiManager("Deselect");
     roiManager("Save", Path + "_RoiSet.zip");
 
@@ -484,13 +520,25 @@ function ROIsave(path, option){
 
 function Detect_Brain(myImage, myPath){
 
+    setForegroundColor(0, 0, 0);
+
     selectWindow(myImage);
+    W = getWidth();
+    H = getHeight();
+    N = nSlices;
+
+    newImage("Brain-Shape", "8-bit white", W, H, N);
+
+
 
     for (S=1; S<=nSlices; S++){
+
+        selectWindow(myImage);
         nROI = roiManager("count");
         setSlice(S);
         makeRectangle(0,0,getWidth,getHeight);
-        run("Gaussian Blur...", "sigma=5 slice");
+        run("Gaussian Blur...", "sigma=20 slice");
+        //run("Gaussian Blur...", "sigma=5 slice");
         setAutoThreshold("Huang dark");
         run("Analyze Particles...", "size=100000-Infinity pixel show=Nothing add slice");
 
@@ -500,12 +548,20 @@ function Detect_Brain(myImage, myPath){
             roiManager("Select", nROI);
             roiManager("Rename", "Brain slice "+S);
 
+            selectWindow("Brain-Shape");
+            setSlice(S);
+            roiManager("Select", nROI);
+            run("Fill", "slice");
 
         }else if(roiManager("count") == nROI+1){
 
             roiManager("Select", nROI);
             roiManager("Rename", "Brain slice "+S);
 
+            selectWindow("Brain-Shape");
+            setSlice(S);
+            roiManager("Select", nROI);
+            run("Fill", "slice");
 
         }else if(roiManager("count") == nROI){
 
@@ -516,6 +572,7 @@ function Detect_Brain(myImage, myPath){
 
     //Save ROIs
     ROIsave(myPath + "_Brain_Slices.txt", "overwrite");
+
 }
 
 /*
@@ -559,7 +616,7 @@ function Twins_Killer(myStack,
         Cr = List.getValue("Circ.");
         Sr = getSliceNumber();
 
-        if((Cr<CircMinC)||(Ar>SizeMaxC)){
+        if(Ar>SizeMaxC){
             //Clean false positive
             Erase = 1;
         }else{

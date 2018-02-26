@@ -168,7 +168,7 @@ macro "Distribution" {
                 "Counts",
                 binValues,
                 myResults);
-
+    Plot.setLineWidth(2);
     Plot.setFrameSize(1000, 500);
     Plot.setColor("blue");
     Plot.addText(myTitle, 0, 0);
