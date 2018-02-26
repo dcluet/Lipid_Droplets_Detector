@@ -8,9 +8,13 @@ macro "Lipid_Droplets"{
 
 IJVersion = getVersion();
 
+//Region of Analysis
+//Selection = "Brain";
+Selection = "Manual ROI"
+
 //Key parameters
 seuil = 5;
-nBins = 100;
+nBins = 50;
 Iterations = 3;
 SizeMin = 7;
 //SizeMin = 20;
@@ -42,7 +46,7 @@ ResHref = 0.156;
     PathMD += "Droplets"+File.separator;
     PathMD += "LayOut.md";
     MD = File.openAsString(PathMD);
-    myCSV = "Name" + "\t" + "Slice" + "\t" + "X" + "\t" + "Y" + "\t" + "Area" + "\t" + "Corrected" + "\n";
+    myCSV = "Name" + "\t" + "Slice" + "\t" + "X" + "\t" + "Y" + "\t" + "Area um2" + "\t" + "Corrected um2" + "\t" + "Mean Intensity" + "\n";
 
     //Choose image file
     Path = File.openDialog("Choose file");
@@ -103,6 +107,7 @@ ResHref = 0.156;
     //Duplication of the image
     makeRectangle(0,0,W,H);
     run("Duplicate...", "title=Raw duplicate");
+    run("Duplicate...", "title=Intensity duplicate");
 
     //Create the Crop movie
     waitForUser("Set on the starting slice");
@@ -159,6 +164,24 @@ ResHref = 0.156;
     run("Enhance Contrast", "saturated=0.35");
     waitForUser("Draw the neuropil");
     getSelectionCoordinates(NeuroPilX, NeuroPilY);
+    roiManager("Add");
+    roiManager("Select", 0);
+    List.setMeasurements;
+    ANP = List.getValue("Area") * pixelWidth * pixelHeight;
+    XNP = List.getValue("X");
+    YNP = List.getValue("Y");
+
+    ACorr = ANP/ABrains[nSlices];
+    myCSV += "" + "Neuropil" + "\t" + nSlices + "\t";
+    myCSV +=  "" + XNP + "\t" + YNP + "\t" + ANP + "\t" + ACorr + "\n";
+
+    newImage("Neuropil", "8-bit white", W, H, 1);
+    makeSelection("polygon", NeuroPilX, NeuroPilY);
+    setForegroundColor (0,0,0);
+    run("Fill");
+
+    roiManager("reset");
+
     resetMinAndMax();
 
     //Start BatchMode
@@ -189,10 +212,6 @@ ResHref = 0.156;
     //Iteratively detect the strongest particles and remove them
     for (it=1; it<=Iterations; it++){
 
-        /*
-            INSERT A LOOP FOR DETECTION IN BRAIN WITHIN EACH SLICE
-        */
-
         selectWindow("Raw");
 
         for (S=1; S<=nSlices; S++){
@@ -207,19 +226,39 @@ ResHref = 0.156;
         if (nROI<roiManager("count")){
 
             //Remove all non brain particles
-            for (p=0; p<roiManager("count"); p++){
-                setForegroundColor(0, 0, 0);
-                selectWindow("Brain-Shape");
-                roiManager("Select", p);
-                List.setMeasurements;
-                M = List.getValue("Mean");
-                if (M!=0){
-                    selectWindow("Raw");
+            if (Selection == "Brain"){
+                for (p=0; p<roiManager("count"); p++){
+                    setForegroundColor(0, 0, 0);
+                    selectWindow("Brain-Shape");
                     roiManager("Select", p);
-                    run("Enlarge...", "enlarge=" + enlargement);
-                    run("Fill", "slice");
-                    roiManager("Delete");
-                    p = p -1;
+                    List.setMeasurements;
+                    M = List.getValue("Mean");
+                    if (M!=0){
+                        selectWindow("Raw");
+                        roiManager("Select", p);
+                        run("Enlarge...", "enlarge=" + enlargement);
+                        run("Fill", "slice");
+                        roiManager("Delete");
+                        p = p -1;
+                    }
+                }
+            }
+
+            if (Selection == "Manual ROI"){
+                for (p=0; p<roiManager("count"); p++){
+                    setForegroundColor(0, 0, 0);
+                    selectWindow("Neuropil");
+                    roiManager("Select", p);
+                    List.setMeasurements;
+                    M = List.getValue("Mean");
+                    if (M!=0){
+                        selectWindow("Raw");
+                        roiManager("Select", p);
+                        run("Enlarge...", "enlarge=" + enlargement);
+                        run("Fill", "slice");
+                        roiManager("Delete");
+                        p = p -1;
+                    }
                 }
             }
 
@@ -238,10 +277,6 @@ ResHref = 0.156;
         }
     }// End of Iterations
 
-    newImage("Neuropil", "8-bit white", W, H, 1);
-    makeSelection("polygon", NeuroPilX, NeuroPilY);
-    setForegroundColor (0,0,0);
-    run("Fill");
     numberNP = 0;
     for(i=0; i<roiManager("count"); i++){
         selectWindow("Neuropil");
@@ -267,6 +302,10 @@ ResHref = 0.156;
     NValuesCorr = "";
     EValuesCorr = "";
 
+    IValues = "";
+    INValues = "";
+    IEValues = "";
+
     //Draw ROI on Report
     selectWindow("Report");
 
@@ -285,43 +324,42 @@ ResHref = 0.156;
 
     setForegroundColor(255,0,255);
     for(i=0; i<roiManager("count"); i++){
+        selectWindow("Intensity");
         roiManager("Select",i);
         roiName=Roi.getName;
         List.setMeasurements;
         A = List.getValue("Area") * pixelWidth * pixelHeight;
         X = List.getValue("X");
         Y = List.getValue("Y");
+        Intensity = List.getValue("Mean");
         ACorr = A/ABrains[getSliceNumber];
         myCSV += "" + roiName + "\t" + getSliceNumber + "\t";
-        myCSV +=  "" + X + "\t" + Y + "\t" + A + "\t" + ACorr + "\n";
+        myCSV += "" + X + "\t" + Y + "\t" + A + "\t" + ACorr + "\t";
+        myCSV += "" + Intensity + "\n";
         AValues += "" + A + "-";
         AValuesCorr += "" + ACorr + "-";
+        IValues += "" + Intensity + "-";
         if (lastIndexOf(roiName,"NP_") != -1){
             //Neuropil only
             NValuesCorr += "" + ACorr + "-";
+            INValues += "" + Intensity + "-";
         }else{
             //Non Neuropil only
             EValuesCorr += "" + ACorr + "-";
+            IEValues += "" + Intensity + "-";
         }
+        selectWindow("Report");
+        roiManager("Select",i);
         run("Draw", "slice");
     }
 
     setForegroundColor(0,255,255);
+    selectWindow("Report");
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     roiManager("Add");
     roiManager("Select", roiManager("count")-1);
     roiManager("Rename", "Neuropil");
     run("Draw", "stack");
-
-    roiManager("Select",roiManager("count")-1);
-    roiName=Roi.getName;
-    List.setMeasurements;
-    A = List.getValue("Area") * pixelWidth * pixelHeight;
-    X = List.getValue("X");
-    Y = List.getValue("Y");
-    ACorr = A/ABrains[nSlices];
-    myCSV += "" + roiName + "\t" + getSliceNumber + "\t";
-    myCSV +=  "" + X + "\t" + Y + "\t" + A + "\t" + ACorr + "\n";
 
     //saveAs("Tiff", Path + "_report.tif");
 
@@ -354,17 +392,27 @@ ResHref = 0.156;
     PathM2 += "Droplets"+File.separator;
     PathM2 += "Distribution.java";
 
-    /* INACTIVATED
-    ARG2 = "" + SizeMin + "\t";
-    ARG2 += "" + SizeMaxC + "\t";
-    ARG2 += "" + nBins + "\t";
-    ARG2 += "" + "Droplet size" + "\t";
-    ARG2 += "" + Path + "\t";
-    ARG2 += "" + "Raw_Values" + "\t";
-    ARG2 += AValues;
 
-    runMacro(PathM2, ARG2);
-    */
+    if (NValuesCorr == ""){
+        NValuesCorr += "" + 0 + "-";
+    }
+
+    if (INValues == ""){
+        INValues += "" + 0 + "-";
+    }
+
+
+
+    if (EValuesCorr == ""){
+        EValuesCorr += "" + 0 + "-";
+    }
+
+    if (IEValues == ""){
+        IEValues += "" + 0 + "-";
+    }
+
+
+
 
     //Corrected Distribution (per million of pixel of brain surface);
     ARG2 = "" + 0 + "\t";
@@ -375,9 +423,20 @@ ResHref = 0.156;
     ARG2 += "" + "_Corrected_Values_ALL" + "\t";
     ARG2 += AValuesCorr;
 
-
     runMacro(PathM2, ARG2);
     MD = replace(MD, "DISTJPG", myimage + "_Corrected_Values_ALL_Distribution.jpg");
+
+    //Intensities
+    ARG2 = "" + 0 + "\t";
+    ARG2 += "" + 20000 + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "_Intensities_ALL" + "\t";
+    ARG2 += IValues;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTIJPG", myimage + "_Intensities_ALL_Distribution.jpg");
 
     //Corrected Distribution for Neuropil
     ARG2 = "" + 0 + "\t";
@@ -391,6 +450,19 @@ ResHref = 0.156;
     runMacro(PathM2, ARG2);
     MD = replace(MD, "DISTNPJPG", myimage + "_Corrected_Values_NP_Distribution.jpg");
 
+    //Intensities
+    ARG2 = "" + 0 + "\t";
+    ARG2 += "" + 20000 + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "_Intensities_NP" + "\t";
+    ARG2 += INValues;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNPIJPG", myimage + "_Intensities_NP_Distribution.jpg");
+
+
     //Corrected Distribution for non-Neuropil
     ARG2 = "" + 0 + "\t";
     ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "\t";
@@ -402,6 +474,18 @@ ResHref = 0.156;
 
     runMacro(PathM2, ARG2);
     MD = replace(MD, "DISTNNPJPG", myimage + "_Corrected_Values_Non-NP_Distribution.jpg");
+
+    //Intensities
+    ARG2 = "" + 0 + "\t";
+    ARG2 += "" + 20000 + "\t";
+    ARG2 += "" + nBins + "\t";
+    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
+    ARG2 += "" + Path + "\t";
+    ARG2 += "" + "_Intensities_Non-NP" + "\t";
+    ARG2 += IEValues;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNNPIJPG", myimage + "_Intensities_Non-NP_Distribution.jpg");
 
     //Create the result filesCircMinC, SizeMaxC
     selectWindow("Raw");
