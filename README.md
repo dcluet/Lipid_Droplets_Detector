@@ -26,9 +26,14 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 **On progress**
 --
 - The script for automated batch analysis is ready. It will be added in the final stage, as usual.
-- Automated detection of the brain for every slice of the Stack. **Done 2018/02/09**. Still issues to detect holes.
+- The scripts now adapt to the resolution of the current image but with a fixed micron scale range to display the distributions. **Done 2018/02/26**
+- Depending on the choice, the analysis is performed on the whole brain or only on the "Neuropil" manual region. **Done 2018/02/26**
+- Automated detection of the brain for every slice of the Stack. **Done 2018/02/09**. Still issues to detect holes. Sensitivity has been increased **2018/02/23**.
 - Integration within the loop. **Done 2018/02/09**.
 - Express the number/size of the droplets particles as a distribution standardized on the area of brain studied. **Done 2018/02/19**
+- Surfaces expressed in microns units. **Done 2018/02/26**
+- The mean intensity of each droplet is now measured. **Done 2018/02/26**
+- Add Distribution for intensities. **Done 2018/02/26**
 - Create the distribution graph script. **Done 2018/02/19**
 - Create a more "readable" output table. **Done 2018/02/19**
 - Final output stack **Done 2018/02/09**:
@@ -49,7 +54,8 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 **Requirements**
 --
 The `LIPID_DROPLETS` macro requires `ImageJ v1.49g` or higher ([Download](https://imagej.nih.gov/ij/download.html)).
-For ImageJ the conversion of the analyzed stacks into animated GIFs requires the ([Gif-Stack-Writer Plugin](https://imagej.nih.gov/ij/plugins/gif-stack-writer.html)).
+
+For ImageJ, the conversion of the analyzed stacks into animated GIFs requires the ([Gif-Stack-Writer Plugin](https://imagej.nih.gov/ij/plugins/gif-stack-writer.html)).
 
 To read Markdown files, use the `Markdown Preview Plus` extension for `Chrome`. In the `Extension menu` allow access to files URL.
 

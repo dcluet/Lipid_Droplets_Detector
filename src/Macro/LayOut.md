@@ -5,10 +5,12 @@ Analysis of MYIMAGE
 --
 
 - Date: **MYDATE**
+- End: **MYSTOP**
 - Operating system: **MYOS**
 - Java Version: **MYJAVA**
 - ImageJ Version: **MYIJ**
 - Image resolution: **MYRESOLUTION**
+- Number of slices: **MYSLICES (MYSTART-MYEND)**
 
 **Output**
 --
@@ -18,6 +20,9 @@ Analysis of MYIMAGE
 
 |**RESULT**|![Result](MYGIF)|
 |-------------------------------------|-----------------------------------|
-|**Distribution (ALL)**|![Distribution](DISTJPG)|
-|**Distribution (NON-NEUROPIL)**|![Distribution](DISTNNPJPG)|
-|**Distribution (NEUROPIL)**|![Distribution Neuropil](DISTNPJPG)|
+|**Distribution Surfaces (ALL)**|![Distribution](DISTJPG)|
+|**Distribution Intensities (ALL)**|![Distribution](DISTIJPG)|
+|**Distribution Surfaces (NON-NEUROPIL)**|![Distribution](DISTNNPJPG)|
+|**Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIJPG)|   
+|**Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPJPG)|
+|**Distribution Intensities (NEUROPIL)**|![Distribution Neuropil](DISTNPIJPG)| |
