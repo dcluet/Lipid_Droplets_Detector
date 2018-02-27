@@ -1,14 +1,15 @@
 macro "Main"{
     //INFOS
     tag = "v1.2.2"
-    lastStableCommit = "2683238a"
+    lastStableCommit = "3999addf"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
     //Welcome
     Welcome(tag, lastStableCommit, gitlaburl);
 
-    //VARIABLES
     /*
+    ============================================================================
+                                MAIN VARIABLES
     ============================================================================
     */
 
@@ -43,6 +44,12 @@ macro "Main"{
     //Number of bins for the distributions graphs
     nBins = 50;
 
+    /*
+    ============================================================================
+                                MAIN GUI
+    ============================================================================
+    */
+
     //Initialisation of the Argument
     ARG = "";
 
@@ -55,15 +62,15 @@ macro "Main"{
     Dialog.addChoice("Region to process: ", Selections, "Whole tissue");
 
     Dialog.addMessage("Thresholds between particles (microns):");
-    Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "micron");
-    Dialog.addNumber("Z Distance: ", xythresholdMicron, 3, 5, "micron");
+    Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
+    Dialog.addNumber("Z Distance: ", xythresholdMicron, 3, 5, "slices");
 
     Dialog.addMessage("Parameters for the initial low-resolution scan:");
-    Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "micron");
-    Dialog.addNumber("Maximal surface: ", SizeMaxMicron, 3, 7, "micron");
+    Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "microns");
+    Dialog.addNumber("Maximal surface: ", SizeMaxMicron, 3, 7, "microns");
 
     Dialog.addMessage("Parameters for the high-resolution scan:");
-    Dialog.addNumber("Maximal surface: ", SizeMaxCMicron, 3, 7, "micron");
+    Dialog.addNumber("Maximal surface: ", SizeMaxCMicron, 3, 7, "microns");
     Dialog.addNumber("Minimal circularity: ", CircMinC, 3, 5, "");
     Dialog.addNumber("Maximal circularity: ", CircMaxC, 3, 5, "");
 
@@ -108,9 +115,9 @@ macro "Main"{
 
 
 
-    Args = split(ARG, "\t");
-    Array.show(Args);
-    waitForUser("");
+    //Args = split(ARG, "\t");
+    //Array.show(Args);
+    //waitForUser("");
 
 
 

@@ -18,8 +18,7 @@ Analysis of MYIMAGE
 - Number of identified droplets: **MYDROPLETS**
 - Number of droplets in Neuropil: **MYNEUROPIL**
 
-|Brain slices|Surface (10^6 microns)|
-|------------|-----------------|
+Brain slices surface (10^6 microns)
 MYBRAINS
 
 
