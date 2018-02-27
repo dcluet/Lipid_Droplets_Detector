@@ -9,8 +9,8 @@ macro "Lipid_Droplets"{
 IJVersion = getVersion();
 
 //Region of Analysis
-//Selection = "Brain";
-Selection = "Manual ROI"
+Selection = "Brain";
+//Selection = "Manual ROI"
 
 //Key parameters
 seuil = 5;
@@ -430,7 +430,7 @@ ResHref = 0.156;
     ARG2 = "" + 0 + "\t";
     ARG2 += "" + 20000 + "\t";
     ARG2 += "" + nBins + "\t";
-    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
+    ARG2 += "" + "Mean grey values" + "\t";
     ARG2 += "" + Path + "\t";
     ARG2 += "" + "_Intensities_ALL" + "\t";
     ARG2 += IValues;
@@ -454,7 +454,7 @@ ResHref = 0.156;
     ARG2 = "" + 0 + "\t";
     ARG2 += "" + 20000 + "\t";
     ARG2 += "" + nBins + "\t";
-    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
+    ARG2 += "" + "Mean grey values" + "\t";
     ARG2 += "" + Path + "\t";
     ARG2 += "" + "_Intensities_NP" + "\t";
     ARG2 += INValues;
@@ -479,7 +479,7 @@ ResHref = 0.156;
     ARG2 = "" + 0 + "\t";
     ARG2 += "" + 20000 + "\t";
     ARG2 += "" + nBins + "\t";
-    ARG2 += "" + "Droplet size per million microns Brain" + "\t";
+    ARG2 += "" + "Mean grey values" + "\t";
     ARG2 += "" + Path + "\t";
     ARG2 += "" + "_Intensities_Non-NP" + "\t";
     ARG2 += IEValues;
