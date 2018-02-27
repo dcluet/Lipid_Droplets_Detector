@@ -30,6 +30,7 @@ Listing = newArray("Lipid_Droplets.java",
                     "Stack_Editing.java",
                     "Close_Images.java",
                     "Distribution.java",
+                    "Main.java",
                     "LayOut.md");
 
 //Create the installation folder if required
@@ -52,8 +53,15 @@ for(i=0; i<lengthOf(Listing); i++){
 PCommandLine = PathFolderInput+ "Command_Line.txt";
 SUM = File.openAsString(PathSUM);
 pos =lastIndexOf(SUM, "//End_Lipid_droplets");
+repair = lastIndexOf(SUM, "Lipid_Droplets.java");
 if(pos == -1){
 	SUM = SUM + "\n\n" + File.openAsString(PCommandLine);
+	Startup = File.open(PathSUM);
+	print(Startup, SUM);
+	File.close(Startup);
+}
+if(repair != -1){
+	SUM = replace(SUM, "Lipid_Droplets.java", "Main.java");
 	Startup = File.open(PathSUM);
 	print(Startup, SUM);
 	File.close(Startup);

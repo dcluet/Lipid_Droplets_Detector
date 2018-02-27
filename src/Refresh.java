@@ -16,6 +16,7 @@ macro "Refresh" {
                         "Stack_Editing.java",
                         "Close_Images.java",
                         "Distribution.java",
+                        "Main.java",
                         "LayOut.md");
 
     //Create the installation folder if required

@@ -1,7 +1,7 @@
 macro "LIPID_DROPLETS"{
 Path = getDirectory("macros")+File.separator();
 Path += "Droplets"+File.separator();
-Path += "Lipid_Droplets.java";
+Path += "Main.java";
 
 runMacro(Path);
 }
