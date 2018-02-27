@@ -34,7 +34,7 @@ macro "Refresh" {
 	}
 
     //Launch main macro
-    Path = PathOutput + "Lipid_Droplets.java";
+    Path = PathOutput + "Main.java";
     runMacro(Path);
 
 }

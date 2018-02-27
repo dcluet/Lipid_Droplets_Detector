@@ -1,6 +1,6 @@
-macro "Installation_2018-01-17"{
+macro "Installation_2018-02-27"{
 
-version = "1.0a 2018-01-17";
+version = "1.0b 2018-02-27";
 
 
 //IJ version verification and close the macro's window

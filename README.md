@@ -26,6 +26,7 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 **On progress**
 --
 - The script for automated batch analysis is ready. It will be added in the final stage, as usual.
+- Implementation of the GUI. **Started 2018/02/27**
 - The scripts now adapt to the resolution of the current image but with a fixed micron scale range to display the distributions. **Done 2018/02/26**
 - Depending on the choice, the analysis is performed on the whole brain or only on the "Neuropil" manual region. **Done 2018/02/26**
 - Automated detection of the brain for every slice of the Stack. **Done 2018/02/09**. Still issues to detect holes. Sensitivity has been increased **2018/02/23**.
