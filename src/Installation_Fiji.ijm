@@ -28,6 +28,7 @@ Listing = newArray("Lipid_Droplets.java",
                     "Close_Images.java",
                     "Distribution.java",
                     "Main.java",
+                    "Stats.java",
                     "LayOut.md");
 
 //Create the installation folder if required
@@ -106,7 +107,7 @@ function Welcome(NomProg, myTag, myCommit){
             		+"Research Ingeneer,PHD<br>"
             		+"<font color=rgb(77,172,174)>CNRS, ENS-Lyon, LBMC</p>"
 			+"<p><font color=rgb(0,0,0)>This program will install the Lipid_Droplets macro.<br>
-            		+"Shortcut will be added in the Plugins/Macros menu.</p>"			
+            		+"Shortcut will be added in the Plugins/Macros menu.</p>"
 			);
 }//END WELCOME
 

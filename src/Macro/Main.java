@@ -25,7 +25,6 @@ macro "Main"{
     xythresholdMicron = xythreshold * ResWref * ResHref;
     //z threshold between 2 different Lipid Droplets
     zthreshold = 5;
-    zthresholdMicron = zthreshold * ResWref * ResHref;
     //Initial Low resolution scan
     SizeMin = 7;
     SizeMinMicron = SizeMin * ResWref * ResHref;
@@ -63,7 +62,7 @@ macro "Main"{
 
     Dialog.addMessage("Thresholds between particles (microns):");
     Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
-    Dialog.addNumber("Z Distance: ", xythresholdMicron, 3, 5, "slices");
+    Dialog.addNumber("Z Distance: ", zthreshold, 3, 5, "slices");
 
     Dialog.addMessage("Parameters for the initial low-resolution scan:");
     Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "microns");
@@ -95,7 +94,7 @@ macro "Main"{
 
     xythreshold = Dialog.getNumber() / (ResWref * ResHref);
     ARGcommon  += "" + xythreshold + "*";
-    zthreshold = Dialog.getNumber() / (ResWref * ResHref);
+    zthreshold = Dialog.getNumber();
     ARGcommon  += "" + zthreshold + "*";
 
     SizeMin = Dialog.getNumber() / (ResWref * ResHref);
@@ -254,22 +253,30 @@ macro "Main"{
         ARG = CommandsList[c];
 
         //Run Lipid_Droplets
-        Path = getDirectory("macros");
-        Path += "Droplets"+File.separator;
-        Path += "Lipid_Droplets.java";
+        PathLD = getDirectory("macros");
+        PathLD += "Droplets"+File.separator;
+        PathLD += "Lipid_Droplets.java";
         setBatchMode(true);
-        runMacro(Path, ARG);
+        runMacro(PathLD, ARG);
 
     }
-    
+
     /*
     ============================================================================
                             STATISTICAL ANALYSIS
     ============================================================================
     */
 
+    //Run stats analysis
+    PathMS = getDirectory("macros");
+    PathMS += "Droplets"+File.separator;
+    PathMS += "Stats.java";
 
+    ARGMS = PathFolderInput + "*";
+    ARGMS += myAnalysis + "*";
+    ARGMS += FP + "*";
 
+    runMacro(PathMS, ARGMS);
 
     //Get Ending Time
     getDateAndTime(year,

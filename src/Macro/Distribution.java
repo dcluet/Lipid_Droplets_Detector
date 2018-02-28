@@ -1,7 +1,7 @@
 macro "Distribution" {
 
     Argument = getArgument();
-    Arguments = split(Argument, "\t");
+    Arguments = split(Argument, "*");
 
     BinMin = parseFloat(Arguments[0]);
     BinMax = parseFloat(Arguments[1]);
