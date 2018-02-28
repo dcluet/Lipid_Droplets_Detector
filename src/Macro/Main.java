@@ -130,7 +130,7 @@ macro "Main"{
                     minute,
                     second,
                     msec);
-    FP = "" + year + "-" + month + "-" + dayOfMonth + "_";
+    FP = "" + year + "-" + (month+1) + "-" + dayOfMonth + "_";
     FP += "" + hour + "-" + minute + "_";
 
     //Create text Files
@@ -150,8 +150,8 @@ macro "Main"{
     FileList = split(RawList, "\n");
 
     //Inform user
-    DisplayInfo("" + FileList.length + " files have been found.<br>"
-                + "Press OK when ready for manual pre-processing.");
+    DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
+                + "Press <b>OK</b> when ready for manual pre-processing.");
 
     /*
     ============================================================================
@@ -212,7 +212,8 @@ macro "Main"{
         ARG += NPX + "*";
         ARG += NPY + "*";
 
-        ARG += Path;
+        ARG += Path + "*";
+        ARG += PathFolderInput;
 
         //Args = split(ARG, "*");
         //Array.show(Args);
@@ -223,7 +224,7 @@ macro "Main"{
     }
 
     //Inform user
-    DisplayInfo("Press OK when ready for automated analysis.");
+    DisplayInfo("Press <b>OK</b> when ready for automated analysis.");
 
 
     /*
@@ -241,7 +242,7 @@ macro "Main"{
                     minute,
                     second,
                     msec);
-    T1 = "" + year + "/" + month + "/" + dayOfMonth + " at ";
+    T1 = "" + year + "/" + (month+1) + "/" + dayOfMonth + " at ";
     T1 += "" + hour + ":" + minute;
 
     //Retrieve Commands
@@ -260,6 +261,15 @@ macro "Main"{
         runMacro(Path, ARG);
 
     }
+    
+    /*
+    ============================================================================
+                            STATISTICAL ANALYSIS
+    ============================================================================
+    */
+
+
+
 
     //Get Ending Time
     getDateAndTime(year,
@@ -270,7 +280,7 @@ macro "Main"{
                     minute,
                     second,
                     msec);
-    T2 = "" + year + "/" + month + "/" + dayOfMonth + " at ";
+    T2 = "" + year + "/" + (month+1) + "/" + dayOfMonth + " at ";
     T2 += "" + hour + ":" + minute;
 
     EndProcess(T1,T2);
@@ -313,7 +323,7 @@ function Welcome(myTag, myCommit, url){
 			+"<p><font color=rgb(100,100,100)>Cluet David<br>"
             +"Research Ingeneer,PHD<br>"
             +"<font color=rgb(77,172,174)>CNRS, ENS-Lyon, LBMC</p>"
-			)
+			);
 }//END WELCOME
 
 /*
@@ -331,7 +341,7 @@ function EndProcess(Time1, Time2){
 			+"<li>Beginning: " + Time1 + "</li>"
 			+"<li>End: " + Time2 + "</li>"
 			+"</ul>"
-			)
+			);
 }//END ENDPROCESS
 
 /*
@@ -344,8 +354,8 @@ function DisplayInfo(Message){
 			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
 			+"<font size=+0>"
 			+"<font color=rgb(0,0,0)>"
-            +"<p>" + Message + ".</p>"
-			)
+            +"<p>" + Message + "</p>"
+			);
 }//END DisplayInfo
 
 }//END MACRO
