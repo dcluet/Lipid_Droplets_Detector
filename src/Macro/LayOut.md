@@ -4,6 +4,8 @@ Analysis of MYIMAGE
 **Parameters**
 --
 
+Analysis:
+-
 - Date: **MYDATE**
 - End: **MYSTOP**
 - Operating system: **MYOS**
@@ -12,6 +14,27 @@ Analysis of MYIMAGE
 - Image resolution: **MYRESOLUTION**
 - Number of slices: **MYSLICES (MYSTART-MYEND)**
 
+General parameters
+-
+- Selection: **MYSELECTION**
+- Resolution of Reference: **MYREFERENCE**
+- XY Threshold: **XYTHRESHOLD**
+- Z Threshold: **ZTHRESHOLD**
+- Iterations: **MYITERATIONS**
+- Correction factor: **MYFACTOR**
+
+Initial low-resolution scan
+-
+- Minimal Surface: **MINSURF**
+- Maximal Surface: **MAXSURF**
+
+False positive removal
+-
+- Maximal Surface: **SURFMAXC**
+- Minimal circularity: **MINCIRC**
+- Maximal circularity: **MAXCIRC**   
+
+
 **Output**
 --
 
@@ -19,6 +42,7 @@ Analysis of MYIMAGE
 - Number of droplets in Neuropil: **MYNEUROPIL**
 
 Brain slices surface (10^6 microns)
+
 MYBRAINS
 
 

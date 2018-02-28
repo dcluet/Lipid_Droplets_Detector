@@ -1,7 +1,7 @@
 macro "Main"{
     //INFOS
-    tag = "v1.2.2"
-    lastStableCommit = "3999addf"
+    tag = "v2.0.0"
+    lastStableCommit = "66ffa5a2"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
     //Welcome
@@ -51,7 +51,7 @@ macro "Main"{
     */
 
     //Initialisation of the Argument
-    ARG = "";
+    ARGcommon = "";
 
     //GUI
     Dialog.create("SETTINGS:");
@@ -86,47 +86,100 @@ macro "Main"{
 
     myChoice = Dialog.getChoice();
     if (myChoice == "Whole tissue"){
-        ARG += "Brain" + "\t";
+        ARGcommon  += "Brain" + "*";
     }else if (myChoice == "Manual ROI"){
-        ARG += "Manual ROI" + "\t";
+        ARGcommon  += "Manual ROI" + "*";
     }
-    ARG += "" + ResWref + "\t";
-    ARG += "" + ResHref + "\t";
+    ARGcommon  += "" + ResWref + "*";
+    ARGcommon  += "" + ResHref + "*";
 
     xythreshold = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + xythreshold + "\t";
+    ARGcommon  += "" + xythreshold + "*";
     zthreshold = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + zthreshold + "\t";
+    ARGcommon  += "" + zthreshold + "*";
 
     SizeMin = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + SizeMin + "\t";
+    ARGcommon  += "" + SizeMin + "*";
     SizeMax = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + SizeMax + "\t";
+    ARGcommon  += "" + SizeMax + "*";
 
     SizeMaxC = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + SizeMaxC + "\t";
-    ARG += "" + Dialog.getNumber() + "\t"; //Circ Min
-    ARG += "" + Dialog.getNumber() + "\t"; //Circ Maximal
-    ARG += "" + Dialog.getNumber() + "\t"; //Iterations
-    ARG += "" + Dialog.getNumber() + "\t"; //Enlarge
-    ARG += "" + Dialog.getNumber() + "\t"; //Bins
+    ARGcommon  += "" + SizeMaxC + "*";
+    ARGcommon  += "" + Dialog.getNumber() + "*"; //Circ Min
+    ARGcommon  += "" + Dialog.getNumber() + "*"; //Circ Maximal
+    ARGcommon  += "" + Dialog.getNumber() + "*"; //Iterations
+    ARGcommon  += "" + Dialog.getNumber() + "*"; //Enlarge
+    ARGcommon  += "" + Dialog.getNumber() + "*"; //Bins
+
+    ARG = ARGcommon;
+
+    /*
+    ============================================================================
+                            LOOP OF BATCH ANALYSIS
+    ============================================================================
+    */
 
 
+    //Choose image file
+    Path = File.openDialog("Choose file");
 
+    //Command for Bioformat Importer
+    CMD1 = "open=[";
+    CMD1 += Path + "]";
+    CMD1 += " autoscale";
+    CMD1 += " color_mode=Default";
+    CMD1 += " rois_import=[ROI manager]";
+    CMD1 += " view=Hyperstack stack_order=XYCZT";
+    run("Bio-Formats Importer", CMD1);
 
+    Titre = getTitle;
 
-    //Args = split(ARG, "\t");
+    //Create the Crop movie
+    run("Enhance Contrast", "saturated=0.35");
+    waitForUser("Set on the starting slice");
+    Sstart = getSliceNumber();
+    waitForUser("Set on the ending slice");
+    Send = getSliceNumber();
+
+    //Crop the Stack
+    PathM1 = getDirectory("macros");
+    PathM1 += "Droplets"+File.separator;
+    PathM1 += "Stack_Editing.java";
+
+    ARG1 = Titre + "\t";
+    ARG1 += "" + Sstart + "\t";
+    ARG1 += "" + Send + "\t";
+
+    ARG += "" + Sstart + "*";
+    ARG += "" + Send + "*";
+    runMacro(PathM1, ARG1);
+
+    setSlice(nSlices);
+    waitForUser("Draw the neuropil");
+    getSelectionCoordinates(NeuroPilX, NeuroPilY);
+    NPX = "";
+    NPY = "";
+    for(i=0; i<NeuroPilX.length; i++){
+        NPX += "" + NeuroPilX[i] + "-";
+        NPY += "" + NeuroPilY[i] + "-";
+    }
+    ARG += NPX + "*";
+    ARG += NPY + "*";
+
+    ARG += Path;
+
+    //Args = split(ARG, "*");
     //Array.show(Args);
     //waitForUser("");
 
-
-
     //Run Lipid_Droplets
-
     Path = getDirectory("macros");
     Path += "Droplets"+File.separator;
     Path += "Lipid_Droplets.java";
+    setBatchMode(true);
     runMacro(Path, ARG);
+
+    waitForUser("Analysis is over");
 
 /*
 ================================================================================
