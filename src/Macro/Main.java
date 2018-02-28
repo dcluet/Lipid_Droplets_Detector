@@ -1,7 +1,7 @@
 macro "Main"{
     //INFOS
-    tag = "v2.0.0"
-    lastStableCommit = "66ffa5a2"
+    tag = "v2.1.0"
+    lastStableCommit = "fbe47641"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
     //Welcome
@@ -150,7 +150,7 @@ macro "Main"{
     FileList = split(RawList, "\n");
 
     //Inform user
-    showMessage("" + FileList.length + " files have been found.\n"
+    DisplayInfo("" + FileList.length + " files have been found.<br>"
                 + "Press OK when ready for manual pre-processing.");
 
     /*
@@ -223,13 +223,26 @@ macro "Main"{
     }
 
     //Inform user
-    showMessage("Press OK when ready for automated analysis.");
+    DisplayInfo("Press OK when ready for automated analysis.");
+
 
     /*
     ============================================================================
                             LOOP OF ANALYSIS
     ============================================================================
     */
+
+    //Get Beginning Time
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    T1 = "" + year + "/" + month + "/" + dayOfMonth + " at ";
+    T1 += "" + hour + ":" + minute;
 
     //Retrieve Commands
     Commands = File.openAsString(myCommands);
@@ -248,8 +261,19 @@ macro "Main"{
 
     }
 
+    //Get Ending Time
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    T2 = "" + year + "/" + month + "/" + dayOfMonth + " at ";
+    T2 += "" + hour + ":" + minute;
 
-    waitForUser("Analysis is over");
+    EndProcess(T1,T2);
 
 /*
 ===============================================================================
@@ -292,5 +316,36 @@ function Welcome(myTag, myCommit, url){
 			)
 }//END WELCOME
 
+/*
+================================================================================
+*/
+
+function EndProcess(Time1, Time2){
+    showMessage("", "<html>"
+			+"<font size=+3>"
+			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
+			+"<font size=+0>"
+			+"<font color=rgb(0,0,0)>"
+            +"<p>Analysis is over.</p>"
+			+"<ul>"
+			+"<li>Beginning: " + Time1 + "</li>"
+			+"<li>End: " + Time2 + "</li>"
+			+"</ul>"
+			)
+}//END ENDPROCESS
+
+/*
+================================================================================
+*/
+
+function DisplayInfo(Message){
+    showMessage("", "<html>"
+			+"<font size=+3>"
+			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
+			+"<font size=+0>"
+			+"<font color=rgb(0,0,0)>"
+            +"<p>" + Message + ".</p>"
+			)
+}//END DisplayInfo
 
 }//END MACRO
