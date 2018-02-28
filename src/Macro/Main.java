@@ -111,88 +111,185 @@ macro "Main"{
     ARGcommon  += "" + Dialog.getNumber() + "*"; //Enlarge
     ARGcommon  += "" + Dialog.getNumber() + "*"; //Bins
 
-    ARG = ARGcommon;
-
     /*
     ============================================================================
-                            LOOP OF BATCH ANALYSIS
+                            IDENTIFICATION OF THE FILES
     ============================================================================
     */
 
+    //Retrieve folder to explore
+    myTitle = "PLEASE CHOOSE THE FOLDER CONTAINING THE FILES TO PROCESS";
+    PathFolderInput = getDirectory(myTitle);
 
-    //Choose image file
-    Path = File.openDialog("Choose file");
+    //Generate Finger Print
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    FP = "" + year + "-" + month + "-" + dayOfMonth + "_";
+    FP += "" + hour + "-" + minute + "_";
 
-    //Command for Bioformat Importer
-    CMD1 = "open=[";
-    CMD1 += Path + "]";
-    CMD1 += " autoscale";
-    CMD1 += " color_mode=Default";
-    CMD1 += " rois_import=[ROI manager]";
-    CMD1 += " view=Hyperstack stack_order=XYCZT";
-    run("Bio-Formats Importer", CMD1);
+    //Create text Files
+    myAnalysis = PathFolderInput + FP + "_Files.txt";
+    Listing = File.open(myAnalysis);
+    File.close(Listing);
 
-    Titre = getTitle;
+    myCommands = PathFolderInput + FP + "_Parameters.txt";
+    Listing = File.open(myCommands);
+    File.close(Listing);
 
-    //Create the Crop movie
-    run("Enhance Contrast", "saturated=0.35");
-    waitForUser("Set on the starting slice");
-    Sstart = getSliceNumber();
-    waitForUser("Set on the ending slice");
-    Send = getSliceNumber();
+    //Find all files and store path in myAnalysis
+    listFiles(PathFolderInput, myExt, myAnalysis);
 
-    //Crop the Stack
-    PathM1 = getDirectory("macros");
-    PathM1 += "Droplets"+File.separator;
-    PathM1 += "Stack_Editing.java";
+    //Retrieve number of files
+    RawList = File.openAsString(myAnalysis);
+    FileList = split(RawList, "\n");
 
-    ARG1 = Titre + "\t";
-    ARG1 += "" + Sstart + "\t";
-    ARG1 += "" + Send + "\t";
+    //Inform user
+    showMessage("" + FileList.length + " files have been found.\n"
+                + "Press OK when ready for manual pre-processing.");
 
-    ARG += "" + Sstart + "*";
-    ARG += "" + Send + "*";
-    runMacro(PathM1, ARG1);
+    /*
+    ============================================================================
+                            LOOP OF PARAMETERS CREATION
+    ============================================================================
+    */
 
-    setSlice(nSlices);
-    waitForUser("Draw the neuropil");
-    getSelectionCoordinates(NeuroPilX, NeuroPilY);
-    NPX = "";
-    NPY = "";
-    for(i=0; i<NeuroPilX.length; i++){
-        NPX += "" + NeuroPilX[i] + "-";
-        NPY += "" + NeuroPilY[i] + "-";
+    for (myFile=0; myFile<FileList.length; myFile++){
+        //Header CREATION
+        myHeader = "File " + (myFile+1) + " out of " + FileList.length + ".";
+
+        //Reinitiate ARG
+        ARG = ARGcommon;
+
+        //Select image file
+        Path = FileList[myFile];
+
+        //Command for Bioformat Importer
+        CMD1 = "open=[";
+        CMD1 += Path + "]";
+        CMD1 += " autoscale";
+        CMD1 += " color_mode=Default";
+        CMD1 += " rois_import=[ROI manager]";
+        CMD1 += " view=Hyperstack stack_order=XYCZT";
+        run("Bio-Formats Importer", CMD1);
+
+        Titre = getTitle;
+
+        //Create the Crop movie
+        run("Enhance Contrast", "saturated=0.35");
+        waitForUser(myHeader +"\nSet on the starting slice");
+        Sstart = getSliceNumber();
+        waitForUser(myHeader +"\nSet on the ending slice");
+        Send = getSliceNumber();
+
+        //Crop the Stack
+        PathM1 = getDirectory("macros");
+        PathM1 += "Droplets"+File.separator;
+        PathM1 += "Stack_Editing.java";
+
+        ARG1 = Titre + "\t";
+        ARG1 += "" + Sstart + "\t";
+        ARG1 += "" + Send + "\t";
+
+        ARG += "" + Sstart + "*";
+        ARG += "" + Send + "*";
+        runMacro(PathM1, ARG1);
+
+        setSlice(nSlices);
+        waitForUser(myHeader +"\nDraw the neuropil");
+        getSelectionCoordinates(NeuroPilX, NeuroPilY);
+        NPX = "";
+        NPY = "";
+        for(i=0; i<NeuroPilX.length; i++){
+            NPX += "" + NeuroPilX[i] + "-";
+            NPY += "" + NeuroPilY[i] + "-";
+        }
+        ARG += NPX + "*";
+        ARG += NPY + "*";
+
+        ARG += Path;
+
+        //Args = split(ARG, "*");
+        //Array.show(Args);
+        //waitForUser("");
+
+        //Update the command file
+        File.append(ARG, myCommands);
     }
-    ARG += NPX + "*";
-    ARG += NPY + "*";
 
-    ARG += Path;
+    //Inform user
+    showMessage("Press OK when ready for automated analysis.");
 
-    //Args = split(ARG, "*");
-    //Array.show(Args);
-    //waitForUser("");
+    /*
+    ============================================================================
+                            LOOP OF ANALYSIS
+    ============================================================================
+    */
 
-    //Run Lipid_Droplets
-    Path = getDirectory("macros");
-    Path += "Droplets"+File.separator;
-    Path += "Lipid_Droplets.java";
-    setBatchMode(true);
-    runMacro(Path, ARG);
+    //Retrieve Commands
+    Commands = File.openAsString(myCommands);
+    CommandsList = split(Commands, "\n");
+
+    for (c=0; c<CommandsList.length; c++){
+        //Use the correct concatenated arguments
+        ARG = CommandsList[c];
+
+        //Run Lipid_Droplets
+        Path = getDirectory("macros");
+        Path += "Droplets"+File.separator;
+        Path += "Lipid_Droplets.java";
+        setBatchMode(true);
+        runMacro(Path, ARG);
+
+    }
+
 
     waitForUser("Analysis is over");
+
+/*
+===============================================================================
+                            FUNCTIONS
+===============================================================================
+*/
+
+function listFiles(folder, extension, outFilePath) {
+
+	list = getFileList(folder);
+	for (i=0; i<list.length; i++) {
+        if (File.isDirectory(folder+list[i])){
+           	listFiles(""+folder+list[i], extension, outFilePath);
+       	}
+
+		if (endsWith(list[i], extension)){
+            //Only file with a RFP twin are added
+            File.append(""+folder+list[i], outFilePath);
+		}
+	}
+}//END LISTFILES
 
 /*
 ================================================================================
 */
 
 function Welcome(myTag, myCommit, url){
-    Dialog.create("WELCOME");
-    Dialog.addMessage("Lipid Droplets Analysis")
-    Dialog.addMessage("Version: " + myTag);
-    Dialog.addMessage("Last stable commit: " + myCommit);
-    Dialog.addMessage("Cluet David\nResearch Ingeneer,PHD\nCNRS, ENS-Lyon, LBMC");
-    Dialog.addHelp(url);
-    Dialog.show();
+    showMessage("WELCOME", "<html>"
+			+"<font size=+3>"
+			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
+			+"<font size=+0>"
+			+"<font color=rgb(0,0,0)>"
+			+"<ul>"
+			+"<li>Version: " + myTag + "</li>"
+			+"<li>Last stable commit: " + myCommit + "</li>"
+			+"</ul>"
+			+"<p><font color=rgb(100,100,100)>Cluet David<br>"
+            +"Research Ingeneer,PHD<br>"
+            +"<font color=rgb(77,172,174)>CNRS, ENS-Lyon, LBMC</p>"
+			)
 }//END WELCOME
 
 
