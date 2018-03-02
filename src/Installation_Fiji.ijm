@@ -1,7 +1,7 @@
 macro "Installation_2018-02-27"{
 
-tag = "v2.1.0";
-lastStableCommit = "fbe47641";
+tag = "v3.0.0"
+lastStableCommit = "b408a86e"
 myProgram = "Lipid Droplets Analysis";
 
 //IJ version verification and close the macro's window
@@ -31,7 +31,7 @@ Listing = newArray("Lipid_Droplets.java",
                     "Stats.java",
                     "Final_report.md",
                     "LayOut.md");
-                    
+
 //Create the installation folder if required
 if(File.exists(PathOutput)==0){
 File.makeDirectory(getDirectory("macros")+File.separator+"Droplets");

@@ -5,18 +5,18 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 **Batch analysis version is available**
 --
 
-2018/02/20
+2018/03/02
 
 
 
 |![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|![Example distribution](doc/Distribution.jpg)|![Example corrected distribution](doc/CDistribution.jpg)
 |-------------------------------------|-----------------------------------|-----------------------------------|-----------------------------------|
-|**ORIGINAL**   |**TREATED**   |**DISTRIBUTION**   |**CORRECTED DISTRIBUTION**   |
+|**ORIGINAL**   |**TREATED**   |**DISTRIBUTION**   |**STATISTICS ENABLED**   |
 
 
 **On progress**
 --
-- Implementation of a timer (This will slowdown the process).
+Implementation of a timer (This will slowdown the process).
 
 
 **Authors**
