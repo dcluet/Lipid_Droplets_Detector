@@ -2,10 +2,10 @@ Analysis of MYIMAGE
 ===
 
 **Parameters**
---
+==
 
 Analysis:
--
+=
 - Date: **MYDATE**
 - End: **MYSTOP**
 - Operating system: **MYOS**
@@ -14,8 +14,8 @@ Analysis:
 - Image resolution: **MYRESOLUTION**
 - Number of slices: **MYSLICES (MYSTART-MYEND)**
 
-General parameters
--
+General parameters:
+=
 - Selection: **MYSELECTION**
 - Resolution of Reference: **MYREFERENCE**
 - XY Threshold: **XYTHRESHOLD**
@@ -23,20 +23,20 @@ General parameters
 - Iterations: **MYITERATIONS**
 - Correction factor: **MYFACTOR**
 
-Initial low-resolution scan
--
+Initial low-resolution scan:
+=
 - Minimal Surface: **MINSURF**
 - Maximal Surface: **MAXSURF**
 
-False positive removal
--
+False positive removal:
+=
 - Maximal Surface: **SURFMAXC**
 - Minimal circularity: **MINCIRC**
 - Maximal circularity: **MAXCIRC**   
 
 
 **Output**
---
+==
 
 - Number of identified droplets: **MYDROPLETS**
 - Number of droplets in Neuropil: **MYNEUROPIL**

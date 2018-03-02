@@ -30,6 +30,7 @@ Listing = newArray("Lipid_Droplets.java",
                     "Distribution.java",
                     "Main.java",
                     "Stats.java",
+                    "Final_report.md",
                     "LayOut.md");
 
 //Create the installation folder if required

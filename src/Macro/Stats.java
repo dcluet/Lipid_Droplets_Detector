@@ -8,6 +8,9 @@ macro "Stats"{
     FP = Arguments[2];
     nBins = parseFloat(Arguments[3]);
 
+    //Open MD
+    MD = File.openAsString(myRoot + FP + "GLOBAL_REPORT.md")
+
     RawListing = File.openAsString(PathFiles);
     ListFiles = split(RawListing, "\n");
 
@@ -38,6 +41,15 @@ macro "Stats"{
                         "Droplet (microns)",
                         "Droplet size per million microns Brain",
                         "Mean grey values")
+    Keyword = newArray("DISTRAWJPG",
+                        "DISTJPG",
+                        "DISTIJPG",
+                        "DISTNPRAWJPG",
+                        "DISTNPJPG",
+                        "DISTNPIJPG",
+                        "DISTNNPRAWJPG",
+                        "DISTNNPJPG",
+                        "DISTNNPIJPG");
     Extension = "_Distribution.csv";
 
     /*
@@ -56,6 +68,7 @@ macro "Stats"{
         myHeader = "BINS" + "\t";
 
         myExt = ListStats[d] + Extension;
+        myFiles = "";
 
         //Loop on every stack
         for(s=0; s<ListFiles.length; s++){
@@ -72,6 +85,11 @@ macro "Stats"{
 
             //Update Header
             myHeader += NameFile + "\t";
+
+            //Update variable for Global REPORT
+            if (s==0){
+                myFiles += "- " + NameFile + "\n";
+            }
 
             currentCSVf = File.openAsString(PathCSV);
             currentCSV = split(currentCSVf, "\n");
@@ -137,37 +155,42 @@ macro "Stats"{
             File.append(myline, PathCSV);
         }
 
-    //PLOT CREATION
-    Plot.create("Distribution",
-                ListX[d],
-                "Counts",
-                arrayBins,
-                arrayMeans);
-    Plot.setFrameSize(1000, 500);
-    Plot.setColor("black");
-    Plot.add("error bars", arraySEMs);
-    Plot.setColor(ListColors[d]);
-    Plot.setLineWidth(3);
-    Plot.add("lines", arrayBins, arrayMeans);
-    Plot.show();
+        //PLOT CREATION
+        Plot.create("Distribution",
+                    ListX[d],
+                    "Counts");
+        Plot.setFrameSize(1000, 500);
+        Plot.setColor("black");
+        Plot.setLineWidth(4);
+        Plot.add("circles", arrayBins, arrayMeans);
+        Plot.add("error bars", arraySEMs);
+        Plot.setColor(ListColors[d]);
+        Plot.setLineWidth(2);
+        Plot.add("lines", arrayBins, arrayMeans);
+        Plot.show();
 
+        T = getTitle();
+        W = getWidth();
+        H = getHeight();
 
-    T = getTitle();
-    W = getWidth();
-    H = getHeight();
+        makeRectangle(0,0,W,H);
+        run("Copy");
+        newImage("Untitled", "RGB white", W, H, 1);
+        run("Paste");
+        saveAs("Jpeg",
+                PathResultsFolder + FP + "Stats_" + ListStats[d] + "_Distribution.jpg");
+        close();
+        selectWindow(T);
+        close();
 
-    makeRectangle(0,0,W,H);
-    run("Copy");
-    newImage("Untitled", "RGB white", W, H, 1);
-    run("Paste");
-    saveAs("Jpeg",
-            PathResultsFolder + FP + "Stats_" + ListStats[d] + "_Distribution.jpg");
-    close();
-    selectWindow(T);
-    close();
-
+        MD = replace(MD,
+                    Keyword[d],
+                    PathResultsFolder + FP + "Stats_" + ListStats[d] + "_Distribution.jpg");
 
     }
+
+    MD = replace(MD, "MYFILES", "" + myFiles); //OK
+    File.saveString(MD, myRoot + FP + "GLOBAL_REPORT.md");
 
 /*
 ===============================================================================

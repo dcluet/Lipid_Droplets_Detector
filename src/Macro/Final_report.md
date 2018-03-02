@@ -1,21 +1,17 @@
-Analysis of MYIMAGE
+**Report of analysis MYFP**
 ===
 
 **Parameters**
---
+==
 
 Analysis:
--
-- Date: **MYDATE**
-- End: **MYSTOP**
+=
 - Operating system: **MYOS**
 - Java Version: **MYJAVA**
 - ImageJ Version: **MYIJ**
-- Image resolution: **MYRESOLUTION**
-- Number of slices: **MYSLICES (MYSTART-MYEND)**
 
-General parameters
--
+General parameters:
+=
 - Selection: **MYSELECTION**
 - Resolution of Reference: **MYREFERENCE**
 - XY Threshold: **XYTHRESHOLD**
@@ -23,31 +19,27 @@ General parameters
 - Iterations: **MYITERATIONS**
 - Correction factor: **MYFACTOR**
 
-Initial low-resolution scan
--
+Initial low-resolution scan:
+=
 - Minimal Surface: **MINSURF**
 - Maximal Surface: **MAXSURF**
 
-False positive removal
--
+False positive removal:
+=
 - Maximal Surface: **SURFMAXC**
 - Minimal circularity: **MINCIRC**
 - Maximal circularity: **MAXCIRC**   
 
+**Input files**
+==
+MYFILES
+
 
 **Output**
---
-
-- Number of identified droplets: **MYDROPLETS**
-- Number of droplets in Neuropil: **MYNEUROPIL**
-
-Brain slices surface (10^6 microns)
-
-MYBRAINS
+==
 
 
-
-|**RESULT**|![Result](MYGIF)|
+|**RESULT**||
 |-------------------------------------|-----------------------------------|
 |**Distribution Surfaces (ALL)**|![Distribution](DISTRAWJPG)|
 |**Distribution Surfaces corrected (ALL)**|![Distribution](DISTJPG)|

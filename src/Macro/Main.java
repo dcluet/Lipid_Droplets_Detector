@@ -91,6 +91,8 @@ macro "Main"{
     myExt = Dialog.getString();
     ResWref = Dialog.getNumber();
     ResHref = Dialog.getNumber();
+    resoRef = "" + ResWref + " x " + ResHref + " microns";
+    ImResolution = ResWref*ResHref;
 
     myChoice = Dialog.getChoice();
     if (myChoice == "Whole tissue"){
@@ -113,10 +115,14 @@ macro "Main"{
 
     SizeMaxC = Dialog.getNumber() / (ResWref * ResHref);
     ARGcommon  += "" + SizeMaxC + "*";
-    ARGcommon  += "" + Dialog.getNumber() + "*"; //Circ Min
-    ARGcommon  += "" + Dialog.getNumber() + "*"; //Circ Maximal
-    ARGcommon  += "" + Dialog.getNumber() + "*"; //Iterations
-    ARGcommon  += "" + Dialog.getNumber() + "*"; //Enlarge
+    CircMinC = Dialog.getNumber();
+    ARGcommon  += "" + CircMinC + "*"; //Circ Min
+    CircMaxC = Dialog.getNumber();
+    ARGcommon  += "" + CircMaxC + "*"; //Circ Maximal
+    Iterations = Dialog.getNumber();
+    ARGcommon  += "" + Iterations + "*"; //Iterations
+    enlargement = Dialog.getNumber();
+    ARGcommon  += "" + enlargement + "*"; //Enlarge
     nBins = "" + Dialog.getNumber(); //Bins
     ARGcommon  += "" + nBins + "*"; //Bins
 
@@ -142,6 +148,9 @@ macro "Main"{
     FP = "" + year + "-" + (month+1) + "-" + dayOfMonth + "_";
     FP += "" + hour + "-" + minute + "_";
 
+    FPT = "" + year + "/" + (month+1) + "/" + dayOfMonth + " at ";
+    FPT += "" + hour + ":" + minute;
+
     //Create text Files
     myAnalysis = PathFolderInput + FP + "_Files.txt";
     Listing = File.open(myAnalysis);
@@ -161,6 +170,35 @@ macro "Main"{
     //Inform user
     DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
                 + "Press <b>OK</b> when ready for manual pre-processing.");
+
+
+    //Prepare the markDown Report
+
+    PathMD = getDirectory("macros");
+    PathMD += "Droplets"+File.separator;
+    PathMD += "Final_report.md";
+    MD = File.openAsString(PathMD);
+
+    MD = replace(MD, "MYFP", "" + FPT); //OK
+
+    MD = replace(MD, "MYOS", getInfo("os.name"));
+    MD = replace(MD, "MYJAVA", getInfo("java.version"));
+    MD = replace(MD, "MYIJ", getVersion());
+
+    MD = replace(MD, "MYSELECTION", myChoice);  //OK
+    MD = replace(MD, "MYREFERENCE", "" + resoRef);  //OK
+    MD = replace(MD, "XYTHRESHOLD", "" + (xythreshold* ImResolution) + " microns"); //OK
+    MD = replace(MD, "ZTHRESHOLD", "" + (zthreshold* ImResolution) + " microns");   //OK
+    MD = replace(MD, "MYITERATIONS", "" + Iterations);  //OK
+    MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels"); //OK
+
+    MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");    //OK
+    MD = replace(MD, "MAXSURF", "" + (SizeMax * ImResolution) + " microns");    //OK
+    MD = replace(MD, "SURFMAXC", "" + (SizeMaxC * ImResolution) + " microns");  //OK
+    MD = replace(MD, "MINCIRC", "" + CircMinC); //OK
+    MD = replace(MD, "MAXCIRC", "" + CircMaxC); //OK
+
+    File.saveString(MD, PathFolderInput + FP + "GLOBAL_REPORT.md");
 
     /*
     ============================================================================
