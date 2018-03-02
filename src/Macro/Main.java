@@ -1,7 +1,7 @@
 macro "Main"{
     //INFOS
-    tag = "v1.2.2"
-    lastStableCommit = "3999addf"
+    tag = "v2.1.0"
+    lastStableCommit = "fbe47641"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
     //Welcome
@@ -25,7 +25,6 @@ macro "Main"{
     xythresholdMicron = xythreshold * ResWref * ResHref;
     //z threshold between 2 different Lipid Droplets
     zthreshold = 5;
-    zthresholdMicron = zthreshold * ResWref * ResHref;
     //Initial Low resolution scan
     SizeMin = 7;
     SizeMinMicron = SizeMin * ResWref * ResHref;
@@ -50,8 +49,17 @@ macro "Main"{
     ============================================================================
     */
 
+    //Close all non required images.
+    PathM3 = getDirectory("macros");
+    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Close_Images.java";
+    runMacro(PathM3);
+
+    //Clean roiManager
+    roiManager("reset");
+
     //Initialisation of the Argument
-    ARG = "";
+    ARGcommon = "";
 
     //GUI
     Dialog.create("SETTINGS:");
@@ -63,7 +71,7 @@ macro "Main"{
 
     Dialog.addMessage("Thresholds between particles (microns):");
     Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
-    Dialog.addNumber("Z Distance: ", xythresholdMicron, 3, 5, "slices");
+    Dialog.addNumber("Z Distance: ", zthreshold, 3, 5, "slices");
 
     Dialog.addMessage("Parameters for the initial low-resolution scan:");
     Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "microns");
@@ -83,64 +91,360 @@ macro "Main"{
     myExt = Dialog.getString();
     ResWref = Dialog.getNumber();
     ResHref = Dialog.getNumber();
+    resoRef = "" + ResWref + " x " + ResHref + " microns";
+    ImResolution = ResWref*ResHref;
 
     myChoice = Dialog.getChoice();
     if (myChoice == "Whole tissue"){
-        ARG += "Brain" + "\t";
+        ARGcommon  += "Brain" + "*";
     }else if (myChoice == "Manual ROI"){
-        ARG += "Manual ROI" + "\t";
+        ARGcommon  += "Manual ROI" + "*";
     }
-    ARG += "" + ResWref + "\t";
-    ARG += "" + ResHref + "\t";
+    ARGcommon  += "" + ResWref + "*";
+    ARGcommon  += "" + ResHref + "*";
 
     xythreshold = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + xythreshold + "\t";
-    zthreshold = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + zthreshold + "\t";
+    ARGcommon  += "" + xythreshold + "*";
+    zthreshold = Dialog.getNumber();
+    ARGcommon  += "" + zthreshold + "*";
 
     SizeMin = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + SizeMin + "\t";
+    ARGcommon  += "" + SizeMin + "*";
     SizeMax = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + SizeMax + "\t";
+    ARGcommon  += "" + SizeMax + "*";
 
     SizeMaxC = Dialog.getNumber() / (ResWref * ResHref);
-    ARG += "" + SizeMaxC + "\t";
-    ARG += "" + Dialog.getNumber() + "\t"; //Circ Min
-    ARG += "" + Dialog.getNumber() + "\t"; //Circ Maximal
-    ARG += "" + Dialog.getNumber() + "\t"; //Iterations
-    ARG += "" + Dialog.getNumber() + "\t"; //Enlarge
-    ARG += "" + Dialog.getNumber() + "\t"; //Bins
+    ARGcommon  += "" + SizeMaxC + "*";
+    CircMinC = Dialog.getNumber();
+    ARGcommon  += "" + CircMinC + "*"; //Circ Min
+    CircMaxC = Dialog.getNumber();
+    ARGcommon  += "" + CircMaxC + "*"; //Circ Maximal
+    Iterations = Dialog.getNumber();
+    ARGcommon  += "" + Iterations + "*"; //Iterations
+    enlargement = Dialog.getNumber();
+    ARGcommon  += "" + enlargement + "*"; //Enlarge
+    nBins = "" + Dialog.getNumber(); //Bins
+    ARGcommon  += "" + nBins + "*"; //Bins
+
+    /*
+    ============================================================================
+                            IDENTIFICATION OF THE FILES
+    ============================================================================
+    */
+
+    //Retrieve folder to explore
+    myTitle = "PLEASE CHOOSE THE FOLDER CONTAINING THE FILES TO PROCESS";
+    PathFolderInput = getDirectory(myTitle);
+
+    //Generate Finger Print
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    FP = "" + year + "-" + (month+1) + "-" + dayOfMonth + "_";
+    FP += "" + hour + "-" + minute + "_";
+
+    FPT = "" + year + "/" + (month+1) + "/" + dayOfMonth + " at ";
+    FPT += "" + hour + ":" + minute;
+
+    //Create text Files
+    myAnalysis = PathFolderInput + FP + "_Files.txt";
+    Listing = File.open(myAnalysis);
+    File.close(Listing);
+
+    myCommands = PathFolderInput + FP + "_Parameters.txt";
+    Listing = File.open(myCommands);
+    File.close(Listing);
+
+    //Find all files and store path in myAnalysis
+    listFiles(PathFolderInput, myExt, myAnalysis);
+
+    //Retrieve number of files
+    RawList = File.openAsString(myAnalysis);
+    FileList = split(RawList, "\n");
+
+    //Inform user
+    DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
+                + "Press <b>OK</b> when ready for manual pre-processing.");
 
 
+    //Prepare the markDown Report
+
+    PathMD = getDirectory("macros");
+    PathMD += "Droplets"+File.separator;
+    PathMD += "Final_report.md";
+    MD = File.openAsString(PathMD);
+
+    MD = replace(MD, "MYFP", "" + FPT); //OK
+
+    MD = replace(MD, "MYOS", getInfo("os.name"));
+    MD = replace(MD, "MYJAVA", getInfo("java.version"));
+    MD = replace(MD, "MYIJ", getVersion());
+
+    MD = replace(MD, "MYSELECTION", myChoice);  //OK
+    MD = replace(MD, "MYREFERENCE", "" + resoRef);  //OK
+    MD = replace(MD, "XYTHRESHOLD", "" + (xythreshold* ImResolution) + " microns"); //OK
+    MD = replace(MD, "ZTHRESHOLD", "" + (zthreshold* ImResolution) + " microns");   //OK
+    MD = replace(MD, "MYITERATIONS", "" + Iterations);  //OK
+    MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels"); //OK
+
+    MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");    //OK
+    MD = replace(MD, "MAXSURF", "" + (SizeMax * ImResolution) + " microns");    //OK
+    MD = replace(MD, "SURFMAXC", "" + (SizeMaxC * ImResolution) + " microns");  //OK
+    MD = replace(MD, "MINCIRC", "" + CircMinC); //OK
+    MD = replace(MD, "MAXCIRC", "" + CircMaxC); //OK
+
+    File.saveString(MD, PathFolderInput + FP + "GLOBAL_REPORT.md");
+
+    /*
+    ============================================================================
+                            LOOP OF PARAMETERS CREATION
+    ============================================================================
+    */
+
+    for (myFile=0; myFile<FileList.length; myFile++){
+
+        //Close all non required images.
+        PathM3 = getDirectory("macros");
+        PathM3 += "Droplets"+File.separator;
+        PathM3 += "Close_Images.java";
+        runMacro(PathM3);
+
+        //Clean roiManager
+        roiManager("reset");
+
+        //Header CREATION
+        myHeader = "File " + (myFile+1) + " out of " + FileList.length + ".";
+
+        //Reinitiate ARG
+        ARG = ARGcommon;
+
+        //Select image file
+        Path = FileList[myFile];
+
+        //Command for Bioformat Importer
+        CMD1 = "open=[";
+        CMD1 += Path + "]";
+        CMD1 += " autoscale";
+        CMD1 += " color_mode=Default";
+        CMD1 += " rois_import=[ROI manager]";
+        CMD1 += " view=Hyperstack stack_order=XYCZT";
+        run("Bio-Formats Importer", CMD1);
+
+        Titre = getTitle;
+
+        //Create the Crop movie
+        run("Enhance Contrast", "saturated=0.35");
+        run("Fire");
+
+        waitForUser(myHeader +"\nSet on the starting slice");
+        Sstart = getSliceNumber();
+        waitForUser(myHeader +"\nSet on the ending slice");
+        Send = getSliceNumber();
+
+        //Crop the Stack
+        PathM1 = getDirectory("macros");
+        PathM1 += "Droplets"+File.separator;
+        PathM1 += "Stack_Editing.java";
+
+        ARG1 = Titre + "\t";
+        ARG1 += "" + Sstart + "\t";
+        ARG1 += "" + Send + "\t";
+
+        ARG += "" + Sstart + "*";
+        ARG += "" + Send + "*";
+        runMacro(PathM1, ARG1);
+
+        do{
+            setSlice(nSlices);
+            waitForUser(myHeader +"\nDraw the neuropil");
+            getSelectionBounds(x, y, width, height);
+            if (x==0){
+                Warning = "WARNING!<br>";
+                Warning += "No Neuropil was drawn.";
+                DisplayInfo(Warning);
+            }
+        }while( (x==0) && (y==0));
+
+        getSelectionCoordinates(NeuroPilX, NeuroPilY);
 
 
+        NPX = "";
+        NPY = "";
+        for(i=0; i<NeuroPilX.length; i++){
+            NPX += "" + NeuroPilX[i] + "-";
+            NPY += "" + NeuroPilY[i] + "-";
+        }
+        ARG += NPX + "*";
+        ARG += NPY + "*";
 
-    //Args = split(ARG, "\t");
-    //Array.show(Args);
-    //waitForUser("");
+        ARG += Path + "*";
+        ARG += PathFolderInput;
+
+        //Args = split(ARG, "*");
+        //Array.show(Args);
+        //waitForUser("");
+
+        //Update the command file
+        File.append(ARG, myCommands);
+
+        //Close all non required images.
+        PathM3 = getDirectory("macros");
+        PathM3 += "Droplets"+File.separator;
+        PathM3 += "Close_Images.java";
+        runMacro(PathM3);
+
+        //Clean roiManager
+        roiManager("reset");
+
+    }
+
+    //Inform user
+    DisplayInfo("Press <b>OK</b> when ready for automated analysis.");
 
 
+    /*
+    ============================================================================
+                            LOOP OF ANALYSIS
+    ============================================================================
+    */
 
-    //Run Lipid_Droplets
+    //Get Beginning Time
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    T1 = "" + year + "/" + (month+1) + "/" + dayOfMonth + " at ";
+    T1 += "" + hour + ":" + minute;
 
-    Path = getDirectory("macros");
-    Path += "Droplets"+File.separator;
-    Path += "Lipid_Droplets.java";
-    runMacro(Path, ARG);
+    //Retrieve Commands
+    Commands = File.openAsString(myCommands);
+    CommandsList = split(Commands, "\n");
+
+    for (c=0; c<CommandsList.length; c++){
+        //Use the correct concatenated arguments
+        ARG = CommandsList[c];
+
+        //Run Lipid_Droplets
+        PathLD = getDirectory("macros");
+        PathLD += "Droplets"+File.separator;
+        PathLD += "Lipid_Droplets.java";
+        setBatchMode(true);
+        runMacro(PathLD, ARG);
+
+    }
+
+    /*
+    ============================================================================
+                            STATISTICAL ANALYSIS
+    ============================================================================
+    */
+
+    //Run stats analysis
+    PathMS = getDirectory("macros");
+    PathMS += "Droplets"+File.separator;
+    PathMS += "Stats.java";
+
+    ARGMS = PathFolderInput + "*";
+    ARGMS += myAnalysis + "*";
+    ARGMS += FP + "*";
+    ARGMS += "" + nBins + "*";
+
+    runMacro(PathMS, ARGMS);
+
+    //Get Ending Time
+    getDateAndTime(year,
+                    month,
+                    dayOfWeek,
+                    dayOfMonth,
+                    hour,
+                    minute,
+                    second,
+                    msec);
+    T2 = "" + year + "/" + (month+1) + "/" + dayOfMonth + " at ";
+    T2 += "" + hour + ":" + minute;
+
+    EndProcess(T1,T2);
+
+/*
+===============================================================================
+                            FUNCTIONS
+===============================================================================
+*/
+
+function listFiles(folder, extension, outFilePath) {
+
+	list = getFileList(folder);
+	for (i=0; i<list.length; i++) {
+        if (File.isDirectory(folder+list[i])){
+           	listFiles(""+folder+list[i], extension, outFilePath);
+       	}
+
+		if (endsWith(list[i], extension)){
+            //Only file with a RFP twin are added
+            File.append(""+folder+list[i], outFilePath);
+		}
+	}
+}//END LISTFILES
 
 /*
 ================================================================================
 */
 
 function Welcome(myTag, myCommit, url){
-    Dialog.create("WELCOME");
-    Dialog.addMessage("Lipid Droplets Analysis")
-    Dialog.addMessage("Version: " + myTag);
-    Dialog.addMessage("Last stable commit: " + myCommit);
-    Dialog.addMessage("Cluet David\nResearch Ingeneer,PHD\nCNRS, ENS-Lyon, LBMC");
-    Dialog.addHelp(url);
-    Dialog.show();
+    showMessage("WELCOME", "<html>"
+			+"<font size=+3>"
+			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
+			+"<font size=+0>"
+			+"<font color=rgb(0,0,0)>"
+			+"<ul>"
+			+"<li>Version: " + myTag + "</li>"
+			+"<li>Last stable commit: " + myCommit + "</li>"
+			+"</ul>"
+			+"<p><font color=rgb(100,100,100)>Cluet David<br>"
+            +"Research Ingeneer,PHD<br>"
+            +"<font color=rgb(77,172,174)>CNRS, ENS-Lyon, LBMC</p>"
+			);
 }//END WELCOME
 
+/*
+================================================================================
+*/
+
+function EndProcess(Time1, Time2){
+    showMessage("", "<html>"
+			+"<font size=+3>"
+			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
+			+"<font size=+0>"
+			+"<font color=rgb(0,0,0)>"
+            +"<p>Analysis is over.</p>"
+			+"<ul>"
+			+"<li>Beginning: " + Time1 + "</li>"
+			+"<li>End: " + Time2 + "</li>"
+			+"</ul>"
+			);
+}//END ENDPROCESS
+
+/*
+================================================================================
+*/
+
+function DisplayInfo(Message){
+    showMessage("", "<html>"
+			+"<font size=+3>"
+			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
+			+"<font size=+0>"
+			+"<font color=rgb(0,0,0)>"
+            +"<p>" + Message + "</p>"
+			);
+}//END DisplayInfo
 
 }//END MACRO

@@ -1,6 +1,9 @@
 macro "Installation_2018-02-27"{
 
-version = "1.0b 2018-02-27";
+
+tag = "v2.1.0";
+lastStableCommit = "fbe47641";
+myProgram = "Lipid Droplets Analysis";
 
 
 //IJ version verification and close the macro's window
@@ -12,11 +15,7 @@ requires("1.49g");
 Errors=0;
 
 //GUI Message
-Dialog.create("Installation wizard for the Lipid_Droplets macro");
-Dialog.addMessage("Version\n" + version);
-Dialog.addMessage("Cluet David\nResearch Ingeneer,PHD\nCNRS, ENS-Lyon, LBMC");
-Dialog.addMessage("This program will install the Lipid_Droplets macro.\nShortcut will be added in the Plugins/Macros menu.");
-Dialog.show();
+Welcome(myProgram, tag, lastStableCommit);
 
 //Prepare key paths
 PathSUM = getDirectory("macros")+File.separator+"StartupMacros.txt";
@@ -30,6 +29,8 @@ Listing = newArray("Lipid_Droplets.java",
                     "Close_Images.java",
                     "Distribution.java",
                     "Main.java",
+                    "Stats.java",
+                    "Final_report.md",
                     "LayOut.md");
 
 //Create the installation folder if required
@@ -69,9 +70,47 @@ if(repair != -1){
 
 //The program prompts the user of the success or failure of the installation.
 if(Errors == 0){
-waitForUser("Installation has been performed sucessfully!\nRestart your ImageJ program.");
+DisplayInfo("", myProgram,
+		"Installation has been performed sucessfully!<br>Restart your ImageJ program.");
 } else {
-waitForUser("Files were missing!\nInstallation is incomplete.");
+DisplayInfo("", myProgram,
+		"Files were missing!<br>Installation is incomplete.");
 }
+
+/*
+================================================================================
+*/
+
+function DisplayInfo(Titre, NomProg, Message){
+    showMessage(Titre, "<html>"
+			+"<font size=+3>"
+			+"<h1><font color=rgb(77,172,174)>" + NomProg + " INSTALLATION</h1>"
+			+"<font size=+0>"
+			+"<font color=rgb(0,0,0)>"
+            		+"<p>" + Message + "</p>"
+			);
+}//END DisplayInfo
+
+/*
+================================================================================
+*/
+
+function Welcome(NomProg, myTag, myCommit){
+    showMessage("WELCOME", "<html>"
+			+"<font size=+3>"
+			+"<h1><font color=rgb(77,172,174)>" + NomProg + " INSTALLATION</h1>"
+			+"<font size=+0>"
+			+"<font color=rgb(0,0,0)>"
+			+"<ul>"
+			+"<li>Version: " + myTag + "</li>"
+			+"<li>Last stable commit: " + myCommit + "</li>"
+			+"</ul>"
+			+"<p><font color=rgb(100,100,100)>Cluet David<br>"
+            		+"Research Ingeneer,PHD<br>"
+            		+"<font color=rgb(77,172,174)>CNRS, ENS-Lyon, LBMC</p>"
+			+"<p><font color=rgb(0,0,0)>This program will install the Lipid_Droplets macro.<br>
+            		+"Shortcut will be added in the Plugins/Macros menu.</p>"
+			);
+}//END WELCOME
 
 }

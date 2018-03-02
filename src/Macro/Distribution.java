@@ -1,7 +1,7 @@
 macro "Distribution" {
 
     Argument = getArgument();
-    Arguments = split(Argument, "\t");
+    Arguments = split(Argument, "*");
 
     BinMin = parseFloat(Arguments[0]);
     BinMax = parseFloat(Arguments[1]);
@@ -10,6 +10,7 @@ macro "Distribution" {
     Path = Arguments[4];
     Nom = Arguments[5];
     mySetR = Arguments[6];
+    mycolor = Arguments[7];
 
     //Convert string set to float
     mySetR = split(mySetR, "-");
@@ -168,14 +169,14 @@ macro "Distribution" {
                 "Counts",
                 binValues,
                 myResults);
-    Plot.setLineWidth(2);
     Plot.setFrameSize(1000, 500);
+    Plot.setLineWidth(2);
     Plot.setColor("blue");
     Plot.addText(myTitle, 0, 0);
     Plot.add("line", binValues, myFit);
-    //Plot.setColor("blue");
     Plot.setLegend(mylegend, "top-right");
-
+    Plot.setColor(mycolor);
+    Plot.setLineWidth(3);
     Plot.show();
 
 
