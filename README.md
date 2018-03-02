@@ -16,7 +16,16 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 
 **On progress**
 --
-Implementation of a timer (This will slowdown the process).
+Meeting 2018/03/02:
+
+- Implementation of a timer (Initial time only).
+- Fix bug with MYSTART-MYEND.
+- Fix the Zdistance (slice and not micron).
+- Add 2 for microns square in the GUI.
+- Precise "Maximal" for number of iterations in the GUI.
+- Debug listing in the Global Report File.
+- Add % of total LD / Brain slice or Neuropil into report.
+
 
 
 **Authors**
