@@ -49,6 +49,15 @@ macro "Main"{
     ============================================================================
     */
 
+    //Close all non required images.
+    PathM3 = getDirectory("macros");
+    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Close_Images.java";
+    runMacro(PathM3);
+
+    //Clean roiManager
+    roiManager("reset");
+
     //Initialisation of the Argument
     ARGcommon = "";
 
@@ -108,7 +117,8 @@ macro "Main"{
     ARGcommon  += "" + Dialog.getNumber() + "*"; //Circ Maximal
     ARGcommon  += "" + Dialog.getNumber() + "*"; //Iterations
     ARGcommon  += "" + Dialog.getNumber() + "*"; //Enlarge
-    ARGcommon  += "" + Dialog.getNumber() + "*"; //Bins
+    nBins = "" + Dialog.getNumber(); //Bins
+    ARGcommon  += "" + nBins + "*"; //Bins
 
     /*
     ============================================================================
@@ -159,6 +169,16 @@ macro "Main"{
     */
 
     for (myFile=0; myFile<FileList.length; myFile++){
+
+        //Close all non required images.
+        PathM3 = getDirectory("macros");
+        PathM3 += "Droplets"+File.separator;
+        PathM3 += "Close_Images.java";
+        runMacro(PathM3);
+
+        //Clean roiManager
+        roiManager("reset");
+
         //Header CREATION
         myHeader = "File " + (myFile+1) + " out of " + FileList.length + ".";
 
@@ -181,6 +201,8 @@ macro "Main"{
 
         //Create the Crop movie
         run("Enhance Contrast", "saturated=0.35");
+        run("Fire");
+
         waitForUser(myHeader +"\nSet on the starting slice");
         Sstart = getSliceNumber();
         waitForUser(myHeader +"\nSet on the ending slice");
@@ -199,9 +221,20 @@ macro "Main"{
         ARG += "" + Send + "*";
         runMacro(PathM1, ARG1);
 
-        setSlice(nSlices);
-        waitForUser(myHeader +"\nDraw the neuropil");
+        do{
+            setSlice(nSlices);
+            waitForUser(myHeader +"\nDraw the neuropil");
+            getSelectionBounds(x, y, width, height);
+            if (x==0){
+                Warning = "WARNING!<br>";
+                Warning += "No Neuropil was drawn.";
+                DisplayInfo(Warning);
+            }
+        }while( (x==0) && (y==0));
+
         getSelectionCoordinates(NeuroPilX, NeuroPilY);
+
+
         NPX = "";
         NPY = "";
         for(i=0; i<NeuroPilX.length; i++){
@@ -220,6 +253,16 @@ macro "Main"{
 
         //Update the command file
         File.append(ARG, myCommands);
+
+        //Close all non required images.
+        PathM3 = getDirectory("macros");
+        PathM3 += "Droplets"+File.separator;
+        PathM3 += "Close_Images.java";
+        runMacro(PathM3);
+
+        //Clean roiManager
+        roiManager("reset");
+
     }
 
     //Inform user
@@ -275,6 +318,7 @@ macro "Main"{
     ARGMS = PathFolderInput + "*";
     ARGMS += myAnalysis + "*";
     ARGMS += FP + "*";
+    ARGMS += "" + nBins + "*";
 
     runMacro(PathMS, ARGMS);
 
