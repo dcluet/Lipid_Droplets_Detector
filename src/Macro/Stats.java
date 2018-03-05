@@ -87,9 +87,13 @@ macro "Stats"{
             myHeader += NameFile + "\t";
 
             //Update variable for Global REPORT
-            if (s==0){
-                myFiles += "- " + NameFile + "\n";
-            }
+            /*
+                MD synthax
+                [I'm an inline-style link with title](https://www.google.com "Google's Homepage")
+            */
+            PathFileMD = myRoot + NameFile + "_REPORT.md";
+            myFiles += "- [**" + NameFile + "**]";
+            myFiles += "(" + PathFileMD + ")" + "\n";
 
             currentCSVf = File.openAsString(PathCSV);
             currentCSV = split(currentCSVf, "\n");

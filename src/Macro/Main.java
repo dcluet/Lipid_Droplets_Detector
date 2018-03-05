@@ -74,17 +74,17 @@ macro "Main"{
     Dialog.addNumber("Z Distance: ", zthreshold, 3, 5, "slices");
 
     Dialog.addMessage("Parameters for the initial low-resolution scan:");
-    Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "microns");
-    Dialog.addNumber("Maximal surface: ", SizeMaxMicron, 3, 7, "microns");
+    Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "microns^2");
+    Dialog.addNumber("Maximal surface: ", SizeMaxMicron, 3, 7, "microns^2");
 
     Dialog.addMessage("Parameters for the high-resolution scan:");
-    Dialog.addNumber("Maximal surface: ", SizeMaxCMicron, 3, 7, "microns");
+    Dialog.addNumber("Maximal surface: ", SizeMaxCMicron, 3, 7, "microns^2");
     Dialog.addNumber("Minimal circularity: ", CircMinC, 3, 5, "");
     Dialog.addNumber("Maximal circularity: ", CircMaxC, 3, 5, "");
 
     Dialog.addMessage("This program is based on iterative detection of the the brightest particles.");
-    Dialog.addNumber("Number of iterations: ", 3);
-    Dialog.addNumber("Correction factor: ", 5, 0, 1, "pixel");
+    Dialog.addNumber("Number of maximal iterations: ", 3);
+    Dialog.addNumber("Correction factor: ", 5, 0, 1, "pixels");
     Dialog.addNumber("Number of bins for the distributions: ", nBins, 0, 3, "");
     Dialog.show();
 
@@ -205,7 +205,7 @@ macro "Main"{
                             LOOP OF PARAMETERS CREATION
     ============================================================================
     */
-
+    nFiles = FileList.length;
     for (myFile=0; myFile<FileList.length; myFile++){
 
         //Close all non required images.
@@ -283,7 +283,9 @@ macro "Main"{
         ARG += NPY + "*";
 
         ARG += Path + "*";
-        ARG += PathFolderInput;
+        ARG += PathFolderInput + "*";
+        ARG += "" + (myFile/nFiles) + "*";
+        ARG += "" + FPT;
 
         //Args = split(ARG, "*");
         //Array.show(Args);

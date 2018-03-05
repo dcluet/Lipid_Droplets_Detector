@@ -36,6 +36,8 @@ NeuroPilY = split(NeuroPilYtext, "-");
 
 Path = Arguments[17];
 myRoot = Arguments[18];
+myProgress = parseFloat(Arguments[19]);
+FPT = Arguments[20];
 
 /*
 ===============================================================================
@@ -95,10 +97,12 @@ myRoot = Arguments[18];
     SizeMaxC = SizeMaxC * Ratio;
 
     //UPDATE THE REPORT FILE
+    MD = replace(MD, "MYSTART", "" + Sstart);
+    MD = replace(MD, "MYEND", "" + Send);
     MD = replace(MD, "MYSELECTION", Selection);
     MD = replace(MD, "MYREFERENCE", "" + resoRef);
     MD = replace(MD, "XYTHRESHOLD", "" + (seuil* ImResolution) + " microns");
-    MD = replace(MD, "ZTHRESHOLD", "" + (zDistance* ImResolution) + " microns");
+    MD = replace(MD, "ZTHRESHOLD", "" + (zDistance) + " slices");
     MD = replace(MD, "MYITERATIONS", "" + Iterations);
     MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels");
     MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");
@@ -169,6 +173,11 @@ myRoot = Arguments[18];
     ABrains = newArray();
     ABrains = Array.concat(ABrains, 0);
 
+    LDperSlice = newArray(nSlices);
+    LDNPperSlice = newArray(nSlices);
+    AreaLDperSlice = newArray(nSlices);
+    AreaLDNPperSlice = newArray(nSlices);
+
     mybrains = "";
     for (S=1; S<=nSlices; S++){
         setSlice(S);
@@ -197,9 +206,6 @@ myRoot = Arguments[18];
     ANP = List.getValue("Area") * pixelWidth * pixelHeight;
     XNP = List.getValue("X");
     YNP = List.getValue("Y");
-
-    mybrains += "Neuropil : **" + (ANP/1000000) + "**\n\n";
-    MD = replace(MD, "MYBRAINS", "" + mybrains);
 
 
     ACorr = ANP/ABrains[nSlices];
@@ -295,8 +301,23 @@ myRoot = Arguments[18];
         }
     }// End of Iterations
 
+    //Reinitialisation of arrays containinf number of LD and total surface
+    for(np = 0; np<LDperSlice.length; np++){
+        LDperSlice[np] = 0;
+        AreaLDperSlice[np] = 0;
+        LDNPperSlice[np] = 0;
+        AreaLDNPperSlice[np] = 0;
+    }
+
     numberNP = 0;
     for(i=0; i<roiManager("count"); i++){
+        selectWindow("Raw");
+        roiManager("Select",i);
+        currentSlice = getSliceNumber - 1;
+        List.setMeasurements;
+        ALD = List.getValue("Area") * pixelWidth * pixelHeight;
+        LDperSlice[currentSlice] = LDperSlice[currentSlice] + 1;
+        AreaLDperSlice[currentSlice] = AreaLDperSlice[currentSlice] + ALD;
         selectWindow("Neuropil");
         roiManager("Select",i);
         myName = Roi.getName;
@@ -305,8 +326,12 @@ myRoot = Arguments[18];
             roiManager("Select",i);
             roiManager("Rename", "NP_"+myName);
             numberNP += 1;
+            LDNPperSlice[currentSlice] = LDNPperSlice[currentSlice] + 1;
+            AreaLDNPperSlice[currentSlice] = AreaLDNPperSlice[currentSlice] + ALD;
             }
     }
+
+
     MD = replace(MD, "MYDROPLETS", "" + roiManager("count"));
     MD = replace(MD, "MYNEUROPIL", "" + numberNP);
 
@@ -581,6 +606,20 @@ myRoot = Arguments[18];
     mystop += "" + hour + ":" + minute;
     MD = replace(MD, "MYSTOP", mystop);
 
+
+    mybrains += "Neuropil : **" + (ANP/1000000) + "**\n\n";
+
+    for(np = 0; np<LDperSlice.length; np++){
+        AreaLDperSlice[np] = 100 * AreaLDperSlice[np]/(ABrains[np+1]*1000000);
+        AreaLDNPperSlice[np] = 100 * AreaLDNPperSlice[np]/ANP;
+        mybrains += "- Slice " + (np+1) + ": **" + LDperSlice[np] + "** LDs in total.";
+        mybrains += "(" + AreaLDperSlice[np] + "% coverage of Brain)\n";
+        mybrains += " **" + LDNPperSlice[np] + "** in the Neuropil ";
+        mybrains += "(" + AreaLDNPperSlice[np] + "% coverage of Neuropil)\n";
+    }
+    mybrains += "\n";
+    MD = replace(MD, "MYBRAINS", "" + mybrains);
+
     //Save MD and CSV
     File.saveString(MD, myRoot + NameFile + "_REPORT.md");
     File.saveString(myCSV, FolderOutput + NameFile + "_data.csv");
@@ -785,10 +824,10 @@ function Twins_Killer(myStack,
             for(N=n+1; N<roiManager("count"); N++){
                 message = "Iteration " + it;
                 message += " ROI " + n;
-                message += " vs ROI " + N;
                 message += " out of " + roiManager("count");
-                message += " last score " + nROI;
+                message += " Batch started " + FPT;
                 showStatus(message);
+                showProgress(myProgress);
                 roiManager("Select", N);
                 List.setMeasurements;
                 X = List.getValue("X");
