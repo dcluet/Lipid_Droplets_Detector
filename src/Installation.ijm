@@ -2,7 +2,7 @@ macro "Installation_2018-02-27"{
 
 
 tag = "v3.0.0"
-lastStableCommit = "b408a86e"
+lastStableCommit = "9a3ecc6"
 myProgram = "Lipid Droplets Analysis";
 
 
