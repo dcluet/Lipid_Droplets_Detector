@@ -151,12 +151,12 @@ macro "Main"{
     FPT = "" + year + "/" + (month+1) + "/" + dayOfMonth + " at ";
     FPT += "" + hour + ":" + minute;
 
-    //Create text Files
     myAnalysis = PathFolderInput + FP + "_Files.txt";
+    myCommands = PathFolderInput + FP + "_Parameters.txt";
+
+    //Create text Files
     Listing = File.open(myAnalysis);
     File.close(Listing);
-
-    myCommands = PathFolderInput + FP + "_Parameters.txt";
     Listing = File.open(myCommands);
     File.close(Listing);
 
@@ -167,10 +167,18 @@ macro "Main"{
     RawList = File.openAsString(myAnalysis);
     FileList = split(RawList, "\n");
 
-    //Inform user
-    DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
-                + "Press <b>OK</b> when ready for manual pre-processing.");
-
+    if (FileList.length>0){
+        //Inform user
+        DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
+                    + "Press <b>OK</b> when ready for manual pre-processing.");
+    }else{
+        //Inform user
+        DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
+                    + "<b>The process will be aborted</b>.");
+        File.delete(myAnalysis);
+        File.delete(myCommands);
+        exit();
+    }
 
     //Prepare the markDown Report
 
