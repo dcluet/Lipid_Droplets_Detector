@@ -175,8 +175,8 @@ macro "Main"{
         //Inform user
         DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
                     + "<b>The process will be aborted</b>.");
-        File.delete(myAnalysis);
-        File.delete(myCommands);
+        de = File.delete(myAnalysis);
+        de = File.delete(myCommands);
         exit();
     }
 
