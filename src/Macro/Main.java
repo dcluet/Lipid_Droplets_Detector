@@ -260,6 +260,7 @@ macro "Main"{
         runMacro(PathM1, ARG1);
 
         do{
+            setTool("freehand");
             setSlice(nSlices);
             waitForUser(myHeader +"\nDraw the neuropil");
             getSelectionBounds(x, y, width, height);
