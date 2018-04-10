@@ -673,7 +673,7 @@ FP = Arguments[21];
 
 
     //Save MD and CSV
-    File.saveString(MD, myRoot + NameFile + "_REPORT.md");
+    File.saveString(MD, myRoot + FP + NameFile + "_REPORT.md");
     File.saveString(myCSV, FolderOutput + NameFile + "_data.csv");
 
     //Close all non required images.
