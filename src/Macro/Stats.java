@@ -80,7 +80,9 @@ macro "Stats"{
                                     0,
                                     lastIndexOf(NameFile, ".")
                                     );
-            PathOutput = Parent + NameFile + File.separator();
+
+
+            PathOutput = Parent + FP + "_" + NameFile + File.separator();
             PathCSV = PathOutput + NameFile + myExt;
 
             //Update Header
@@ -142,6 +144,7 @@ macro "Stats"{
 
         //Path CSV
         PathResultsFolder=myRoot + FP + "Stats" + File.separator;
+        PathResultsFolderRelative = FP + "Stats" + File.separator;
         File.makeDirectory(PathResultsFolder);
         PathCSV = PathResultsFolder + FP + "Stats" + myExt;
         myf = File.open(PathCSV);
@@ -189,7 +192,7 @@ macro "Stats"{
 
         MD = replace(MD,
                     Keyword[d],
-                    PathResultsFolder + FP + "Stats_" + ListStats[d] + "_Distribution.jpg");
+                    PathResultsFolderRelative + FP + "Stats_" + ListStats[d] + "_Distribution.jpg");
 
     }
 

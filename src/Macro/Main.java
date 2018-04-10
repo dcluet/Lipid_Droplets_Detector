@@ -294,7 +294,7 @@ macro "Main"{
         ARG += Path + "*";
         ARG += PathFolderInput + "*";
         ARG += "" + (myFile/nFiles) + "*";
-        ARG += "" + FPT;
+        ARG += "" + FPT + "*" + FP;
 
         //Args = split(ARG, "*");
         //Array.show(Args);

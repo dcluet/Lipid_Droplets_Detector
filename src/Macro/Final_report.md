@@ -39,7 +39,7 @@ MYFILES
 ==
 
 
-|**RESULT**||
+|**RAW DISTRIBUTIONS**||
 |-------------------------------------|-----------------------------------|
 |**Distribution Surfaces (ALL)**|![Distribution](DISTRAWJPG)|
 |**Distribution Surfaces corrected (ALL)**|![Distribution](DISTJPG)|

@@ -44,7 +44,7 @@ macro "Distribution" {
     for (max = 1; max <binBlocks.length; max++){
         nbElements = 0;
         for (i=j; i<mySet.length; i++){
-            if ((mySet[i]<binBlocks[max]) && (mySet[i]>=binBlocks[max-1])){
+            if ((mySet[i]<=binBlocks[max]) && (mySet[i]>binBlocks[max-1])){
                 nbElements += 1;
             }else{
                 //Break the loop
@@ -55,6 +55,26 @@ macro "Distribution" {
         //Update myResults
         myResults =  Array.concat(myResults, nbElements);
     }
+
+    //Determine the Cumulative distribution
+    myCumulative = newArray();
+    j = 0;
+    nbElements = 0;
+    for (max = 1; max <binBlocks.length; max++){
+
+        for (i=j; i<mySet.length; i++){
+            if ((mySet[i]<=binBlocks[max]) && (mySet[i]>binBlocks[max-1])){
+                nbElements += 1;
+            }else{
+                //Break the loop
+                j = i;
+                i = mySet.length * 10;
+            }
+        }
+        //Update myResults
+        myCumulative =  Array.concat(myCumulative, nbElements);
+    }
+
 
     nomParam = newArray("a", "b", "c", "d", "e", "f");
     bestFit = newArray(6);
@@ -194,6 +214,40 @@ macro "Distribution" {
     selectWindow(T);
     close();
 
+
+
+    myTitle = "Cumulative Distribution";
+
+    Plot.create("Cumulative Distribution",
+                Xaxis,
+                "Counts",
+                binValues,
+                myCumulative);
+    Plot.setColor(mycolor);
+    Plot.setFrameSize(1000, 500);
+    Plot.addText(myTitle, 0, 0);
+    Plot.setColor(mycolor);
+    Plot.setLineWidth(3);
+    Plot.show();
+
+
+    T = getTitle();
+    W = getWidth();
+    H = getHeight();
+
+    makeRectangle(0,0,W,H);
+    run("Copy");
+    newImage("Untitled", "RGB white", W, H, 1);
+    run("Paste");
+    saveAs("Jpeg",
+            Path + Nom + "_Cumul_Distribution.jpg");
+    close();
+    selectWindow(T);
+    close();
+
+
+
+    // CSV Distribution
     myCSV = "Gausian model: " + "\t" + myEquation + "\n";
     for (p=0; p<Fit.nParams; p++){
         myCSV+= "" + "\t" + nomParam[p] + "= " + "\t" + d2s(Fit.p(p),6) + "\n";
@@ -205,6 +259,21 @@ macro "Distribution" {
     }
 
     File.saveString(myCSV, Path + Nom + "_Distribution.csv");
+
+
+    // CSV Cumul Distribution
+    myCSV2 = "";
+    myCSV2 += "BIN" + "\t" + "Cumulative Counts" + "\n";
+    for (bin = 0; bin<binValues.length; bin++){
+        myCSV2 += "" + binValues[bin] + "\t" + myCumulative[bin] + "\n";
+    }
+
+    File.saveString(myCSV2, Path + Nom + "_Cumul_Distribution.csv");
+
+
+
+
+
 
 /*
 ================================================================================
