@@ -11,6 +11,7 @@ macro "Distribution" {
     Nom = Arguments[5];
     mySetR = Arguments[6];
     mycolor = Arguments[7];
+    CorrectionS = Arguments[8];
 
     //Convert string set to float
     mySetR = split(mySetR, "-");
@@ -72,7 +73,7 @@ macro "Distribution" {
             }
         }
         //Update myResults
-        myCumulative =  Array.concat(myCumulative, nbElements);
+        myCumulative =  Array.concat(myCumulative, nbElements/CorrectionS);
     }
 
 
@@ -216,7 +217,7 @@ macro "Distribution" {
 
 
 
-    myTitle = "Cumulative Distribution";
+    myTitle = "Cumulative Distribution corrected by " + CorrectionS;
 
     Plot.create("Cumulative Distribution",
                 Xaxis,

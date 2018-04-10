@@ -213,6 +213,10 @@ macro "Main"{
                             LOOP OF PARAMETERS CREATION
     ============================================================================
     */
+
+    //Set Freehand tool
+    setTool("freehand");
+
     nFiles = FileList.length;
     for (myFile=0; myFile<FileList.length; myFile++){
 
@@ -268,7 +272,6 @@ macro "Main"{
         runMacro(PathM1, ARG1);
 
         do{
-            setTool("freehand");
             setSlice(nSlices);
             waitForUser(myHeader +"\nDraw the neuropil");
             getSelectionBounds(x, y, width, height);
