@@ -217,7 +217,7 @@ macro "Distribution" {
 
 
 
-    myTitle = "Cumulative Distribution corrected by " + CorrectionS;
+    myTitle = "Cumulative Distribution corrected by " + CorrectionS + " (10⁶ microns²)";
 
     Plot.create("Cumulative Distribution",
                 Xaxis,
