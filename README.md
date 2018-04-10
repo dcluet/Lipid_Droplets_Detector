@@ -16,20 +16,13 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 
 **On progress**
 --
-2018/03/05:
-- Required corrections and new options added.
-- Validated on IJ 1.51t.
+2018/04/10:
+Version 3.0.1 released
 
-Meeting 2018/03/02:
-
-- Implementation of a timer (Initial time only). **Done 2018/03/05**. I have added also a progress corresponding to the stacks already done.
-- Fix bug with MYSTART-MYEND. **Done 2018/03/05**.
-- Fix the Zdistance (slice and not micron). **Done 2018/03/05**.
-- Add 2 for microns square in the GUI. **Done 2018/03/05**.
-- Precise "Maximal" for number of iterations in the GUI. **Done 2018/03/05**.
-- Debug listing in the Global Report File. **Done 2018/03/05**.
-- Add Hyperlink to report of each stack in the global report. **Done 2018/03/05**.
-- Add % of total LD / Brain slice or Neuropil into report. **Done 2018/03/05**
+Implements new features:
+- Unique ID for all report files and folders.
+- Add several values to the report as asked by Nathalie.
+- The cumulative distributions are now in the reports and accessible as `.csv` files. A correction is applied. We use the surface (in 10⁶ microns²) of the Brain for the total LDs, the Neuropil for the concerned LDs, and the total brain surface - the NP surface for the non NP LDs.
 
 
 
