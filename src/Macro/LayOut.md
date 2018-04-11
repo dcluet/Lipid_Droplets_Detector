@@ -61,27 +61,21 @@ MYBRAINS
 |**RESULT**|![Result](MYGIF)|
 |-------------------------------------|-----------------------------------|
 |**Distribution Surfaces (ALL)**|![Distribution](DISTRAWJPG)|
-|**Distribution Surfaces corrected (ALL)**|![Distribution](DISTJPG)|
 |**Distribution Intensities (ALL)**|![Distribution](DISTIJPG)|
 |   |   |
 |**Distribution Surfaces (NON-NEUROPIL)**|![Distribution](DISTNNPRAWJPG)|
-|**Distribution Surfaces corrected (NON-NEUROPIL)**|![Distribution](DISTNNPJPG)|
-|**Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIJPG)|   |   |
+|**Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIJPG)|
 |   |   |
-|**Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWJPG)|  
-|**Distribution Surfaces corrected (NEUROPIL)**|![Distribution Neuropil](DISTNPJPG)|
+|**Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWJPG)|
 |**Distribution Intensities (NEUROPIL)**|![Distribution Neuropil](DISTNPIJPG)| |
 
 |**CUMULATIVE DISTRIBUTIONS**||
 |-------------------------------------|-----------------------------------|
 |**Cumulative Distribution Surfaces (ALL)**|![Distribution](DISTRAWcumJPG)|
-|**Cumulative Distribution Surfaces corrected (ALL)**|![Distribution](DISTcumJPG)|
 |**Cumulative Distribution Intensities (ALL)**|![Distribution](DISTIcumJPG)|
 |   |   |
 |**Cumulative Distribution Surfaces (NON-NEUROPIL)**|![Distribution](DISTNNPRAWcumJPG)|
-|**Cumulative Distribution Surfaces corrected (NON-NEUROPIL)**|![Distribution](DISTNNPcumJPG)|
 |**Cumulative Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIcumJPG)|   |   |
 |   |   |
 |**Cumulative Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWcumJPG)|  
-|**Cumulative Distribution Surfaces corrected (NEUROPIL)**|![Distribution Neuropil](DISTNPcumJPG)|
 |**Cumulative Distribution Intensities (NEUROPIL)**|![Distribution Neuropil](DISTNPIcumJPG)| |

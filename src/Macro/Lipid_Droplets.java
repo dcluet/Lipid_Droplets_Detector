@@ -495,7 +495,7 @@ FP = Arguments[21];
 
 
     mybrains += "Neuropil : **" + (ANP/1000000) + "**\n\n";
-    TotalNeuropilSurface = ANP/1000000;
+    TotalNeuropilSurface = myslices * ANP/1000000;
 
     BrainLDSurface = 0;
     NPLDSurface = 0;
@@ -678,7 +678,7 @@ FP = Arguments[21];
     MD = replace(MD, "BRAINLDPERSURFACE", "" + totalLD / TotalBrainSurface);
 
     //Neuropil Area : 3*Neuropil
-    MD = replace(MD, "TOTALNP", "" + myslices * TotalNeuropilSurface);
+    MD = replace(MD, "TOTALNP", "" + TotalNeuropilSurface);
 
     //Neuropil LD surface : Mean of the % coverage of neuropil * Neuropil Area / 100
     MD = replace(MD, "NPLDTOTALSURFACE", "" + (NPLDSurface/1000000) / myslices);
