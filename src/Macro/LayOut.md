@@ -48,13 +48,13 @@ MYBRAINS
 |**In a shell nut**||
 |------------------------------------|------------------------------------|
 | Total Brain Area (10⁶ microns) | **TOTALBRAINSURFACE** |
-| Mean Brain Area (10⁶ microns)| **MEANBRAINSURFACE** |
-| Mean Brain LD Total Area (10⁶ microns) | **MEANBRAINLDSURFACE** |
+| Mean Brain Area (10⁶ microns/slice)| **MEANBRAINSURFACE** |
+| Mean Brain LD Total Area (10⁶ microns/slice) | **MEANBRAINLDSURFACE** |
 | Brain LD Mean Area (microns) | **MEANLDSURFACEBRAIN** |
 | Brain LD number / Area (10⁶ microns) | **BRAINLDPERSURFACE** |
 |------------------------------------|------------------------------------|
 | Total Neuropil Area (10⁶ microns) | **TOTALNP** |
-| Neuropil LD Area (10⁶ microns) | **NPLDTOTALSURFACE**  |
+| Mean Neuropil LD Area (10⁶ microns/slice) | **NPLDTOTALSURFACE**  |
 | Neuropil LD Mean Area (microns) | **NPLDMEANSURFACE**  |
 | Neuropil LD number / Area (10⁶ microns) | **NPLDPERSURFACE**  |
 
