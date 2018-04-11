@@ -413,7 +413,7 @@ FPT = Arguments[20];
 
     if (lastIndexOf(IJVersion,"/") == -1){
         //ImageJ
-        CMD = "save=[" + FolderOutput + NameFile + "_report.gif]";
+        CMD = "save=" + FolderOutput + NameFile + "_report.gif";
         run("Animated Gif... ",
             CMD);
     }else{
@@ -426,7 +426,7 @@ FPT = Arguments[20];
         CMD += "" + "number=-1 ";
         CMD += "" + "transparency=[No Transparency] ";
         CMD += "" + "red=0 green=0 blue=0 index=0 ";
-        CMD += "" + "filename=[" + FolderOutput + NameFile + "_report.gif]";
+        CMD += "" + "filename=" + FolderOutput + NameFile + "_report.gif";
         run("Animated Gif ... ",
             CMD);
     }
