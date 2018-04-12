@@ -27,18 +27,20 @@ Iterations = parseFloat(Arguments[10]);
 enlargement = parseFloat(Arguments[11]);
 nBins = parseFloat(Arguments[12]);
 
-Sstart = parseFloat(Arguments[13]);
-Send = parseFloat(Arguments[14]);
-NeuroPilXtext = Arguments[15];
+myAnalysis = Arguments[13];
+
+Sstart = parseFloat(Arguments[14]);
+Send = parseFloat(Arguments[15]);
+NeuroPilXtext = Arguments[16];
 NeuroPilX = split(NeuroPilXtext, "-");
-NeuroPilYtext = Arguments[16];
+NeuroPilYtext = Arguments[17];
 NeuroPilY = split(NeuroPilYtext, "-");
 
-Path = Arguments[17];
-myRoot = Arguments[18];
-myProgress = parseFloat(Arguments[19]);
-FPT = Arguments[20];
-FP = Arguments[21];
+Path = Arguments[18];
+myRoot = Arguments[19];
+myProgress = parseFloat(Arguments[20]);
+FPT = Arguments[21];
+FP = Arguments[22];
 
 /*
 ===============================================================================
@@ -91,6 +93,27 @@ FP = Arguments[21];
     getPixelSize(unit, pixelWidth, pixelHeight);
     reso = "" + pixelWidth + " " + unit + " x " + pixelHeight + " " + unit;
     resoRef = "" + ResWref + " " + unit + " x " + ResHref + " " + unit;
+
+    //Detecting Stacks
+    if (Stack.isHyperstack==1){
+
+        //Split channels
+        run("Split Channels");
+
+        //Keep only the first channel to perform analysis
+        Bodipy = "C1-" + myimage;
+        Tissue = "C2-" + myimage;
+        selectWindow(Bodipy);
+        rename(myimage);
+        if (myAnalysis != "Repo"){
+            selectWindow(Tissue);
+            close();
+        }else{
+            selectWindow(Tissue);
+            rename("Brain");
+        }
+
+    }
 
     //Recalibrating the area values depending on resoltion.
     RefResolution = ResWref*ResHref;
@@ -163,15 +186,31 @@ FP = Arguments[21];
 
     runMacro(PathM1, ARG1);
 
+    if (myAnalysis == "Repo"){
+        selectWindow("Brain");
+
+        ARG1 = "Brain" + "\t";
+        ARG1 += "" + Sstart + "\t";
+        ARG1 += "" + Send + "\t";
+
+        runMacro(PathM1, ARG1);
+    }
+
+
+
+
     //Duplicate the stack for Brain detection
     selectWindow("Raw");
     myslices = nSlices;
     MD = replace(MD, "MYSLICES", "" + myslices);
-    run("Duplicate...", "title=Brain duplicate");
+    if (myAnalysis != "Repo"){
+        run("Duplicate...", "title=Brain duplicate");
+    }
 
     roiManager("reset");
 
     Detect_Brain("Brain", FolderOutput + NameFile);
+
 
     //Create array of Brain areas. Start with 0 to have same index as slices
     ABrains = newArray();
@@ -689,6 +728,10 @@ FP = Arguments[21];
     //Neuropil LD number / surface : Neuropil LD number /  Neuropil Area
     MD = replace(MD, "NPLDPERSURFACE", "" + numberNP / TotalNeuropilSurface);
 
+    if (myAnalysis == "Repo"){
+        MD = replace(MD, "LD", "REPO");
+        MD = replace(MD, "droplets", "REPO");
+    }
 
     //Save MD and CSV
     File.saveString(MD, myRoot + FP + NameFile + "_REPORT.md");

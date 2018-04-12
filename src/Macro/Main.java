@@ -13,6 +13,19 @@ macro "Main"{
     ============================================================================
     */
 
+    //Chose analysis type
+
+    AnalyisType = newArray("Lipid Droplets", "Repo");
+
+    Dialog.create("ANALYSIS:");
+    Dialog.addMessage("Specify what kind of analysis you are performing:");
+    Dialog.addMessage("");
+    Dialog.addChoice("ANALYSIS: ", AnalyisType, "Lipid Droplets");
+    Dialog.show();
+
+    myAnalysistype = Dialog.getChoice();
+
+
     //Extension
     myExt = ".czi";
     //Resolution of reference
@@ -67,7 +80,10 @@ macro "Main"{
     Dialog.addMessage("Initial resolution used for calibration:");
     Dialog.addNumber("Pixel Width ", ResWref, 3, 5, "micron");
     Dialog.addNumber("Pixel Height: ", ResHref, 3, 5, "micron");
-    Dialog.addChoice("Region to process: ", Selections, "Whole tissue");
+    if (myAnalysistype != "Repo"){
+
+        Dialog.addChoice("Region to process: ", Selections, "Whole tissue");
+    }
 
     Dialog.addMessage("Thresholds between particles (microns):");
     Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
@@ -100,6 +116,11 @@ macro "Main"{
     }else if (myChoice == "Manual ROI"){
         ARGcommon  += "Manual ROI" + "*";
     }
+
+    if (myAnalysistype == "Repo"){
+        ARGcommon  += "Brain" + "*";
+    }
+
     ARGcommon  += "" + ResWref + "*";
     ARGcommon  += "" + ResHref + "*";
 
@@ -125,6 +146,8 @@ macro "Main"{
     ARGcommon  += "" + enlargement + "*"; //Enlarge
     nBins = "" + Dialog.getNumber(); //Bins
     ARGcommon  += "" + nBins + "*"; //Bins
+
+    ARGcommon  += "" + myAnalysistype + "*"; //Analysis type
 
     /*
     ============================================================================
@@ -206,6 +229,13 @@ macro "Main"{
     MD = replace(MD, "MINCIRC", "" + CircMinC); //OK
     MD = replace(MD, "MAXCIRC", "" + CircMaxC); //OK
 
+    if (myAnalysistype == "Repo"){
+        MD = replace(MD, "LD", "REPO");
+        MD = replace(MD, "droplets", "REPO");
+    }
+
+
+
     File.saveString(MD, PathFolderInput + FP + "GLOBAL_REPORT.md");
 
     /*
@@ -219,6 +249,9 @@ macro "Main"{
 
     nFiles = FileList.length;
     for (myFile=0; myFile<FileList.length; myFile++){
+
+        setBatchMode(true);
+
 
         //Close all non required images.
         PathM3 = getDirectory("macros");
@@ -249,9 +282,45 @@ macro "Main"{
 
         Titre = getTitle;
 
-        //Create the Crop movie
-        run("Enhance Contrast", "saturated=0.35");
-        run("Fire");
+        //Detecting Stacks
+        if (Stack.isHyperstack==1){
+
+            //Split channels
+            run("Split Channels");
+
+            //Attribute LUT to increase display resoltion
+            Bodipy = "C1-" + Titre;
+            Tissue = "C2-" + Titre;
+            selectWindow(Bodipy);
+            run("Enhance Contrast", "saturated=0.35");
+            run("Fire");
+            run("RGB Color");
+
+            selectWindow(Tissue);
+            run("Enhance Contrast", "saturated=0.35");
+            run("Red/Green");
+            run("RGB Color");
+
+            //Create the display image and rename it as the original image
+            imageCalculator("Add create stack", Bodipy, Tissue);
+            rename(Titre);
+
+            //Close intermediate stacks
+            selectWindow(Bodipy);
+            close();
+            selectWindow(Tissue);
+            close();
+        }else{
+
+            //Apply lut to classical stack
+            run("Enhance Contrast", "saturated=0.35");
+            run("Fire");
+
+        }
+
+        selectWindow(Titre);
+        setBatchMode("show");
+        setBatchMode(false);
 
         waitForUser(myHeader +"\nSet on the starting slice");
         Sstart = getSliceNumber();
@@ -271,16 +340,20 @@ macro "Main"{
         ARG += "" + Send + "*";
         runMacro(PathM1, ARG1);
 
-        do{
-            setSlice(nSlices);
-            waitForUser(myHeader +"\nDraw the neuropil");
-            getSelectionBounds(x, y, width, height);
-            if (x==0){
-                Warning = "WARNING!<br>";
-                Warning += "No Neuropil was drawn.";
-                DisplayInfo(Warning);
-            }
-        }while( (x==0) && (y==0));
+        if (myAnalysistype != "Repo"){
+            do{
+                setSlice(nSlices);
+                waitForUser(myHeader +"\nDraw the neuropil");
+                getSelectionBounds(x, y, width, height);
+                if (x==0){
+                    Warning = "WARNING!<br>";
+                    Warning += "No Neuropil was drawn.";
+                    DisplayInfo(Warning);
+                }
+            }while( (x==0) && (y==0));
+        }else{
+            makeRectangle(0,0,1,1);
+        }
 
         getSelectionCoordinates(NeuroPilX, NeuroPilY);
 
@@ -361,6 +434,8 @@ macro "Main"{
                             STATISTICAL ANALYSIS
     ============================================================================
     */
+
+
 
     //Run stats analysis
     PathMS = getDirectory("macros");
