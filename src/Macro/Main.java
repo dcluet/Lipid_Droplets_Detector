@@ -51,7 +51,7 @@ macro "Main"{
 
     //Close all non required images.
     PathM3 = getDirectory("macros");
-    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Droplets_Retina"+File.separator;
     PathM3 += "Close_Images.java";
     runMacro(PathM3);
 
@@ -183,7 +183,7 @@ macro "Main"{
     //Prepare the markDown Report
 
     PathMD = getDirectory("macros");
-    PathMD += "Droplets"+File.separator;
+    PathMD += "Droplets_Retina"+File.separator;
     PathMD += "Final_report.md";
     MD = File.openAsString(PathMD);
 
@@ -225,7 +225,7 @@ macro "Main"{
 
         //Close all non required images.
         PathM3 = getDirectory("macros");
-        PathM3 += "Droplets"+File.separator;
+        PathM3 += "Droplets_Retina"+File.separator;
         PathM3 += "Close_Images.java";
         runMacro(PathM3);
 
@@ -299,7 +299,7 @@ macro "Main"{
 
         //Crop the Stack
         PathM1 = getDirectory("macros");
-        PathM1 += "Droplets"+File.separator;
+        PathM1 += "Droplets_Retina"+File.separator;
         PathM1 += "Stack_Editing.java";
 
         ARG1 = Titre + "\t";
@@ -347,7 +347,7 @@ macro "Main"{
 
         //Close all non required images.
         PathM3 = getDirectory("macros");
-        PathM3 += "Droplets"+File.separator;
+        PathM3 += "Droplets_Retina"+File.separator;
         PathM3 += "Close_Images.java";
         runMacro(PathM3);
 
@@ -388,7 +388,7 @@ macro "Main"{
 
         //Run Lipid_Droplets
         PathLD = getDirectory("macros");
-        PathLD += "Droplets"+File.separator;
+        PathLD += "Droplets_Retina"+File.separator;
         PathLD += "Lipid_Droplets.java";
         setBatchMode(true);
         runMacro(PathLD, ARG);
@@ -403,7 +403,7 @@ macro "Main"{
 
     //Run stats analysis
     PathMS = getDirectory("macros");
-    PathMS += "Droplets"+File.separator;
+    PathMS += "Droplets_Retina"+File.separator;
     PathMS += "Stats.java";
 
     ARGMS = PathFolderInput + "*";

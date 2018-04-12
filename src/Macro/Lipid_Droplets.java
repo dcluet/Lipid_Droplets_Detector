@@ -48,7 +48,7 @@ FP = Arguments[21];
 
     //Close all non required images.
     PathM3 = getDirectory("macros");
-    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Droplets_Retina"+File.separator;
     PathM3 += "Close_Images.java";
     runMacro(PathM3);
 
@@ -73,7 +73,7 @@ FP = Arguments[21];
 
     //Open the Markdown File
     PathMD = getDirectory("macros");
-    PathMD += "Droplets"+File.separator;
+    PathMD += "Droplets_Retina"+File.separator;
     PathMD += "LayOut.md";
     MD = File.openAsString(PathMD);
     myCSV = "Name" + "\t" + "Slice" + "\t" + "X" + "\t" + "Y" + "\t" + "Area um2" + "\t" + "Corrected um2" + "\t" + "Mean Intensity" + "\n";
@@ -99,8 +99,8 @@ FP = Arguments[21];
         run("Split Channels");
 
         //Keep only the first channel to perform analysis
-        Bodipy = "C1-" + Titre;
-        Tissue = "C2-" + Titre;
+        Bodipy = "C1-" + myimage;
+        Tissue = "C2-" + myimage;
         selectWindow(Bodipy);
         rename(myimage);
         selectWindow(Tissue);
@@ -169,7 +169,7 @@ FP = Arguments[21];
 
     //Crop the Stack
     PathM1 = getDirectory("macros");
-    PathM1 += "Droplets"+File.separator;
+    PathM1 += "Droplets_Retina"+File.separator;
     PathM1 += "Stack_Editing.java";
 
     ARG1 = "Raw" + "\t";
@@ -460,7 +460,7 @@ FP = Arguments[21];
 
     //Draw Distribution
     PathM2 = getDirectory("macros");
-    PathM2 += "Droplets"+File.separator;
+    PathM2 += "Droplets_Retina"+File.separator;
     PathM2 += "Distribution.java";
 
 
@@ -711,7 +711,7 @@ FP = Arguments[21];
 
     //Close all non required images.
     PathM3 = getDirectory("macros");
-    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Droplets_Retina"+File.separator;
     PathM3 += "Close_Images.java";
     runMacro(PathM3);
 
