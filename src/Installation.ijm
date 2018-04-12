@@ -1,7 +1,7 @@
 macro "Installation_2018-02-27"{
 
 
-tag = "v3.1.0"
+tag = "v3.0.0"
 lastStableCommit = "9a3ecc6"
 myProgram = "Lipid Droplets Analysis";
 
@@ -20,7 +20,7 @@ Welcome(myProgram, tag, lastStableCommit);
 //Prepare key paths
 PathSUM = getDirectory("macros")+File.separator+"StartupMacros.txt";
 PathFolderInput =File.directory+File.separator+"Macro"+File.separator;
-PathOutput = getDirectory("macros")+"Droplets_Retina"+File.separator;
+PathOutput = getDirectory("macros")+"Droplets"+File.separator;
 
 //Listing of the files to instal
 Listing = newArray("Lipid_Droplets.java",
@@ -35,7 +35,7 @@ Listing = newArray("Lipid_Droplets.java",
 
 //Create the installation folder if required
 if(File.exists(PathOutput)==0){
-File.makeDirectory(getDirectory("macros")+File.separator+"Droplets_Retina");
+File.makeDirectory(getDirectory("macros")+File.separator+"Droplets");
 }
 
 //Installation of all files of the listing
@@ -52,7 +52,7 @@ for(i=0; i<lengthOf(Listing); i++){
 //Create the shortcut in IJ macro menu for the first installation (Main program)
 PCommandLine = PathFolderInput+ "Command_Line.txt";
 SUM = File.openAsString(PathSUM);
-pos =lastIndexOf(SUM, "//End_Lipid_droplets_Retina");
+pos =lastIndexOf(SUM, "//End_Lipid_droplets");
 repair = lastIndexOf(SUM, "Lipid_Droplets.java");
 if(pos == -1){
 	SUM = SUM + "\n\n" + File.openAsString(PCommandLine);
