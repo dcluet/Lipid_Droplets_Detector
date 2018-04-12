@@ -1,7 +1,7 @@
 macro "Main"{
     //INFOS
-    tag = "v3.Daan.2"
-    lastStableCommit = "."
+    tag = "v3.0.1"
+    lastStableCommit = "247a2f70"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
     //Welcome
@@ -213,6 +213,10 @@ macro "Main"{
                             LOOP OF PARAMETERS CREATION
     ============================================================================
     */
+
+    //Set Freehand tool
+    setTool("freehand");
+
     nFiles = FileList.length;
     for (myFile=0; myFile<FileList.length; myFile++){
 
@@ -243,60 +247,31 @@ macro "Main"{
         CMD1 += " view=Hyperstack stack_order=XYCZT";
         run("Bio-Formats Importer", CMD1);
 
-
+        Titre = getTitle;
 
         //Create the Crop movie
         run("Enhance Contrast", "saturated=0.35");
         run("Fire");
-        Titre = getTitle;
+
         waitForUser(myHeader +"\nSet on the starting slice");
-        //Sstart = getSliceNumber();
-        Stack.getPosition(channel, Sstart, frame);
-        waitForUser(myHeader +"\nSet on the ending slice (start is: " + Sstart + ")");
-        //Send = getSliceNumber();
-        Stack.getPosition(channel, Send, frame);
+        Sstart = getSliceNumber();
+        waitForUser(myHeader +"\nSet on the ending slice");
+        Send = getSliceNumber();
+
+        //Crop the Stack
+        PathM1 = getDirectory("macros");
+        PathM1 += "Droplets"+File.separator;
+        PathM1 += "Stack_Editing.java";
+
+        ARG1 = Titre + "\t";
+        ARG1 += "" + Sstart + "\t";
+        ARG1 += "" + Send + "\t";
 
         ARG += "" + Sstart + "*";
         ARG += "" + Send + "*";
-        //Crop the Stack
-        /*
-         * Due to a bug when treating multi-channel images, I made this change:
-         * Daan
-         */
-        //new commands for selecting cropped stacks
-        originalImage = getImageID();
-        ARGDUPL = "title=[" + Titre + "]";
-        if (Stack.isHyperstack == true) {
-            print("Hyperstack!");
-            ARGDUPL += " duplicate channels=1 slices=";
-        } else {
-            print("regular stack");
-            ARGDUPL += " duplicate range=";
-            rename(Titre);
-        }
-        ARGDUPL += toString(Sstart) + "-" + toString(Send);
-        //waitForUser("About to duplicate, arg:" + ARGDUPL);
-        run("Duplicate...", ARGDUPL);
-        selectImage(originalImage);
-        close();
-
-        //original code by David Cluet
-        /*
-         *PathM1 = getDirectory("macros");
-         *PathM1 += "Droplets"+File.separator;
-         *PathM1 += "Stack_Editing.java";
-         *
-         *ARG1 = Titre + "\t";
-         *ARG1 += "" + Sstart + "\t";
-         *ARG1 += "" + Send + "\t";
-         *
-         *ARG += "" + Sstart + "*";
-         *ARG += "" + Send + "*";
-         *runMacro(PathM1, ARG1);
-         */
+        runMacro(PathM1, ARG1);
 
         do{
-            setTool("freehand");
             setSlice(nSlices);
             waitForUser(myHeader +"\nDraw the neuropil");
             getSelectionBounds(x, y, width, height);
@@ -322,7 +297,7 @@ macro "Main"{
         ARG += Path + "*";
         ARG += PathFolderInput + "*";
         ARG += "" + (myFile/nFiles) + "*";
-        ARG += "" + FPT;
+        ARG += "" + FPT + "*" + FP;
 
         //Args = split(ARG, "*");
         //Array.show(Args);
@@ -424,7 +399,7 @@ function listFiles(folder, extension, outFilePath) {
 	list = getFileList(folder);
 	for (i=0; i<list.length; i++) {
         if (File.isDirectory(folder+list[i])){
-           	//listFiles(""+folder+list[i], extension, outFilePath);
+           	listFiles(""+folder+list[i], extension, outFilePath);
        	}
 
 		if (endsWith(list[i], extension)){

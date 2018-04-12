@@ -45,18 +45,37 @@ Brain slices surface (10^6 microns)
 
 MYBRAINS
 
-
+|**In a shell nut**||
+|------------------------------------|------------------------------------|
+| Total Brain Area (10⁶ microns) | **TOTALBRAINSURFACE** |
+| Mean Brain Area (10⁶ microns/slice)| **MEANBRAINSURFACE** |
+| Mean Brain LD Total Area (10⁶ microns/slice) | **MEANBRAINLDSURFACE** |
+| Brain LD Mean Area (microns) | **MEANLDSURFACEBRAIN** |
+| Brain LD number / Area (10⁶ microns) | **BRAINLDPERSURFACE** |
+|------------------------------------|------------------------------------|
+| Total Neuropil Area (10⁶ microns) | **TOTALNP** |
+| Mean Neuropil LD Area (10⁶ microns/slice) | **NPLDTOTALSURFACE**  |
+| Neuropil LD Mean Area (microns) | **NPLDMEANSURFACE**  |
+| Neuropil LD number / Area (10⁶ microns) | **NPLDPERSURFACE**  |
 
 |**RESULT**|![Result](MYGIF)|
 |-------------------------------------|-----------------------------------|
 |**Distribution Surfaces (ALL)**|![Distribution](DISTRAWJPG)|
-|**Distribution Surfaces corrected (ALL)**|![Distribution](DISTJPG)|
 |**Distribution Intensities (ALL)**|![Distribution](DISTIJPG)|
 |   |   |
 |**Distribution Surfaces (NON-NEUROPIL)**|![Distribution](DISTNNPRAWJPG)|
-|**Distribution Surfaces corrected (NON-NEUROPIL)**|![Distribution](DISTNNPJPG)|
-|**Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIJPG)|   |   |
+|**Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIJPG)|
 |   |   |
-|**Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWJPG)|  
-|**Distribution Surfaces corrected (NEUROPIL)**|![Distribution Neuropil](DISTNPJPG)|
+|**Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWJPG)|
 |**Distribution Intensities (NEUROPIL)**|![Distribution Neuropil](DISTNPIJPG)| |
+
+|**CUMULATIVE DISTRIBUTIONS**||
+|-------------------------------------|-----------------------------------|
+|**Cumulative Distribution Surfaces (ALL)**|![Distribution](DISTRAWcumJPG)|
+|**Cumulative Distribution Intensities (ALL)**|![Distribution](DISTIcumJPG)|
+|   |   |
+|**Cumulative Distribution Surfaces (NON-NEUROPIL)**|![Distribution](DISTNNPRAWcumJPG)|
+|**Cumulative Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIcumJPG)|   |   |
+|   |   |
+|**Cumulative Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWcumJPG)|  
+|**Cumulative Distribution Intensities (NEUROPIL)**|![Distribution Neuropil](DISTNPIcumJPG)| |

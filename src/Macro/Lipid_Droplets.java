@@ -38,6 +38,7 @@ Path = Arguments[17];
 myRoot = Arguments[18];
 myProgress = parseFloat(Arguments[19]);
 FPT = Arguments[20];
+FP = Arguments[21];
 
 /*
 ===============================================================================
@@ -61,7 +62,10 @@ FPT = Arguments[20];
                             0,
                             lastIndexOf(NameFile, ".")
                             );
-    FolderOutput = Parent + NameFile + File.separator();
+    FolderOutput = Parent + FP + "_" + NameFile + File.separator();
+
+    FolderOutputRelative = File.separator() + FP + "_" + NameFile + File.separator();
+
 
     if (File.exists(FolderOutput)!=1){
         File.makeDirectory(FolderOutput);
@@ -179,11 +183,15 @@ FPT = Arguments[20];
     AreaLDNPperSlice = newArray(nSlices);
 
     mybrains = "";
+
+    TotalBrainSurface = 0;
+
     for (S=1; S<=nSlices; S++){
         setSlice(S);
         ROIopen(FolderOutput + NameFile + "_Brain_Slices.txt", S-1);
         getStatistics(area);
         ABrains = Array.concat(ABrains, area * pixelWidth * pixelHeight/1000000);
+        TotalBrainSurface += area * pixelWidth * pixelHeight/1000000;
         mybrains += "Brain slice " + S + " : **" + ABrains[S] + "**\n\n";
     }
 
@@ -331,8 +339,8 @@ FPT = Arguments[20];
             }
     }
 
-
-    MD = replace(MD, "MYDROPLETS", "" + roiManager("count"));
+    totalLD = roiManager("count");
+    MD = replace(MD, "MYDROPLETS", "" + totalLD);
     MD = replace(MD, "MYNEUROPIL", "" + numberNP);
 
     /*
@@ -413,7 +421,7 @@ FPT = Arguments[20];
 
     if (lastIndexOf(IJVersion,"/") == -1){
         //ImageJ
-        CMD = "save=" + FolderOutput + NameFile + "_report.gif";
+        CMD = "save=[" + FolderOutput + NameFile + "_report.gif]";
         run("Animated Gif... ",
             CMD);
     }else{
@@ -426,13 +434,13 @@ FPT = Arguments[20];
         CMD += "" + "number=-1 ";
         CMD += "" + "transparency=[No Transparency] ";
         CMD += "" + "red=0 green=0 blue=0 index=0 ";
-        CMD += "" + "filename=" + FolderOutput + NameFile + "_report.gif";
+        CMD += "" + "filename=[" + FolderOutput + NameFile + "_report.gif]";
         run("Animated Gif ... ",
             CMD);
     }
 
     run("Close");
-    MD = replace(MD, "MYGIF", FolderOutput + NameFile + "_report.gif");
+    MD = replace(MD, "MYGIF", FolderOutputRelative + NameFile + "_report.gif");
 
 
     //Draw Distribution
@@ -467,127 +475,6 @@ FPT = Arguments[20];
         IEValues += "" + 0 + "-";
     }
 
-    mycolor = "magenta";
-    //Raw Distribution
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet (microns)" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Values_ALL" + "*";
-    ARG2 += AValues + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTRAWJPG", FolderOutput + NameFile + "_Values_ALL_Distribution.jpg");
-
-    //Corrected Distribution (per million of pixel of brain surface)
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet size per million microns Brain" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Corrected_Values_ALL" + "*";
-    ARG2 += AValuesCorr + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTJPG", FolderOutput + NameFile + "_Corrected_Values_ALL_Distribution.jpg");
-
-    //Intensities
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + 20000 + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Mean grey values" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Intensities_ALL" + "*";
-    ARG2 += IValues + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTIJPG", FolderOutput + NameFile + "_Intensities_ALL_Distribution.jpg");
-
-    mycolor = "cyan";
-    //Raw Distribution Neuropil
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet (microns)" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Values_NP" + "*";
-    ARG2 += NValues + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNPRAWJPG", FolderOutput + NameFile + "_Values_NP_Distribution.jpg");
-
-    //Corrected Distribution for Neuropil
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet size per million microns Brain" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Corrected_Values_NP" + "*";
-    ARG2 += NValuesCorr + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNPJPG", FolderOutput + NameFile + "_Corrected_Values_NP_Distribution.jpg");
-
-    //Intensities
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + 20000 + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Mean grey values" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Intensities_NP" + "*";
-    ARG2 += INValues + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNPIJPG", FolderOutput + NameFile + "_Intensities_NP_Distribution.jpg");
-
-    mycolor = "orange";
-    //Raw Distribution Non-Neuropil
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet (microns)" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Values_Non-NP" + "*";
-    ARG2 += EValues + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNNPRAWJPG", FolderOutput + NameFile + "_Values_Non-NP_Distribution.jpg");
-
-
-    //Corrected Distribution for non-Neuropil
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet size per million microns Brain" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Corrected_Values_Non-NP" + "*";
-    ARG2 += EValuesCorr + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNNPJPG", FolderOutput + NameFile + "_Corrected_Values_Non-NP_Distribution.jpg");
-
-    //Intensities
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + 20000 + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Mean grey values" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Intensities_Non-NP" + "*";
-    ARG2 += IEValues + "*";
-    ARG2 += mycolor;
-
-    runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNNPIJPG", FolderOutput + NameFile + "_Intensities_Non-NP_Distribution.jpg");
-
     //Create the result filesCircMinC, SizeMaxC
     selectWindow("Raw");
     roiManager("Select", roiManager("count")-1);
@@ -608,20 +495,203 @@ FPT = Arguments[20];
 
 
     mybrains += "Neuropil : **" + (ANP/1000000) + "**\n\n";
+    TotalNeuropilSurface = myslices * ANP/1000000;
+
+    BrainLDSurface = 0;
+    NPLDSurface = 0;
 
     for(np = 0; np<LDperSlice.length; np++){
+        BrainLDSurface += AreaLDperSlice[np];
+        NPLDSurface += AreaLDNPperSlice[np];
         AreaLDperSlice[np] = 100 * AreaLDperSlice[np]/(ABrains[np+1]*1000000);
         AreaLDNPperSlice[np] = 100 * AreaLDNPperSlice[np]/ANP;
         mybrains += "- Slice " + (np+1) + ": **" + LDperSlice[np] + "** LDs in total.";
         mybrains += "(" + AreaLDperSlice[np] + "% coverage of Brain)\n";
         mybrains += " **" + LDNPperSlice[np] + "** in the Neuropil ";
         mybrains += "(" + AreaLDNPperSlice[np] + "% coverage of Neuropil)\n";
+
     }
     mybrains += "\n";
     MD = replace(MD, "MYBRAINS", "" + mybrains);
 
+    mycolor = "magenta";
+    //Raw Distribution
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Droplet (microns)" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Values_ALL" + "*";
+    ARG2 += AValues + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + TotalBrainSurface;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTRAWJPG", FolderOutputRelative + NameFile + "_Values_ALL_Distribution.jpg");
+    MD = replace(MD, "DISTRAWcumJPG", FolderOutputRelative + NameFile + "_Values_ALL_Cumul_Distribution.jpg");
+
+    //Corrected Distribution (per million of pixel of brain surface)
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Droplet size per million microns Brain" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Corrected_Values_ALL" + "*";
+    ARG2 += AValuesCorr + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + TotalBrainSurface;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTJPG", FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Distribution.jpg");
+    MD = replace(MD, "DISTcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Cumul_Distribution.jpg");
+
+    //Intensities
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + 20000 + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Mean grey values" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Intensities_ALL" + "*";
+    ARG2 += IValues + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + TotalBrainSurface;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTIJPG", FolderOutputRelative + NameFile + "_Intensities_ALL_Distribution.jpg");
+    MD = replace(MD, "DISTIcumJPG", FolderOutputRelative + NameFile + "_Intensities_ALL_Cumul_Distribution.jpg");
+
+    mycolor = "cyan";
+    //Raw Distribution Neuropil
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Droplet (microns)" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Values_NP" + "*";
+    ARG2 += NValues + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + TotalNeuropilSurface;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNPRAWJPG", FolderOutputRelative + NameFile + "_Values_NP_Distribution.jpg");
+    MD = replace(MD, "DISTNPRAWcumJPG", FolderOutputRelative + NameFile + "_Values_NP_Cumul_Distribution.jpg");
+
+    //Corrected Distribution for Neuropil
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Droplet size per million microns Brain" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Corrected_Values_NP" + "*";
+    ARG2 += NValuesCorr + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + TotalNeuropilSurface;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNPJPG", FolderOutputRelative + NameFile + "_Corrected_Values_NP_Distribution.jpg");
+    MD = replace(MD, "DISTNPcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_NP_Cumul_Distribution.jpg");
+
+    //Intensities
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + 20000 + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Mean grey values" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Intensities_NP" + "*";
+    ARG2 += INValues + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + TotalNeuropilSurface;
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNPIJPG", FolderOutputRelative + NameFile + "_Intensities_NP_Distribution.jpg");
+    MD = replace(MD, "DISTNPIcumJPG", FolderOutputRelative + NameFile + "_Intensities_NP_Cumul_Distribution.jpg");
+
+    mycolor = "orange";
+    //Raw Distribution Non-Neuropil
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Droplet (microns)" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Values_Non-NP" + "*";
+    ARG2 += EValues + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNNPRAWJPG", FolderOutputRelative + NameFile + "_Values_Non-NP_Distribution.jpg");
+    MD = replace(MD, "DISTNNPRAWcumJPG", FolderOutputRelative + NameFile + "_Values_Non-NP_Cumul_Distribution.jpg");
+
+    //Corrected Distribution for non-Neuropil
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Droplet size per million microns Brain" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Corrected_Values_Non-NP" + "*";
+    ARG2 += EValuesCorr + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNNPJPG", FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Distribution.jpg");
+    MD = replace(MD, "DISTNNPcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Cumul_Distribution.jpg");
+
+    //Intensities
+    ARG2 = "" + 0 + "*";
+    ARG2 += "" + 20000 + "*";
+    ARG2 += "" + nBins + "*";
+    ARG2 += "" + "Mean grey values" + "*";
+    ARG2 += "" + FolderOutput + NameFile + "*";
+    ARG2 += "" + "_Intensities_Non-NP" + "*";
+    ARG2 += IEValues + "*";
+    ARG2 += mycolor + "*";
+    ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
+
+    runMacro(PathM2, ARG2);
+    MD = replace(MD, "DISTNNPIJPG", FolderOutputRelative + NameFile + "_Intensities_Non-NP_Distribution.jpg");
+    MD = replace(MD, "DISTNNPIcumJPG", FolderOutputRelative + NameFile + "_Intensities_Non-NP_Cumul_Distribution.jpg");
+
+
+
+
+
+
+
+
+
+
+    //Brain Area : n slices area sum
+    MD = replace(MD, "TOTALBRAINSURFACE", "" + TotalBrainSurface);
+
+    //Mean Brain
+    MD = replace(MD, "MEANBRAINSURFACE", "" + TotalBrainSurface/myslices);
+
+    //Brain LD Surface : Mean of the % coverage of Brain * Brain Area / 100
+    MeanBrainLDSurface = BrainLDSurface / myslices;
+    MD = replace(MD, "MEANBRAINLDSURFACE", "" + MeanBrainLDSurface/1000000);
+
+    //Brain LD Mean Surface : Brain LD surface / Brain LD number
+    MD = replace(MD, "MEANLDSURFACEBRAIN", "" + BrainLDSurface / totalLD);
+
+    //Brain LD number / surface : Brain LD number / Brain Area
+    MD = replace(MD, "BRAINLDPERSURFACE", "" + totalLD / TotalBrainSurface);
+
+    //Neuropil Area : 3*Neuropil
+    MD = replace(MD, "TOTALNP", "" + TotalNeuropilSurface);
+
+    //Neuropil LD surface : Mean of the % coverage of neuropil * Neuropil Area / 100
+    MD = replace(MD, "NPLDTOTALSURFACE", "" + (NPLDSurface/1000000) / myslices);
+
+    //Neuropil LD Mean Surface : Neuropil LD surface / Neuropi LD number
+    MD = replace(MD, "NPLDMEANSURFACE", "" + NPLDSurface / numberNP );
+
+    //Neuropil LD number / surface : Neuropil LD number /  Neuropil Area
+    MD = replace(MD, "NPLDPERSURFACE", "" + numberNP / TotalNeuropilSurface);
+
+
     //Save MD and CSV
-    File.saveString(MD, myRoot + NameFile + "_REPORT.md");
+    File.saveString(MD, myRoot + FP + NameFile + "_REPORT.md");
     File.saveString(myCSV, FolderOutput + NameFile + "_data.csv");
 
     //Close all non required images.

@@ -1,9 +1,9 @@
-macro "LIPID_DROPLETS"{
+macro "LIPID_DROPLETS_RETINA"{
 Path = getDirectory("macros")+File.separator();
-Path += "Droplets"+File.separator();
+Path += "Droplets_Retina"+File.separator();
 Path += "Main.java";
 
 runMacro(Path);
 }
 
-//End_Lipid_droplets
+//End_Lipid_droplets_Retina
