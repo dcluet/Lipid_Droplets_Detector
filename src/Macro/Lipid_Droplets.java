@@ -92,6 +92,21 @@ FP = Arguments[21];
     reso = "" + pixelWidth + " " + unit + " x " + pixelHeight + " " + unit;
     resoRef = "" + ResWref + " " + unit + " x " + ResHref + " " + unit;
 
+    //Detecting Stacks
+    if (Stack.isHyperstack==1){
+
+        //Split channels
+        run("Split Channels");
+
+        //Keep only the first channel to perform analysis
+        Bodipy = "C1-" + Titre;
+        Tissue = "C2-" + Titre;
+        selectWindow(Bodipy);
+        rename(myimage);
+        selectWindow(Tissue);
+        close();
+    }
+
     //Recalibrating the area values depending on resoltion.
     RefResolution = ResWref*ResHref;
     ImResolution = pixelWidth*pixelHeight;

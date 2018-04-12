@@ -220,6 +220,9 @@ macro "Main"{
     nFiles = FileList.length;
     for (myFile=0; myFile<FileList.length; myFile++){
 
+        setBatchMode(true);
+
+
         //Close all non required images.
         PathM3 = getDirectory("macros");
         PathM3 += "Droplets"+File.separator;
@@ -249,9 +252,45 @@ macro "Main"{
 
         Titre = getTitle;
 
-        //Create the Crop movie
-        run("Enhance Contrast", "saturated=0.35");
-        run("Fire");
+        //Detecting Stacks
+        if (Stack.isHyperstack==1){
+
+            //Split channels
+            run("Split Channels");
+
+            //Attribute LUT to increase display resoltion
+            Bodipy = "C1-" + Titre;
+            Tissue = "C2-" + Titre;
+            selectWindow(Bodipy);
+            run("Enhance Contrast", "saturated=0.35");
+            run("Fire");
+            run("RGB Color");
+
+            selectWindow(Tissue);
+            run("Enhance Contrast", "saturated=0.35");
+            run("Red/Green");
+            run("RGB Color");
+
+            //Create the display image and rename it as the original image
+            imageCalculator("Add create stack", Bodipy, Tissue);
+            rename(Titre);
+
+            //Close intermediate stacks
+            selectWindow(Bodipy);
+            close();
+            selectWindow(Tissue);
+            close();
+        }else{
+
+            //Apply lut to classical stack
+            run("Enhance Contrast", "saturated=0.35");
+            run("Fire");
+
+        }
+
+        selectWindow(Titre);
+        setBatchMode("show");
+        setBatchMode(false);
 
         waitForUser(myHeader +"\nSet on the starting slice");
         Sstart = getSliceNumber();
