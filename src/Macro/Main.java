@@ -1,7 +1,7 @@
 macro "Main"{
     //INFOS
-    tag = "v3.0.1"
-    lastStableCommit = "247a2f70"
+    tag = "v4.0.0"
+    lastStableCommit = "80637adf"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
     //Welcome
@@ -491,7 +491,7 @@ function listFiles(folder, extension, outFilePath) {
 function Welcome(myTag, myCommit, url){
     showMessage("WELCOME", "<html>"
 			+"<font size=+3>"
-			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
+			+"<h1><font color=rgb(77,172,174)>Lipid Droplets and REPO Analysis</h1>"
 			+"<font size=+0>"
 			+"<font color=rgb(0,0,0)>"
 			+"<ul>"
