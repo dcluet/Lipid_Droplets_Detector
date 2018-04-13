@@ -16,13 +16,13 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 
 **On progress**
 --
-2018/04/10:
-Version 3.0.1 released
+2018/04/13:
+Version 4.0.0 released
 
 Implements new features:
-- Unique ID for all report files and folders.
-- Add several values to the report as asked by Nathalie.
-- The cumulative distributions are now in the reports and accessible as `.csv` files. A correction is applied. We use the surface (in 10⁶ microns²) of the Brain for the total LDs, the Neuropil for the concerned LDs, and the total brain surface - the NP surface for the non NP LDs.
+- All together program for REPO, RETINA and BRAIN.
+- Enables to reload start, end and NP from a previous analysis, but with new parameters (size...).
+- Change in Display for hyperstacks (simple red and green now).
 
 
 

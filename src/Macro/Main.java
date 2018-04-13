@@ -76,6 +76,9 @@ macro "Main"{
 
     //GUI
     Dialog.create("SETTINGS:");
+    Dialog.addMessage("Re-use the same initial, final and manual selection of a previous analysis?");
+    reuse = newArray("NO", "YES");
+    Dialog.addChoice("", reuse, "NO");
     Dialog.addString("Extension of the stacks files: ", myExt, 5);
     Dialog.addMessage("Initial resolution used for calibration:");
     Dialog.addNumber("Pixel Width ", ResWref, 3, 5, "micron");
@@ -103,6 +106,8 @@ macro "Main"{
     Dialog.addNumber("Correction factor: ", 5, 0, 1, "pixels");
     Dialog.addNumber("Number of bins for the distributions: ", nBins, 0, 3, "");
     Dialog.show();
+
+    myReuse = Dialog.getChoice();
 
     myExt = Dialog.getString();
     ResWref = Dialog.getNumber();
@@ -192,8 +197,14 @@ macro "Main"{
 
     if (FileList.length>0){
         //Inform user
-        DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
-                    + "Press <b>OK</b> when ready for manual pre-processing.");
+        if (myReuse == "NO"){
+            DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
+                        + "Press <b>OK</b> when ready for manual pre-processing.");
+        }else{
+            DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
+                        + "Press <b>OK</b> when ready to precise which parameters to reuse.");
+        }
+
     }else{
         //Inform user
         DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
@@ -202,6 +213,8 @@ macro "Main"{
         de = File.delete(myCommands);
         exit();
     }
+
+
 
     //Prepare the markDown Report
 
@@ -248,10 +261,52 @@ macro "Main"{
     setTool("freehand");
 
     nFiles = FileList.length;
-    for (myFile=0; myFile<FileList.length; myFile++){
+    if (myReuse == "YES"){
+        OK = 0;
+        do{
+            existingSet = File.openDialog("Please indicate which file to use as reference");
+            if (endsWith(existingSet, "_Parameters.txt" == 0){
+                Warning = "WARNING!<br>";
+                Warning += "The file is not correct.<br>";
+                Warning += "Should ends with _Parameters.txt";
+                DisplayInfo(Warning);
+            }else{
+                OK = 1;
+            }
+        }while(OK == 0);
 
-        setBatchMode(true);
 
+
+
+        listCommands = File.openAsString(existingSet);
+        myCommandsList = split(listCommands, "\n");
+
+
+        for (c=0; c<myCommandsList.length; c++){
+            //Use the correct concatenated arguments
+            Arguments = split(myCommandsList[c], "*");
+
+            Sstart = parseFloat(Arguments[14]);
+            Send = parseFloat(Arguments[15]);
+            NeuroPilXtext = Arguments[16];
+            NeuroPilYtext = Arguments[17];
+            Path = Arguments[18];
+            myRoot = Arguments[19];
+            myProgress = parseFloat(Arguments[20]);
+
+            ARG = ARGcommon;
+            ARG += "" + Sstart + "*";
+            ARG += "" + Send + "*";
+            ARG += NeuroPilXtext + "*";
+            ARG += NeuroPilYtext + "*";
+            ARG += Path + "*";
+            ARG += myRoot + "*";
+            ARG += "" + myProgress + "*";
+            ARG += "" + FPT + "*" + FP;
+
+            File.append(ARG, myCommands);
+
+        }
 
         //Close all non required images.
         PathM3 = getDirectory("macros");
@@ -262,122 +317,142 @@ macro "Main"{
         //Clean roiManager
         roiManager("reset");
 
-        //Header CREATION
-        myHeader = "File " + (myFile+1) + " out of " + FileList.length + ".";
+    }
 
-        //Reinitiate ARG
-        ARG = ARGcommon;
 
-        //Select image file
-        Path = FileList[myFile];
+    if (myReuse == "NO"){
+        for (myFile=0; myFile<FileList.length; myFile++){
 
-        //Command for Bioformat Importer
-        CMD1 = "open=[";
-        CMD1 += Path + "]";
-        CMD1 += " autoscale";
-        CMD1 += " color_mode=Default";
-        CMD1 += " rois_import=[ROI manager]";
-        CMD1 += " view=Hyperstack stack_order=XYCZT";
-        run("Bio-Formats Importer", CMD1);
+            setBatchMode(true);
 
-        Titre = getTitle;
 
-        //Detecting Stacks
-        if (Stack.isHyperstack==1){
+            //Close all non required images.
+            PathM3 = getDirectory("macros");
+            PathM3 += "Droplets"+File.separator;
+            PathM3 += "Close_Images.java";
+            runMacro(PathM3);
 
-            //Split channels
-            run("Split Channels");
+            //Clean roiManager
+            roiManager("reset");
 
-            //Attribute LUT to increase display resoltion
-            Bodipy = "C1-" + Titre;
-            Tissue = "C2-" + Titre;
-            selectWindow(Bodipy);
-            run("Enhance Contrast", "saturated=0.35");
-            run("Fire");
-            run("RGB Color");
+            //Header CREATION
+            myHeader = "File " + (myFile+1) + " out of " + FileList.length + ".";
 
-            selectWindow(Tissue);
-            run("Enhance Contrast", "saturated=0.35");
-            run("Red/Green");
-            run("RGB Color");
+            //Reinitiate ARG
+            ARG = ARGcommon;
 
-            //Create the display image and rename it as the original image
-            imageCalculator("Add create stack", Bodipy, Tissue);
-            rename(Titre);
+            //Select image file
+            Path = FileList[myFile];
 
-            //Close intermediate stacks
-            selectWindow(Bodipy);
-            close();
-            selectWindow(Tissue);
-            close();
-        }else{
+            //Command for Bioformat Importer
+            CMD1 = "open=[";
+            CMD1 += Path + "]";
+            CMD1 += " autoscale";
+            CMD1 += " color_mode=Default";
+            CMD1 += " rois_import=[ROI manager]";
+            CMD1 += " view=Hyperstack stack_order=XYCZT";
+            run("Bio-Formats Importer", CMD1);
 
-            //Apply lut to classical stack
-            run("Enhance Contrast", "saturated=0.35");
-            run("Fire");
+            Titre = getTitle;
 
+            //Detecting Stacks
+            if (Stack.isHyperstack==1){
+
+                //Split channels
+                run("Split Channels");
+
+                //Attribute LUT to increase display resoltion
+                Bodipy = "C1-" + Titre;
+                Tissue = "C2-" + Titre;
+                selectWindow(Bodipy);
+                run("Enhance Contrast", "saturated=0.35");
+                run("Green");
+                run("RGB Color");
+
+                selectWindow(Tissue);
+                run("Enhance Contrast", "saturated=0.35");
+                run("Red");
+                run("RGB Color");
+
+                //Create the display image and rename it as the original image
+                imageCalculator("Add create stack", Bodipy, Tissue);
+                rename(Titre);
+
+                //Close intermediate stacks
+                selectWindow(Bodipy);
+                close();
+                selectWindow(Tissue);
+                close();
+            }else{
+
+                //Apply lut to classical stack
+                run("Enhance Contrast", "saturated=0.35");
+                run("Fire");
+
+            }
+
+            selectWindow(Titre);
+            setBatchMode("show");
+            setBatchMode(false);
+
+            waitForUser(myHeader +"\nSet on the starting slice");
+            Sstart = getSliceNumber();
+            waitForUser(myHeader +"\nSet on the ending slice");
+            Send = getSliceNumber();
+
+            //Crop the Stack
+            PathM1 = getDirectory("macros");
+            PathM1 += "Droplets"+File.separator;
+            PathM1 += "Stack_Editing.java";
+
+            ARG1 = Titre + "\t";
+            ARG1 += "" + Sstart + "\t";
+            ARG1 += "" + Send + "\t";
+
+            ARG += "" + Sstart + "*";
+            ARG += "" + Send + "*";
+            runMacro(PathM1, ARG1);
+
+            if (myAnalysistype != "Repo"){
+                do{
+                    setSlice(nSlices);
+                    waitForUser(myHeader +"\nDraw the neuropil");
+                    getSelectionBounds(x, y, width, height);
+                    if (x==0){
+                        Warning = "WARNING!<br>";
+                        Warning += "No Neuropil was drawn.";
+                        DisplayInfo(Warning);
+                    }
+                }while( (x==0) && (y==0));
+            }else{
+                makeRectangle(0,0,1,1);
+            }
+
+            getSelectionCoordinates(NeuroPilX, NeuroPilY);
+
+
+            NPX = "";
+            NPY = "";
+            for(i=0; i<NeuroPilX.length; i++){
+                NPX += "" + NeuroPilX[i] + "-";
+                NPY += "" + NeuroPilY[i] + "-";
+            }
+            ARG += NPX + "*";
+            ARG += NPY + "*";
+
+            ARG += Path + "*";
+            ARG += PathFolderInput + "*";
+            ARG += "" + (myFile/nFiles) + "*";
+            ARG += "" + FPT + "*" + FP;
+
+            //Args = split(ARG, "*");
+            //Array.show(Args);
+            //waitForUser("");
+
+            //Update the command file
+            File.append(ARG, myCommands);
         }
 
-        selectWindow(Titre);
-        setBatchMode("show");
-        setBatchMode(false);
-
-        waitForUser(myHeader +"\nSet on the starting slice");
-        Sstart = getSliceNumber();
-        waitForUser(myHeader +"\nSet on the ending slice");
-        Send = getSliceNumber();
-
-        //Crop the Stack
-        PathM1 = getDirectory("macros");
-        PathM1 += "Droplets"+File.separator;
-        PathM1 += "Stack_Editing.java";
-
-        ARG1 = Titre + "\t";
-        ARG1 += "" + Sstart + "\t";
-        ARG1 += "" + Send + "\t";
-
-        ARG += "" + Sstart + "*";
-        ARG += "" + Send + "*";
-        runMacro(PathM1, ARG1);
-
-        if (myAnalysistype != "Repo"){
-            do{
-                setSlice(nSlices);
-                waitForUser(myHeader +"\nDraw the neuropil");
-                getSelectionBounds(x, y, width, height);
-                if (x==0){
-                    Warning = "WARNING!<br>";
-                    Warning += "No Neuropil was drawn.";
-                    DisplayInfo(Warning);
-                }
-            }while( (x==0) && (y==0));
-        }else{
-            makeRectangle(0,0,1,1);
-        }
-
-        getSelectionCoordinates(NeuroPilX, NeuroPilY);
-
-
-        NPX = "";
-        NPY = "";
-        for(i=0; i<NeuroPilX.length; i++){
-            NPX += "" + NeuroPilX[i] + "-";
-            NPY += "" + NeuroPilY[i] + "-";
-        }
-        ARG += NPX + "*";
-        ARG += NPY + "*";
-
-        ARG += Path + "*";
-        ARG += PathFolderInput + "*";
-        ARG += "" + (myFile/nFiles) + "*";
-        ARG += "" + FPT + "*" + FP;
-
-        //Args = split(ARG, "*");
-        //Array.show(Args);
-        //waitForUser("");
-
-        //Update the command file
-        File.append(ARG, myCommands);
 
         //Close all non required images.
         PathM3 = getDirectory("macros");
