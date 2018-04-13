@@ -114,15 +114,16 @@ macro "Main"{
     ResHref = Dialog.getNumber();
     resoRef = "" + ResWref + " x " + ResHref + " microns";
     ImResolution = ResWref*ResHref;
-
-    myChoice = Dialog.getChoice();
-    if (myChoice == "Whole tissue"){
-        ARGcommon  += "Brain" + "*";
-    }else if (myChoice == "Manual ROI"){
-        ARGcommon  += "Manual ROI" + "*";
+    if (myAnalysistype != "Repo"){
+        myChoice = Dialog.getChoice();
+        if (myChoice == "Whole tissue"){
+            ARGcommon  += "Brain" + "*";
+        }else if (myChoice == "Manual ROI"){
+            ARGcommon  += "Manual ROI" + "*";
+        }
     }
-
     if (myAnalysistype == "Repo"){
+        myChoice = "AUTOMATIC / Whole tissue";
         ARGcommon  += "Brain" + "*";
     }
 
@@ -265,7 +266,7 @@ macro "Main"{
         OK = 0;
         do{
             existingSet = File.openDialog("Please indicate which file to use as reference");
-            if (endsWith(existingSet, "_Parameters.txt" == 0){
+            if (endsWith(existingSet, "_Parameters.txt") == 0){
                 Warning = "WARNING!<br>";
                 Warning += "The file is not correct.<br>";
                 Warning += "Should ends with _Parameters.txt";
