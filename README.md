@@ -2,10 +2,10 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 ===
 
 
-**Batch analysis version is available**
+**Independent settings version**
 --
 
-2018/03/02
+2018/05/14
 
 
 
@@ -17,12 +17,7 @@ Automated Detection of Lipid Droplets in *Drosophila M.* brain
 **On progress**
 --
 2018/04/13:
-Version 4.0.0 released
-
-Implements new features:
-- All together program for REPO, RETINA and BRAIN.
-- Enables to reload start, end and NP from a previous analysis, but with new parameters (size...).
-- Change in Display for hyperstacks (simple red and green now).
+Version 4.0.1 released
 
 
 

@@ -1,7 +1,7 @@
 macro "Installation_2018-02-27"{
 
-tag = "v4.0.0"
-lastStableCommit = "80637adf"
+tag = "v4.0.1"
+lastStableCommit = "f3ca9c5f"
 myProgram = "Lipid Droplets and REPO Analysis";
 
 //IJ version verification and close the macro's window
