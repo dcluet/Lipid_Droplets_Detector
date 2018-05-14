@@ -15,7 +15,69 @@ macro "Main"{
 
     //Chose analysis type
 
-    AnalyisType = newArray("Lipid Droplets", "Repo");
+    AnalyisType = newArray("Lipid Droplets Brain",
+                           "Lipid Droplets Retina",
+                           "Repo");
+
+    /*
+    Parameters structure:
+    ====================
+    0   Extension
+    1   Reference resoltion (micron/pixel) in X
+    2   Reference resoltion (micron/pixel) in Y
+    3   Distance xy in pixels between 2 particles
+    4   Distance in z between 2 particles
+    5   Minimum size in pixel
+    6   Maximum size in pixel
+    7   Maximum size (to exclude big fat bodies)
+    8   Minimum circularity
+    9   Maximum circularity
+    10  Number of Iterations
+    11  Zone for enlargement (in pixel) and erasing
+    12  Number of bins for distributions
+    */
+
+    paramBrain = newArray(".czi",
+                          "0.156",
+                          "0.156",
+                          "5",
+                          "5",
+                          "7",
+                          "15000",
+                          "500",
+                          "0.5",
+                          "1",
+                          "3",
+                          "5",
+                          "50");
+
+    paramRet = newArray(".czi",
+                        "0.156",
+                        "0.156",
+                        "5",
+                        "5",
+                        "6.98",
+                        "15000",
+                        "821.82",
+                        "0.5",
+                        "1",
+                        "2",
+                        "5",
+                        "50");
+
+    paramRepo = newArray(".czi",
+                         "0.156",
+                         "0.156",
+                         "5",
+                         "5",
+                         "7",
+                         "15000",
+                         "500",
+                         "0.5",
+                         "1",
+                         "3",
+                         "5",
+                         "50");
 
     Dialog.create("ANALYSIS:");
     Dialog.addMessage("Specify what kind of analysis you are performing:");
@@ -25,36 +87,47 @@ macro "Main"{
 
     myAnalysistype = Dialog.getChoice();
 
+    if (myAnalysistype == "Lipid Droplets Brain"){
+        param = paramBrain;
+    }
+
+    if (myAnalysistype == "Lipid Droplets Retina"){
+        param = paramRet;
+    }
+
+    if (myAnalysistype == "Repo"){
+        param = paramRepo;
+    }
 
     //Extension
-    myExt = ".czi";
+    myExt = param[0];
     //Resolution of reference
-    ResWref = 0.156;
-    ResHref = 0.156;
+    ResWref = parseFloat(param[1]);
+    ResHref = parseFloat(param[2]);
     //Region of Analysis
     Selections = newArray("Whole tissue",  "Manual ROI");
     //xy threshold between 2 differents Lipid Droplets
-    xythreshold = 5;
+    xythreshold = parseFloat(param[3]);
     xythresholdMicron = xythreshold * ResWref * ResHref;
     //z threshold between 2 different Lipid Droplets
-    zthreshold = 5;
+    zthreshold = parseFloat(param[4]);
     //Initial Low resolution scan
-    SizeMin = 7;
+    SizeMin = parseFloat(param[5]);
     SizeMinMicron = SizeMin * ResWref * ResHref;
-    SizeMax = 15000;
+    SizeMax = parseFloat(param[6]);
     SizeMaxMicron = SizeMax * ResWref * ResHref;
     //False negative removal
-    SizeMaxC = 500;
+    SizeMaxC = parseFloat(param[7]);
     SizeMaxCMicron = SizeMaxC * ResWref * ResHref;
-    CircMinC = 0.5;
-    CircMaxC = 1;
+    CircMinC = parseFloat(param[8]);
+    CircMaxC = parseFloat(param[9]);
 
     //Number of iteration
-    Iterations = 3;
+    nIteration = parseFloat(param[10]);
     //Correction factor between iterations
-    enlargement = 5;
+    CorrectionSize = parseFloat(param[11]);
     //Number of bins for the distributions graphs
-    nBins = 50;
+    nBins = parseFloat(param[12]);
 
     /*
     ============================================================================
@@ -102,8 +175,8 @@ macro "Main"{
     Dialog.addNumber("Maximal circularity: ", CircMaxC, 3, 5, "");
 
     Dialog.addMessage("This program is based on iterative detection of the the brightest particles.");
-    Dialog.addNumber("Number of maximal iterations: ", 3);
-    Dialog.addNumber("Correction factor: ", 5, 0, 1, "pixels");
+    Dialog.addNumber("Number of maximal iterations: ", nIteration);
+    Dialog.addNumber("Correction factor: ", CorrectionSize, 0, 1, "pixels");
     Dialog.addNumber("Number of bins for the distributions: ", nBins, 0, 3, "");
     Dialog.show();
 
