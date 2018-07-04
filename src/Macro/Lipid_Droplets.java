@@ -42,6 +42,8 @@ myProgress = parseFloat(Arguments[20]);
 FPT = Arguments[21];
 FP = Arguments[22];
 
+minimumFound = parseFloat(Arguments[23]);
+
 /*
 ===============================================================================
                             CORE PROGRAM
@@ -344,7 +346,7 @@ FP = Arguments[22];
                             SizeMaxC);
 
             //Check if it is worse to continue
-            if (nROI+50>roiManager("count")){
+            if (nROI+minimumFound>roiManager("count")){
                 it = 10 * Iterations;
             }
 

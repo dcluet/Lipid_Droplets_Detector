@@ -50,7 +50,8 @@ macro "Main"{
                           "3",
                           "5",
                           "50",
-                          "?");
+                          "?",
+                          "50");
 
     paramRet = newArray(".czi",
                         "0.156",
@@ -65,7 +66,8 @@ macro "Main"{
                         "2",
                         "5",
                         "50",
-                        "Manual ROI");
+                        "Manual ROI",
+                        "50");
 
     paramRepo = newArray(".czi",
                          "0.156",
@@ -80,7 +82,8 @@ macro "Main"{
                          "3",
                          "5",
                          "50",
-                         "Whole tissue");
+                         "Whole tissue",
+                         "50");
 
     Dialog.create("ANALYSIS:");
     Dialog.addMessage("Specify what kind of analysis you are performing:");
@@ -137,6 +140,7 @@ macro "Main"{
     CorrectionSize = parseFloat(param[11]);
     //Number of bins for the distributions graphs
     nBins = parseFloat(param[12]);
+    minNew = parseFloat(param[14]);
 
     /*
     ============================================================================
@@ -185,6 +189,7 @@ macro "Main"{
 
     Dialog.addMessage("This program is based on iterative detection of the the brightest particles.");
     Dialog.addNumber("Number of maximal iterations: ", nIteration);
+    Dialog.addNumber("Number of minimal new particle to perform next iteration", minNew);
     Dialog.addNumber("Correction factor: ", CorrectionSize, 0, 1, "pixels");
     Dialog.addNumber("Number of bins for the distributions: ", nBins, 0, 3, "");
     Dialog.show();
@@ -230,6 +235,7 @@ macro "Main"{
     ARGcommon  += "" + CircMaxC + "*"; //Circ Maximal
     Iterations = Dialog.getNumber();
     ARGcommon  += "" + Iterations + "*"; //Iterations
+    minNew = Dialog.getNumber();
     enlargement = Dialog.getNumber();
     ARGcommon  += "" + enlargement + "*"; //Enlarge
     nBins = "" + Dialog.getNumber(); //Bins
@@ -385,7 +391,8 @@ macro "Main"{
             ARG += Path + "*";
             ARG += myRoot + "*";
             ARG += "" + myProgress + "*";
-            ARG += "" + FPT + "*" + FP;
+            ARG += "" + FPT + "*" + FP + "*";
+            ARG += "" + minNew;
 
             File.append(ARG, myCommands);
 
