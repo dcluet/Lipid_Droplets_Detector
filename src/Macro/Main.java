@@ -49,7 +49,8 @@ macro "Main"{
                           "1",
                           "3",
                           "5",
-                          "50");
+                          "50",
+                          "?");
 
     paramRet = newArray(".czi",
                         "0.156",
@@ -63,7 +64,8 @@ macro "Main"{
                         "1",
                         "2",
                         "5",
-                        "50");
+                        "50",
+                        "Manual ROI");
 
     paramRepo = newArray(".czi",
                          "0.156",
@@ -77,7 +79,8 @@ macro "Main"{
                          "1",
                          "3",
                          "5",
-                         "50");
+                         "50",
+                         "Whole tissue");
 
     Dialog.create("ANALYSIS:");
     Dialog.addMessage("Specify what kind of analysis you are performing:");
@@ -105,7 +108,13 @@ macro "Main"{
     ResWref = parseFloat(param[1]);
     ResHref = parseFloat(param[2]);
     //Region of Analysis
-    Selections = newArray("Whole tissue",  "Manual ROI");
+    myZone = param[13];
+    if (myZone == "?"){
+        Selections = newArray("Whole tissue",  "Manual ROI");
+    }else{
+        Selections = newArray(myZone);
+    }
+
     //xy threshold between 2 differents Lipid Droplets
     xythreshold = parseFloat(param[3]);
     xythresholdMicron = xythreshold * ResWref * ResHref;

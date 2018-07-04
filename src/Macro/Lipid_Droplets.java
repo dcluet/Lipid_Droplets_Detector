@@ -292,9 +292,9 @@ FP = Arguments[22];
             run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add slice");
         }
 
+        myFound = roiManager("count");
 
-
-        if (nROI<roiManager("count")){
+        if (nROI<myFound){
 
             //Remove all non brain particles
             if (Selection == "Brain"){
@@ -343,9 +343,16 @@ FP = Arguments[22];
                             CircMinC,
                             SizeMaxC);
 
+            //Check if it is worse to continue
+            if (nROI+50>roiManager("count")){
+                it = 10 * Iterations;
+            }
+
             //Update the total number of ROI validated
             nROI = roiManager("count");
+
         }
+
     }// End of Iterations
 
     //Reinitialisation of arrays containinf number of LD and total surface
