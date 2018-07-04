@@ -15,9 +15,22 @@ macro "Main"{
 
     //Chose analysis type
 
-    AnalyisType = newArray("Lipid Droplets Brain",
-                           "Lipid Droplets Retina",
-                           "Repo");
+    PathSettings = getDirectory("macros");
+    PathSettings += "Droplets"+File.separator;
+    PathSettings += "settings.csv";
+
+    //Retrieve content of settings.csv
+    myText = File.openAsString(PathSettings);
+    //separate lines
+    mylines = split(myText, "\n");
+
+    AnalyisType = newArray();
+
+    //Retrieve settings names
+    for(line = 1; line <mylines.length; line++){
+         mycolumns = split(mylines[line], ",");
+         AnalyisType = Array.concat(AnalyisType,mycolumns[0]);
+    }
 
     /*
     Parameters structure:
@@ -35,55 +48,10 @@ macro "Main"{
     10  Number of Iterations
     11  Zone for enlargement (in pixel) and erasing
     12  Number of bins for distributions
+    13  Type of the analysis Zone
+    14  Minimal number of particules to continue iterations
     */
 
-    paramBrain = newArray(".czi",
-                          "0.156",
-                          "0.156",
-                          "5",
-                          "5",
-                          "7",
-                          "15000",
-                          "500",
-                          "0.5",
-                          "1",
-                          "3",
-                          "5",
-                          "50",
-                          "?",
-                          "50");
-
-    paramRet = newArray(".czi",
-                        "0.156",
-                        "0.156",
-                        "5",
-                        "5",
-                        "6.98",
-                        "15000",
-                        "821.82",
-                        "0.5",
-                        "1",
-                        "2",
-                        "5",
-                        "50",
-                        "Manual ROI",
-                        "50");
-
-    paramRepo = newArray(".czi",
-                         "0.156",
-                         "0.156",
-                         "5",
-                         "5",
-                         "7",
-                         "15000",
-                         "500",
-                         "0.5",
-                         "1",
-                         "3",
-                         "5",
-                         "50",
-                         "Whole tissue",
-                         "50");
 
     Dialog.create("ANALYSIS:");
     Dialog.addMessage("Specify what kind of analysis you are performing:");
@@ -93,17 +61,20 @@ macro "Main"{
 
     myAnalysistype = Dialog.getChoice();
 
-    if (myAnalysistype == "Lipid Droplets Brain"){
-        param = paramBrain;
+    //Retrieve Parameters
+    param = newArray();
+
+    for(line = 1; line <mylines.length; line++){
+         mycolumns = split(mylines[line], ",");
+
+         if (mycolumns[0] == myAnalysistype){
+             for (c=1; c<mycolumns.length; c++){
+                 param = Array.concat(param,mycolumns[c]);
+             }
+         }
     }
 
-    if (myAnalysistype == "Lipid Droplets Retina"){
-        param = paramRet;
-    }
 
-    if (myAnalysistype == "Repo"){
-        param = paramRepo;
-    }
 
     //Extension
     myExt = param[0];
@@ -169,10 +140,8 @@ macro "Main"{
     Dialog.addMessage("Initial resolution used for calibration:");
     Dialog.addNumber("Pixel Width ", ResWref, 3, 5, "micron");
     Dialog.addNumber("Pixel Height: ", ResHref, 3, 5, "micron");
-    if (myAnalysistype != "Repo"){
+    Dialog.addChoice("Region to process: ", Selections);
 
-        Dialog.addChoice("Region to process: ", Selections, "Whole tissue");
-    }
 
     Dialog.addMessage("Thresholds between particles (microns):");
     Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
@@ -201,17 +170,11 @@ macro "Main"{
     ResHref = Dialog.getNumber();
     resoRef = "" + ResWref + " x " + ResHref + " microns";
     ImResolution = ResWref*ResHref;
-    if (myAnalysistype != "Repo"){
-        myChoice = Dialog.getChoice();
-        if (myChoice == "Whole tissue"){
-            ARGcommon  += "Brain" + "*";
-        }else if (myChoice == "Manual ROI"){
-            ARGcommon  += "Manual ROI" + "*";
-        }
-    }
-    if (myAnalysistype == "Repo"){
-        myChoice = "AUTOMATIC / Whole tissue";
+    myChoice = Dialog.getChoice();
+    if (myChoice == "Whole tissue"){
         ARGcommon  += "Brain" + "*";
+    }else if (myChoice == "Manual ROI"){
+        ARGcommon  += "Manual ROI" + "*";
     }
 
     ARGcommon  += "" + ResWref + "*";
@@ -392,7 +355,6 @@ macro "Main"{
             ARG += myRoot + "*";
             ARG += "" + myProgress + "*";
             ARG += "" + FPT + "*" + FP + "*";
-            ARG += "" + minNew;
 
             File.append(ARG, myCommands);
 
@@ -503,7 +465,7 @@ macro "Main"{
             ARG += "" + Send + "*";
             runMacro(PathM1, ARG1);
 
-            if (myAnalysistype != "Repo"){
+            if (myChoice != "Whole tissue"){
                 do{
                     setSlice(nSlices);
                     waitForUser(myHeader +"\nDraw the neuropil");
@@ -533,7 +495,8 @@ macro "Main"{
             ARG += Path + "*";
             ARG += PathFolderInput + "*";
             ARG += "" + (myFile/nFiles) + "*";
-            ARG += "" + FPT + "*" + FP;
+            ARG += "" + FPT + "*" + FP + "*";
+            ARG += "" + minNew;
 
             //Args = split(ARG, "*");
             //Array.show(Args);

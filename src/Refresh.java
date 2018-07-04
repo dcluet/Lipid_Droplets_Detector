@@ -18,6 +18,7 @@ macro "Refresh" {
                         "Distribution.java",
                         "Main.java",
                         "Stats.java",
+                        "settings.csv",
                         "Final_report.md",
                         "LayOut.md");
 

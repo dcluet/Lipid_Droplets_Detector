@@ -29,6 +29,7 @@ Listing = newArray("Lipid_Droplets.java",
                     "Distribution.java",
                     "Main.java",
                     "Stats.java",
+                    "settings.csv",
                     "Final_report.md",
                     "LayOut.md");
 
