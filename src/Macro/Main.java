@@ -86,7 +86,8 @@ macro "Main"{
     if (myZone == "?"){
         Selections = newArray("Whole tissue",  "Manual ROI");
     }else{
-        Selections = newArray(myZone);
+        Selections = newArray(myZone, "");
+        Selections = Array.trim(Selections, 1);
     }
 
     //xy threshold between 2 differents Lipid Droplets
