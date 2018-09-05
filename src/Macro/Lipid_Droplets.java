@@ -111,7 +111,7 @@ minimumFound = parseFloat(Arguments[23]);
             selectWindow(Tissue);
             close();
         }else{
-            selectWindow(Tissue);
+            selectWindow(myimage);
             rename("Brain");
         }
 
