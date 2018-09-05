@@ -44,6 +44,8 @@ FP = Arguments[22];
 
 minimumFound = parseFloat(Arguments[23]);
 
+channel = Arguments[24];
+
 /*
 ===============================================================================
                             CORE PROGRAM
@@ -103,15 +105,10 @@ minimumFound = parseFloat(Arguments[23]);
         run("Split Channels");
 
         //Keep only the first channel to perform analysis
-        Bodipy = "C1-" + myimage;
-        Tissue = "C2-" + myimage;
-        selectWindow(Bodipy);
+        selectWindow(channel + myimage);
         rename(myimage);
-        if (myAnalysis != "Repo"){
-            selectWindow(Tissue);
-            close();
-        }else{
-            selectWindow(myimage);
+
+        if (myAnalysis == "Repo"){
             rename("Brain");
         }
 
@@ -197,8 +194,6 @@ minimumFound = parseFloat(Arguments[23]);
 
         runMacro(PathM1, ARG1);
     }
-
-
 
 
     //Duplicate the stack for Brain detection
