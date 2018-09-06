@@ -1,7 +1,7 @@
 macro "Main"{
     //INFOS
     tag = "v4.0.3"
-    lastStableCommit = "f3ca9c5f"
+    lastStableCommit = "09c54a63"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
     //Welcome
@@ -146,7 +146,7 @@ macro "Main"{
     Dialog.addChoice("Region to process: ", Selections);
 
 
-    Dialog.addMessage("Thresholds between particles (microns):");
+    Dialog.addMessage("Thresholds between particles:");
     Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
     Dialog.addNumber("Z Distance: ", zthreshold, 3, 5, "slices");
 
