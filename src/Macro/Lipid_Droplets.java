@@ -294,7 +294,7 @@ channel = Arguments[24];
         if (nROI<myFound){
 
             //Remove all non brain particles
-            if (Selection == "Brain"){
+            if (Selection != "Manual ROI"){
                 for (p=0; p<roiManager("count"); p++){
                     setForegroundColor(0, 0, 0);
                     selectWindow("Brain-Shape");

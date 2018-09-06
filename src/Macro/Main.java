@@ -1,6 +1,6 @@
 macro "Main"{
     //INFOS
-    tag = "v4.0.2"
+    tag = "v4.0.3"
     lastStableCommit = "f3ca9c5f"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
@@ -84,7 +84,9 @@ macro "Main"{
     //Region of Analysis
     myZone = param[13];
     if (myZone == "?"){
-        Selections = newArray("Whole tissue",  "Manual ROI");
+        Selections = newArray("Whole tissue with Sub-Selection",
+                                "Whole tissue",
+                                "Manual ROI");
     }else{
         Selections = newArray(myZone, "");
         Selections = Array.trim(Selections, 1);
@@ -176,6 +178,8 @@ macro "Main"{
         ARGcommon  += "Brain" + "*";
     }else if (myChoice == "Manual ROI"){
         ARGcommon  += "Manual ROI" + "*";
+    }else if (myChoice == "Whole tissue with Sub-Selection"){
+        ARGcommon += "BrainNP" + "*";
     }
 
     ARGcommon  += "" + ResWref + "*";

@@ -37,14 +37,17 @@ For ImageJ, the conversion of the analyzed stacks into animated GIFs requires th
 
 To read Markdown files, use the `Markdown Preview Plus` extension for `Chrome`. In the `Extension menu` allow access to files URL.
 
+**User guide**
+===
 
-**Installation**
---
+
+**1) INSTALLATION**
+-
 The `LIPID_DROPLETS` macro requires can be automatically installed with all required files in `ImageJ` and `FIJI`. Please follow the specific instructions described below.
 
 
 ![ImageJ Logo](doc/IJ.jpg)
----
+-
 1. Open `ImageJ`.
 2. Open the `src` folder of the `LIPID_DROPLETS` macro.
 3. Drag the `Installation.ijm` file on `ImageJ` Menu bar to open it.
@@ -54,7 +57,7 @@ The `LIPID_DROPLETS` macro requires can be automatically installed with all requ
 
 
 ![FIJI Logo](doc/FIJI.jpg)
----
+-
 1. Open `FIJI`.
 2. Open the `src` folder of the `LIPID_DROPLETS` macro.
 3. Drag the `Installation_Fiji.ijm` file on `FIJI` Menu bar to open it.
@@ -62,7 +65,12 @@ The `LIPID_DROPLETS` macro requires can be automatically installed with all requ
 5. All required files will be installed in the `Fiji.app/macros/Droplets` folder. The shortcut `Plugins/Macros/LIPID_DROPLETS` will be added in the Menu bar.
 6. Restart `FIJI` to refresh the Menu bar.
 
+![Shortcut](doc/Shortcut.jpg)
 
-Update
----
+
+**2) UPDATE**
+-
 Follow the same instructions as for the installation process.
+
+**3) LAUNCH AN ANALYSIS**
+-
