@@ -20,6 +20,7 @@ macro "Refresh" {
                         "Identify_Files.java",
                         "Main.java",
                         "Main_GUI.java",
+                        "Select_Channel.java",
                         "Stats.java",
                         "settings.csv",
                         "Final_report.md",
