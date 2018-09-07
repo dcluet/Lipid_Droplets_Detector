@@ -57,7 +57,7 @@ The `LIPID_DROPLETS` macro requires can be automatically installed with all requ
 -
 Follow the same instructions as for the installation process.
 
-**3) LAUNCH AN ANALYSIS**
+**3) PERFORM AN ANALYSIS**
 -
 
 Click on the `Plugins/Macros/LIPID_DROPLETS` shortcut.
@@ -96,7 +96,7 @@ Parameters
 **Initial resolution used for the calibration**: The two following parameters correspond to the pixel value in micron of the set of stacks used to set your parameters values. Thus, in case of microscope change, and a subsequent different resolution, a correction coefficient will be applied.
 
 **Region to process**: In order to provide versatile analyses the macro can manipulate the particles of interest can be detected and analyzed using one of the three following options:
-- **Whole tissue with Sub-Selection**: The manipulator draws a `Region Of Interest` for each stack. During the automated analysis, the program detects the tissue using the ["Huang" thresholding method](https://pdfs.semanticscholar.org/8906/64d6e7861253bd8c36d0e9079f96c9f22d67.pdf) and will identify the particles of interest using [“Max-Entropy” threshold method](https://www.sciencedirect.com/science/article/pii/0734189X85901252). The particules of interest and then classified depending if they are located within the `Tissue`, specific of the `Region of Interest`, and within the `Tissue ` **but not in ** `Region of Interest`.
+- **Whole tissue with Sub-Selection**: The manipulator draws a `Region Of Interest` for each stack. During the automated analysis, the program detects the tissue using the ["Huang" thresholding method](https://pdfs.semanticscholar.org/8906/64d6e7861253bd8c36d0e9079f96c9f22d67.pdf) and will identify the particles of interest using [“Max-Entropy” threshold method](https://www.sciencedirect.com/science/article/pii/0734189X85901252). The particules of interest and then classified depending if they are located within the `Tissue`, specific of the `Region of Interest`, and within the `Tissue ` **but not in** `Region of Interest`.
 - **Whole tissue**: During the automated analysis, the program detects the tissue and will identify the particles of interest present.   
 - **Manual ROI**: The manipulator draws a `Region Of Interest` for each stack. During the automated analysis, the program detects the particles of interest present in this `Region of Interest`.   
 
@@ -115,7 +115,7 @@ Parameters
  Batch analysis
  -
 
- When all parameters are set the program prompts use to identify the folder containing all your stacks.
+ When all parameters are set the program prompts use to identify the **root folder** containing all your stacks.
 
 ![Folder](doc/Folder.jpg)
 
@@ -128,7 +128,7 @@ Channel Selection
 
 The program will then load in background the first file. If you are using **hyperstacks** with several channels, the macro will ask you to specify in which channel the particles have to be found.
 
-![Channels](doc/Channels.jpg) 
+![Channels](doc/Channels.jpg)
 
 Tailored stack analysis
 -
@@ -137,3 +137,5 @@ Then the program will ask you **for each file** to select the **starting** and *
 If the **Whole tissue with Sub-Selection** or **Manual ROI** options have been selected the program ask you to draw the **sub-selection** of interest.
 
 ![Selection](doc/Selection.jpg)
+
+**These file specific parameters will be saved in a _Parameters.txt file within the root folder of your analysis, allowing later key parameters optimization.**

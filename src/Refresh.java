@@ -17,6 +17,7 @@ macro "Refresh" {
                         "Close_Images.java",
                         "Distribution.java",
                         "Main.java",
+                        "Main_GUI.java",
                         "Stats.java",
                         "settings.csv",
                         "Final_report.md",

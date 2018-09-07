@@ -4,12 +4,34 @@ macro "Main"{
     lastStableCommit = "09c54a63"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
+    /*
+    ============================================================================
+                                CLEAN IMAGEJ
+    ============================================================================
+    */
+
+
+    //Close all non required images.
+    PathM3 = getDirectory("macros");
+    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Close_Images.java";
+    runMacro(PathM3);
+
+    //Clean roiManager
+    roiManager("reset");
+
+    /*
+    ============================================================================
+                                WELCOME WINDOW
+    ============================================================================
+    */
+
     //Welcome
     Welcome(tag, lastStableCommit, gitlaburl);
 
     /*
     ============================================================================
-                                MAIN VARIABLES
+                            SELECT ANALYSIS TYPE
     ============================================================================
     */
 
@@ -68,53 +90,9 @@ macro "Main"{
          mycolumns = split(mylines[line], ",");
 
          if (mycolumns[0] == myAnalysistype){
-             for (c=1; c<mycolumns.length; c++){
-                 param = Array.concat(param,mycolumns[c]);
-             }
+             param = mylines[line];
          }
     }
-
-
-
-    //Extension
-    myExt = param[0];
-    //Resolution of reference
-    ResWref = parseFloat(param[1]);
-    ResHref = parseFloat(param[2]);
-    //Region of Analysis
-    myZone = param[13];
-    if (myZone == "?"){
-        Selections = newArray("Whole tissue with Sub-Selection",
-                                "Whole tissue",
-                                "Manual ROI");
-    }else{
-        Selections = newArray(myZone, "");
-        Selections = Array.trim(Selections, 1);
-    }
-
-    //xy threshold between 2 differents Lipid Droplets
-    xythreshold = parseFloat(param[3]);
-    xythresholdMicron = xythreshold * ResWref * ResHref;
-    //z threshold between 2 different Lipid Droplets
-    zthreshold = parseFloat(param[4]);
-    //Initial Low resolution scan
-    SizeMin = parseFloat(param[5]);
-    SizeMinMicron = SizeMin * ResWref * ResHref;
-    SizeMax = parseFloat(param[6]);
-    SizeMaxMicron = SizeMax * ResWref * ResHref;
-    //False negative removal
-    SizeMaxC = parseFloat(param[7]);
-    SizeMaxCMicron = SizeMaxC * ResWref * ResHref;
-    CircMinC = parseFloat(param[8]);
-    CircMaxC = parseFloat(param[9]);
-
-    //Number of iteration
-    nIteration = parseFloat(param[10]);
-    //Correction factor between iterations
-    CorrectionSize = parseFloat(param[11]);
-    //Number of bins for the distributions graphs
-    nBins = parseFloat(param[12]);
-    minNew = parseFloat(param[14]);
 
     /*
     ============================================================================
@@ -122,119 +100,28 @@ macro "Main"{
     ============================================================================
     */
 
-    //Close all non required images.
-    PathM3 = getDirectory("macros");
-    PathM3 += "Droplets"+File.separator;
-    PathM3 += "Close_Images.java";
-    runMacro(PathM3);
+    //Launches GUI
+    PathGUI = getDirectory("macros");
+    PathGUI += "Droplets"+File.separator;
+    PathGUI += "Main_GUI.java";
 
-    //Clean roiManager
-    roiManager("reset");
-
-    //Initialisation of the Argument
-    ARGcommon = "";
-
-    //GUI
-    Dialog.create("SETTINGS:");
-    Dialog.addMessage("Re-use the same initial, final and manual selection of a previous analysis?");
-    reuse = newArray("NO", "YES");
-    Dialog.addChoice("", reuse, "NO");
-    Dialog.addString("Extension of the stacks files: ", myExt, 5);
-    Dialog.addMessage("Initial resolution used for calibration:");
-    Dialog.addNumber("Pixel Width ", ResWref, 3, 5, "micron");
-    Dialog.addNumber("Pixel Height: ", ResHref, 3, 5, "micron");
-    Dialog.addChoice("Region to process: ", Selections);
-
-
-    Dialog.addMessage("Thresholds between particles:");
-    Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
-    Dialog.addNumber("Z Distance: ", zthreshold, 3, 5, "slices");
-
-    Dialog.addMessage("Parameters for the initial low-resolution scan:");
-    Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "microns^2");
-    Dialog.addNumber("Maximal surface: ", SizeMaxMicron, 3, 7, "microns^2");
-
-    Dialog.addMessage("Parameters for the high-resolution scan:");
-    Dialog.addNumber("Maximal surface: ", SizeMaxCMicron, 3, 7, "microns^2");
-    Dialog.addNumber("Minimal circularity: ", CircMinC, 3, 5, "");
-    Dialog.addNumber("Maximal circularity: ", CircMaxC, 3, 5, "");
-
-    Dialog.addMessage("This program is based on iterative detection of the the brightest particles.");
-    Dialog.addNumber("Number of maximal iterations: ", nIteration);
-    Dialog.addNumber("Number of minimal new particle to perform next iteration", minNew);
-    Dialog.addNumber("Correction factor: ", CorrectionSize, 0, 1, "pixels");
-    Dialog.addNumber("Number of bins for the distributions: ", nBins, 0, 3, "");
-    Dialog.show();
-
-    myReuse = Dialog.getChoice();
-
-    myExt = Dialog.getString();
-    ResWref = Dialog.getNumber();
-    ResHref = Dialog.getNumber();
-    resoRef = "" + ResWref + " x " + ResHref + " microns";
-    ImResolution = ResWref*ResHref;
-    myChoice = Dialog.getChoice();
-    if (myChoice == "Whole tissue"){
-        ARGcommon  += "Brain" + "*";
-    }else if (myChoice == "Manual ROI"){
-        ARGcommon  += "Manual ROI" + "*";
-    }else if (myChoice == "Whole tissue with Sub-Selection"){
-        ARGcommon += "BrainNP" + "*";
-    }
-
-    ARGcommon  += "" + ResWref + "*";
-    ARGcommon  += "" + ResHref + "*";
-
-    xythreshold = Dialog.getNumber() / (ResWref * ResHref);
-    ARGcommon  += "" + xythreshold + "*";
-    zthreshold = Dialog.getNumber();
-    ARGcommon  += "" + zthreshold + "*";
-
-    SizeMin = Dialog.getNumber() / (ResWref * ResHref);
-    ARGcommon  += "" + SizeMin + "*";
-    SizeMax = Dialog.getNumber() / (ResWref * ResHref);
-    ARGcommon  += "" + SizeMax + "*";
-
-    SizeMaxC = Dialog.getNumber() / (ResWref * ResHref);
-    ARGcommon  += "" + SizeMaxC + "*";
-    CircMinC = Dialog.getNumber();
-    ARGcommon  += "" + CircMinC + "*"; //Circ Min
-    CircMaxC = Dialog.getNumber();
-    ARGcommon  += "" + CircMaxC + "*"; //Circ Maximal
-    Iterations = Dialog.getNumber();
-    ARGcommon  += "" + Iterations + "*"; //Iterations
-    minNew = Dialog.getNumber();
-    enlargement = Dialog.getNumber();
-    ARGcommon  += "" + enlargement + "*"; //Enlarge
-    nBins = "" + Dialog.getNumber(); //Bins
-    ARGcommon  += "" + nBins + "*"; //Bins
-
-    ARGcommon  += "" + myAnalysistype + "*"; //Analysis type
+    ResultGUI = runMacro(PathGUI, param);
+    myParameters = split(ResultGUI, "\n");
+    myReuse = myParameters[0];
+    myExt = myParameters[1];
+    ARGcommon = myParameters[2];
+    FP = myParameters[3];
+    FPT = myParameters[4];
+    PathFolderInput = myParameters[5];
+    myChoice = myParameters[6];
+    minNew = parseFloat(myParameters[7]);
+    nBins = parseFloat(myParameters[8]);
 
     /*
     ============================================================================
                             IDENTIFICATION OF THE FILES
     ============================================================================
     */
-
-    //Retrieve folder to explore
-    myTitle = "PLEASE CHOOSE THE FOLDER CONTAINING THE FILES TO PROCESS";
-    PathFolderInput = getDirectory(myTitle);
-
-    //Generate Finger Print
-    getDateAndTime(year,
-                    month,
-                    dayOfWeek,
-                    dayOfMonth,
-                    hour,
-                    minute,
-                    second,
-                    msec);
-    FP = "" + year + "-" + (month+1) + "-" + dayOfMonth + "_";
-    FP += "" + hour + "-" + minute + "_";
-
-    FPT = "" + year + "/" + (month+1) + "/" + dayOfMonth + " at ";
-    FPT += "" + hour + ":" + minute;
 
     myAnalysis = PathFolderInput + FP + "_Files.txt";
     myCommands = PathFolderInput + FP + "_Parameters.txt";
@@ -270,43 +157,6 @@ macro "Main"{
         de = File.delete(myCommands);
         exit();
     }
-
-
-
-    //Prepare the markDown Report
-
-    PathMD = getDirectory("macros");
-    PathMD += "Droplets"+File.separator;
-    PathMD += "Final_report.md";
-    MD = File.openAsString(PathMD);
-
-    MD = replace(MD, "MYFP", "" + FPT); //OK
-
-    MD = replace(MD, "MYOS", getInfo("os.name"));
-    MD = replace(MD, "MYJAVA", getInfo("java.version"));
-    MD = replace(MD, "MYIJ", getVersion());
-
-    MD = replace(MD, "MYSELECTION", myChoice);  //OK
-    MD = replace(MD, "MYREFERENCE", "" + resoRef);  //OK
-    MD = replace(MD, "XYTHRESHOLD", "" + (xythreshold* ImResolution) + " microns"); //OK
-    MD = replace(MD, "ZTHRESHOLD", "" + (zthreshold* ImResolution) + " microns");   //OK
-    MD = replace(MD, "MYITERATIONS", "" + Iterations);  //OK
-    MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels"); //OK
-
-    MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");    //OK
-    MD = replace(MD, "MAXSURF", "" + (SizeMax * ImResolution) + " microns");    //OK
-    MD = replace(MD, "SURFMAXC", "" + (SizeMaxC * ImResolution) + " microns");  //OK
-    MD = replace(MD, "MINCIRC", "" + CircMinC); //OK
-    MD = replace(MD, "MAXCIRC", "" + CircMaxC); //OK
-
-    if (myAnalysistype == "Repo"){
-        MD = replace(MD, "LD", "REPO");
-        MD = replace(MD, "droplets", "REPO");
-    }
-
-
-
-    File.saveString(MD, PathFolderInput + FP + "GLOBAL_REPORT.md");
 
     /*
     ============================================================================

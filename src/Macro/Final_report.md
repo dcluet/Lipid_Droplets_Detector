@@ -4,14 +4,14 @@
 **Parameters**
 ==
 
-Analysis:
-=
+**Analysis**:
+
 - Operating system: **MYOS**
 - Java Version: **MYJAVA**
 - ImageJ Version: **MYIJ**
 
-General parameters:
-=
+**General parameters**:
+
 - Selection: **MYSELECTION**
 - Resolution of Reference: **MYREFERENCE**
 - XY Threshold: **XYTHRESHOLD**
@@ -19,13 +19,13 @@ General parameters:
 - Iterations: **MYITERATIONS**
 - Correction factor: **MYFACTOR**
 
-Initial low-resolution scan:
-=
+**Initial low-resolution scan**:
+
 - Minimal Surface: **MINSURF**
 - Maximal Surface: **MAXSURF**
 
-False positive removal:
-=
+**False positive removal**:
+
 - Maximal Surface: **SURFMAXC**
 - Minimal circularity: **MINCIRC**
 - Maximal circularity: **MAXCIRC**   
