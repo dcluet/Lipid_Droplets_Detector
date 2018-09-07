@@ -181,11 +181,11 @@ macro "Main"{
     ============================================================================
     */
 
+    //Lauch statistics
     ARGMS = PathFolderInput + "*";
     ARGMS += myAnalysis + "*";
     ARGMS += FP + "*";
     ARGMS += "" + nBins + "*";
-
     runMacro(PathMS, ARGMS);
 
     //Get Ending Time
