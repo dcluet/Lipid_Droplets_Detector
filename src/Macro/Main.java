@@ -1,6 +1,6 @@
 macro "Main"{
     //INFOS
-    tag = "v4.0.3"
+    tag = "v4.1.0"
     lastStableCommit = "09c54a63"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
@@ -9,7 +9,6 @@ macro "Main"{
                                 CLEAN IMAGEJ
     ============================================================================
     */
-
 
     //Close all non required images.
     PathM3 = getDirectory("macros");
@@ -31,72 +30,20 @@ macro "Main"{
 
     /*
     ============================================================================
-                            SELECT ANALYSIS TYPE
+                        SELECT ANALYSIS TYPE AND GET SETTINGS
     ============================================================================
     */
 
-    //Chose analysis type
+    //Launches Choice of Analysis
+    PathGetParam = getDirectory("macros");
+    PathGetParam += "Droplets"+File.separator;
+    PathGetParam += "Get_Parameters.java";
 
-    PathSettings = getDirectory("macros");
-    PathSettings += "Droplets"+File.separator;
-    PathSettings += "settings.csv";
-
-    //Retrieve content of settings.csv
-    myText = File.openAsString(PathSettings);
-    //separate lines
-    mylines = split(myText, "\n");
-
-    AnalyisType = newArray();
-
-    //Retrieve settings names
-    for(line = 1; line <mylines.length; line++){
-         mycolumns = split(mylines[line], ",");
-         AnalyisType = Array.concat(AnalyisType,mycolumns[0]);
-    }
-
-    /*
-    Parameters structure:
-    ====================
-    0   Extension
-    1   Reference resoltion (micron/pixel) in X
-    2   Reference resoltion (micron/pixel) in Y
-    3   Distance xy in pixels between 2 particles
-    4   Distance in z between 2 particles
-    5   Minimum size in pixel
-    6   Maximum size in pixel
-    7   Maximum size (to exclude big fat bodies)
-    8   Minimum circularity
-    9   Maximum circularity
-    10  Number of Iterations
-    11  Zone for enlargement (in pixel) and erasing
-    12  Number of bins for distributions
-    13  Type of the analysis Zone
-    14  Minimal number of particules to continue iterations
-    */
-
-
-    Dialog.create("ANALYSIS:");
-    Dialog.addMessage("Specify what kind of analysis you are performing:");
-    Dialog.addMessage("");
-    Dialog.addChoice("ANALYSIS: ", AnalyisType, "Lipid Droplets");
-    Dialog.show();
-
-    myAnalysistype = Dialog.getChoice();
-
-    //Retrieve Parameters
-    param = newArray();
-
-    for(line = 1; line <mylines.length; line++){
-         mycolumns = split(mylines[line], ",");
-
-         if (mycolumns[0] == myAnalysistype){
-             param = mylines[line];
-         }
-    }
+    param = runMacro(PathGetParam);
 
     /*
     ============================================================================
-                                MAIN GUI
+                        MAIN GUI AND FOLDER IDENTIFICATION
     ============================================================================
     */
 
@@ -106,6 +53,8 @@ macro "Main"{
     PathGUI += "Main_GUI.java";
 
     ResultGUI = runMacro(PathGUI, param);
+
+    //Extract key parameters and command line
     myParameters = split(ResultGUI, "\n");
     myReuse = myParameters[0];
     myExt = myParameters[1];
@@ -132,37 +81,27 @@ macro "Main"{
     Listing = File.open(myCommands);
     File.close(Listing);
 
-    //Find all files and store path in myAnalysis
-    listFiles(PathFolderInput, myExt, myAnalysis);
+    //Launch Files identification
+    PathIdent = getDirectory("macros");
+    PathIdent += "Droplets"+File.separator;
+    PathIdent += "Identify_Files.java";
 
-    //Retrieve number of files
-    RawList = File.openAsString(myAnalysis);
-    FileList = split(RawList, "\n");
+    ArgFiles = myExt + "*";
+    ArgFiles += PathFolderInput + "*";
+    ArgFiles += myAnalysis + "*";
+    ArgFiles += myCommands + "*";
+    ArgFiles += myReuse;
 
-    if (FileList.length>0){
-        //Inform user
-        if (myReuse == "NO"){
-            DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
-                        + "Press <b>OK</b> when ready for manual pre-processing.");
-        }else{
-            DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
-                        + "Press <b>OK</b> when ready to precise which parameters to reuse.");
-        }
-
-    }else{
-        //Inform user
-        DisplayInfo("<b>" + FileList.length + "</b> files have been found.<br>"
-                    + "<b>The process will be aborted</b>.");
-        de = File.delete(myAnalysis);
-        de = File.delete(myCommands);
-        exit();
-    }
+    runMacro(PathIdent, ArgFiles);
 
     /*
     ============================================================================
                             SELECT THE CHANNEL
     ============================================================================
     */
+
+    RawList = File.openAsString(myAnalysis);
+    FileList = split(RawList, "\n");
 
     if (myReuse == "NO"){
         setBatchMode(true);
@@ -214,7 +153,7 @@ macro "Main"{
             Dialog.create("Choose the channel to use.");
             Dialog.addChoice("Channels: ",
                             channelsNames,
-                            channelsNames[1]);
+                            channelsNames[0]);
             Dialog.show()
             myChannel = Dialog.getChoice();
 
@@ -520,25 +459,6 @@ macro "Main"{
 ===============================================================================
                             FUNCTIONS
 ===============================================================================
-*/
-
-function listFiles(folder, extension, outFilePath) {
-
-	list = getFileList(folder);
-	for (i=0; i<list.length; i++) {
-        if (File.isDirectory(folder+list[i])){
-           	listFiles(""+folder+list[i], extension, outFilePath);
-       	}
-
-		if (endsWith(list[i], extension)){
-            //Only file with a RFP twin are added
-            File.append(""+folder+list[i], outFilePath);
-		}
-	}
-}//END LISTFILES
-
-/*
-================================================================================
 */
 
 function Welcome(myTag, myCommit, url){

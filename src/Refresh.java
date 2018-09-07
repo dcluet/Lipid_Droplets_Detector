@@ -16,6 +16,8 @@ macro "Refresh" {
                         "Stack_Editing.java",
                         "Close_Images.java",
                         "Distribution.java",
+                        "Get_Parameters.java",
+                        "Identify_Files.java",
                         "Main.java",
                         "Main_GUI.java",
                         "Stats.java",

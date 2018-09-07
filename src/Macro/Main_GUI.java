@@ -164,34 +164,40 @@ macro "Main_GUI"{
 
     return OUTPUT;
 
+/*
+===============================================================================
+                            FUNCTIONS
+===============================================================================
+*/
 
-    function fillMD(){
-        //Prepare the markDown Report
+function fillMD(){
+    //Prepare the markDown Report
 
-        PathMD = getDirectory("macros");
-        PathMD += "Droplets"+File.separator;
-        PathMD += "Final_report.md";
-        MD = File.openAsString(PathMD);
-        MD = replace(MD, "MYFP", "" + FPT);
-        MD = replace(MD, "MYOS", getInfo("os.name"));
-        MD = replace(MD, "MYJAVA", getInfo("java.version"));
-        MD = replace(MD, "MYIJ", getVersion());
-        MD = replace(MD, "MYSELECTION", myChoice);
-        MD = replace(MD, "MYREFERENCE", "" + resoRef);
-        MD = replace(MD, "XYTHRESHOLD", "" + (xythreshold* ImResolution) + " microns");
-        MD = replace(MD, "ZTHRESHOLD", "" + (zthreshold* ImResolution) + " microns");
-        MD = replace(MD, "MYITERATIONS", "" + Iterations);
-        MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels");
-        MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");
-        MD = replace(MD, "MAXSURF", "" + (SizeMax * ImResolution) + " microns");
-        MD = replace(MD, "SURFMAXC", "" + (SizeMaxC * ImResolution) + " microns");
-        MD = replace(MD, "MINCIRC", "" + CircMinC);
-        MD = replace(MD, "MAXCIRC", "" + CircMaxC);
-        if (myAnalysistype == "Repo"){
-            MD = replace(MD, "LD", "REPO");
-            MD = replace(MD, "droplets", "REPO");
-        }
-
-        File.saveString(MD, PathFolderInput + FP + "GLOBAL_REPORT.md");
+    PathMD = getDirectory("macros");
+    PathMD += "Droplets"+File.separator;
+    PathMD += "Final_report.md";
+    MD = File.openAsString(PathMD);
+    MD = replace(MD, "MYFP", "" + FPT);
+    MD = replace(MD, "MYOS", getInfo("os.name"));
+    MD = replace(MD, "MYJAVA", getInfo("java.version"));
+    MD = replace(MD, "MYIJ", getVersion());
+    MD = replace(MD, "MYSELECTION", myChoice);
+    MD = replace(MD, "MYREFERENCE", "" + resoRef);
+    MD = replace(MD, "XYTHRESHOLD", "" + (xythreshold* ImResolution) + " microns");
+    MD = replace(MD, "ZTHRESHOLD", "" + (zthreshold* ImResolution) + " microns");
+    MD = replace(MD, "MYITERATIONS", "" + Iterations);
+    MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels");
+    MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");
+    MD = replace(MD, "MAXSURF", "" + (SizeMax * ImResolution) + " microns");
+    MD = replace(MD, "SURFMAXC", "" + (SizeMaxC * ImResolution) + " microns");
+    MD = replace(MD, "MINCIRC", "" + CircMinC);
+    MD = replace(MD, "MAXCIRC", "" + CircMaxC);
+    if (myAnalysistype == "Repo"){
+        MD = replace(MD, "LD", "REPO");
+        MD = replace(MD, "droplets", "REPO");
     }
+
+    File.saveString(MD, PathFolderInput + FP + "GLOBAL_REPORT.md");
+}
+
 }
