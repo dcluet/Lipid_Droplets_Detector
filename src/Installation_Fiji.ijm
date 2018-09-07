@@ -33,6 +33,7 @@ Listing = newArray("Lipid_Droplets.java",
                     "Main_GUI.java",
                     "Select_Channel.java",
                     "Stats.java",
+                    "Taylor.java",
                     "settings.csv",
                     "Final_report.md",
                     "LayOut.md");
