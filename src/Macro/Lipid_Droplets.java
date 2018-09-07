@@ -47,15 +47,33 @@ minimumFound = parseFloat(Arguments[23]);
 channel = Arguments[24];
 
 /*
+============================================================================
+                    PATHS OF ACCESSORY MACROS
+============================================================================
+*/
+
+//Crop the Stack
+PathM1 = getDirectory("macros");
+PathM1 += "Droplets"+File.separator;
+PathM1 += "Stack_Editing.java";
+
+//Draw Distribution
+PathM2 = getDirectory("macros");
+PathM2 += "Droplets"+File.separator;
+PathM2 += "Distribution.java";
+
+//Close all non required images.
+PathM3 = getDirectory("macros");
+PathM3 += "Droplets"+File.separator;
+PathM3 += "Close_Images.java";
+
+/*
 ===============================================================================
                             CORE PROGRAM
 ===============================================================================
 */
 
     //Close all non required images.
-    PathM3 = getDirectory("macros");
-    PathM3 += "Droplets"+File.separator;
-    PathM3 += "Close_Images.java";
     runMacro(PathM3);
 
     //Clean roiManager
@@ -111,7 +129,6 @@ channel = Arguments[24];
         if (myAnalysis == "Repo"){
             rename("Brain");
         }
-
     }
 
     //Recalibrating the area values depending on resoltion.
@@ -122,22 +139,7 @@ channel = Arguments[24];
     SizeMax = SizeMax * Ratio;
     SizeMaxC = SizeMaxC * Ratio;
 
-    //UPDATE THE REPORT FILE
-    MD = replace(MD, "MYSTART", "" + Sstart);
-    MD = replace(MD, "MYEND", "" + Send);
-    MD = replace(MD, "MYSELECTION", Selection);
-    MD = replace(MD, "MYREFERENCE", "" + resoRef);
-    MD = replace(MD, "XYTHRESHOLD", "" + (seuil* ImResolution) + " microns");
-    MD = replace(MD, "ZTHRESHOLD", "" + (zDistance) + " slices");
-    MD = replace(MD, "MYITERATIONS", "" + Iterations);
-    MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels");
-    MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");
-    MD = replace(MD, "MAXSURF", "" + (SizeMax * ImResolution) + " microns");
-    MD = replace(MD, "SURFMAXC", "" + (SizeMaxC * ImResolution) + " microns");
-    MD = replace(MD, "MINCIRC", "" + CircMinC);
-    MD = replace(MD, "MAXCIRC", "" + CircMaxC);
-    MD = replace(MD, "MYIMAGE", "" + myimage);
-
+    //Get timing for report
     getDateAndTime(year,
                     month,
                     dayOfWeek,
@@ -148,11 +150,6 @@ channel = Arguments[24];
                     msec);
     mydate = "" + year + "/" + (month+1) + "/" + dayOfMonth + " ";
     mydate += "" + hour + ":" + minute;
-    MD = replace(MD, "MYDATE", mydate);
-    MD = replace(MD, "MYOS", getInfo("os.name"));
-    MD = replace(MD, "MYJAVA", getInfo("java.version"));
-    MD = replace(MD, "MYIJ", IJVersion);
-    MD = replace(MD, "MYRESOLUTION", reso);
 
     //Remove the non pixel unit
     CMD2 = "channels=1";
@@ -174,11 +171,6 @@ channel = Arguments[24];
     run("Duplicate...", "title=Raw duplicate");
     run("Duplicate...", "title=Intensity duplicate");
 
-    //Crop the Stack
-    PathM1 = getDirectory("macros");
-    PathM1 += "Droplets"+File.separator;
-    PathM1 += "Stack_Editing.java";
-
     ARG1 = "Raw" + "\t";
     ARG1 += "" + Sstart + "\t";
     ARG1 += "" + Send + "\t";
@@ -195,11 +187,9 @@ channel = Arguments[24];
         runMacro(PathM1, ARG1);
     }
 
-
     //Duplicate the stack for Brain detection
     selectWindow("Raw");
     myslices = nSlices;
-    MD = replace(MD, "MYSLICES", "" + myslices);
     if (myAnalysis != "Repo"){
         run("Duplicate...", "title=Brain duplicate");
     }
@@ -207,7 +197,6 @@ channel = Arguments[24];
     roiManager("reset");
 
     Detect_Brain("Brain", FolderOutput + NameFile);
-
 
     //Create array of Brain areas. Start with 0 to have same index as slices
     ABrains = newArray();
@@ -230,7 +219,6 @@ channel = Arguments[24];
         TotalBrainSurface += area * pixelWidth * pixelHeight/1000000;
         mybrains += "Brain slice " + S + " : **" + ABrains[S] + "**\n\n";
     }
-
 
     Array.getStatistics(ABrains, min, max, mean, stdDev);
     minBrain = min;
@@ -295,40 +283,11 @@ channel = Arguments[24];
 
             //Remove all non brain particles
             if (Selection != "Manual ROI"){
-                for (p=0; p<roiManager("count"); p++){
-                    setForegroundColor(0, 0, 0);
-                    selectWindow("Brain-Shape");
-                    roiManager("Select", p);
-                    List.setMeasurements;
-                    M = List.getValue("Mean");
-                    if (M!=0){
-                        selectWindow("Raw");
-                        roiManager("Select", p);
-                        run("Enlarge...", "enlarge=" + enlargement);
-                        run("Fill", "slice");
-                        roiManager("Delete");
-                        p = p -1;
-                    }
-                }
+                myWindow = "Brain-Shape";
+            }else{
+                myWindow = "Neuropil";
             }
-
-            if (Selection == "Manual ROI"){
-                for (p=0; p<roiManager("count"); p++){
-                    setForegroundColor(0, 0, 0);
-                    selectWindow("Neuropil");
-                    roiManager("Select", p);
-                    List.setMeasurements;
-                    M = List.getValue("Mean");
-                    if (M!=0){
-                        selectWindow("Raw");
-                        roiManager("Select", p);
-                        run("Enlarge...", "enlarge=" + enlargement);
-                        run("Fill", "slice");
-                        roiManager("Delete");
-                        p = p -1;
-                    }
-                }
-            }
+            RemoveUnWanted(myWindow);
 
             //Remove all twins
             Twins_Killer("Raw",
@@ -347,10 +306,9 @@ channel = Arguments[24];
 
             //Update the total number of ROI validated
             nROI = roiManager("count");
-
         }
-
     }// End of Iterations
+
 
     //Reinitialisation of arrays containinf number of LD and total surface
     for(np = 0; np<LDperSlice.length; np++){
@@ -383,8 +341,6 @@ channel = Arguments[24];
     }
 
     totalLD = roiManager("count");
-    MD = replace(MD, "MYDROPLETS", "" + totalLD);
-    MD = replace(MD, "MYNEUROPIL", "" + numberNP);
 
     /*
         REFINE PARTICLES WITH LOCAL (ROI) VALUES?
@@ -483,14 +439,6 @@ channel = Arguments[24];
     }
 
     run("Close");
-    MD = replace(MD, "MYGIF", FolderOutputRelative + NameFile + "_report.gif");
-
-
-    //Draw Distribution
-    PathM2 = getDirectory("macros");
-    PathM2 += "Droplets"+File.separator;
-    PathM2 += "Distribution.java";
-
 
     if (NValuesCorr == ""){
         NValuesCorr += "" + 0 + "-";
@@ -503,8 +451,6 @@ channel = Arguments[24];
     if (INValues == ""){
         INValues += "" + 0 + "-";
     }
-
-
 
     if (EValuesCorr == ""){
         EValuesCorr += "" + 0 + "-";
@@ -534,8 +480,6 @@ channel = Arguments[24];
                     msec);
     mystop = "" + year + "/" + (month+1) + "/" + dayOfMonth + " ";
     mystop += "" + hour + ":" + minute;
-    MD = replace(MD, "MYSTOP", mystop);
-
 
     mybrains += "Neuropil : **" + (ANP/1000000) + "**\n\n";
     TotalNeuropilSurface = myslices * ANP/1000000;
@@ -552,11 +496,35 @@ channel = Arguments[24];
         mybrains += "(" + AreaLDperSlice[np] + "% coverage of Brain)\n";
         mybrains += " **" + LDNPperSlice[np] + "** in the Neuropil ";
         mybrains += "(" + AreaLDNPperSlice[np] + "% coverage of Neuropil)\n";
-
     }
     mybrains += "\n";
-    MD = replace(MD, "MYBRAINS", "" + mybrains);
 
+    //Generate Graphs and Distributions
+    MakeDistribution();
+
+    //Update Report
+    MD = UpdateMD(MD);
+
+    //Save MD and CSV
+    File.saveString(MD, myRoot + FP + NameFile + "_REPORT.md");
+    File.saveString(myCSV, FolderOutput + NameFile + "_data.csv");
+
+    //Close all non required images.
+    PathM3 = getDirectory("macros");
+    PathM3 += "Droplets"+File.separator;
+    PathM3 += "Close_Images.java";
+    runMacro(PathM3);
+
+    //Erase ROI
+    roiManager("reset");
+
+/*
+===============================================================================
+                            FUNCTIONS
+===============================================================================
+*/
+
+function MakeDistribution(){
     mycolor = "magenta";
     //Raw Distribution
     ARG2 = "" + 0 + "*";
@@ -570,8 +538,6 @@ channel = Arguments[24];
     ARG2 += "" + TotalBrainSurface;
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTRAWJPG", FolderOutputRelative + NameFile + "_Values_ALL_Distribution.jpg");
-    MD = replace(MD, "DISTRAWcumJPG", FolderOutputRelative + NameFile + "_Values_ALL_Cumul_Distribution.jpg");
 
     //Corrected Distribution (per million of pixel of brain surface)
     ARG2 = "" + 0 + "*";
@@ -585,8 +551,6 @@ channel = Arguments[24];
     ARG2 += "" + TotalBrainSurface;
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTJPG", FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Distribution.jpg");
-    MD = replace(MD, "DISTcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Cumul_Distribution.jpg");
 
     //Intensities
     ARG2 = "" + 0 + "*";
@@ -600,8 +564,6 @@ channel = Arguments[24];
     ARG2 += "" + TotalBrainSurface;
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTIJPG", FolderOutputRelative + NameFile + "_Intensities_ALL_Distribution.jpg");
-    MD = replace(MD, "DISTIcumJPG", FolderOutputRelative + NameFile + "_Intensities_ALL_Cumul_Distribution.jpg");
 
     mycolor = "cyan";
     //Raw Distribution Neuropil
@@ -616,8 +578,6 @@ channel = Arguments[24];
     ARG2 += "" + TotalNeuropilSurface;
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNPRAWJPG", FolderOutputRelative + NameFile + "_Values_NP_Distribution.jpg");
-    MD = replace(MD, "DISTNPRAWcumJPG", FolderOutputRelative + NameFile + "_Values_NP_Cumul_Distribution.jpg");
 
     //Corrected Distribution for Neuropil
     ARG2 = "" + 0 + "*";
@@ -631,8 +591,6 @@ channel = Arguments[24];
     ARG2 += "" + TotalNeuropilSurface;
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNPJPG", FolderOutputRelative + NameFile + "_Corrected_Values_NP_Distribution.jpg");
-    MD = replace(MD, "DISTNPcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_NP_Cumul_Distribution.jpg");
 
     //Intensities
     ARG2 = "" + 0 + "*";
@@ -646,8 +604,6 @@ channel = Arguments[24];
     ARG2 += "" + TotalNeuropilSurface;
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNPIJPG", FolderOutputRelative + NameFile + "_Intensities_NP_Distribution.jpg");
-    MD = replace(MD, "DISTNPIcumJPG", FolderOutputRelative + NameFile + "_Intensities_NP_Cumul_Distribution.jpg");
 
     mycolor = "orange";
     //Raw Distribution Non-Neuropil
@@ -662,8 +618,6 @@ channel = Arguments[24];
     ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNNPRAWJPG", FolderOutputRelative + NameFile + "_Values_Non-NP_Distribution.jpg");
-    MD = replace(MD, "DISTNNPRAWcumJPG", FolderOutputRelative + NameFile + "_Values_Non-NP_Cumul_Distribution.jpg");
 
     //Corrected Distribution for non-Neuropil
     ARG2 = "" + 0 + "*";
@@ -677,8 +631,6 @@ channel = Arguments[24];
     ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
 
     runMacro(PathM2, ARG2);
-    MD = replace(MD, "DISTNNPJPG", FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Distribution.jpg");
-    MD = replace(MD, "DISTNNPcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Cumul_Distribution.jpg");
 
     //Intensities
     ARG2 = "" + 0 + "*";
@@ -692,63 +644,94 @@ channel = Arguments[24];
     ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
 
     runMacro(PathM2, ARG2);
+
+}
+
+/*
+================================================================================
+*/
+
+function RemoveUnWanted(MyWindow){
+    for (p=0; p<roiManager("count"); p++){
+        setForegroundColor(0, 0, 0);
+        selectWindow(MyWindow);
+        roiManager("Select", p);
+        List.setMeasurements;
+        M = List.getValue("Mean");
+        if (M!=0){
+            selectWindow("Raw");
+            roiManager("Select", p);
+            run("Enlarge...", "enlarge=" + enlargement);
+            run("Fill", "slice");
+            roiManager("Delete");
+            p = p -1;
+        }
+    }
+}
+
+/*
+================================================================================
+*/
+
+function UpdateMD(MD){
+    MD = replace(MD, "MYSTART", "" + Sstart);
+    MD = replace(MD, "MYEND", "" + Send);
+    MD = replace(MD, "MYSELECTION", Selection);
+    MD = replace(MD, "MYREFERENCE", "" + resoRef);
+    MD = replace(MD, "XYTHRESHOLD", "" + (seuil* ImResolution) + " microns");
+    MD = replace(MD, "ZTHRESHOLD", "" + (zDistance) + " slices");
+    MD = replace(MD, "MYITERATIONS", "" + Iterations);
+    MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels");
+    MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");
+    MD = replace(MD, "MAXSURF", "" + (SizeMax * ImResolution) + " microns");
+    MD = replace(MD, "SURFMAXC", "" + (SizeMaxC * ImResolution) + " microns");
+    MD = replace(MD, "MINCIRC", "" + CircMinC);
+    MD = replace(MD, "MAXCIRC", "" + CircMaxC);
+    MD = replace(MD, "MYIMAGE", "" + myimage);
+    MD = replace(MD, "MYDATE", mydate);
+    MD = replace(MD, "MYOS", getInfo("os.name"));
+    MD = replace(MD, "MYJAVA", getInfo("java.version"));
+    MD = replace(MD, "MYIJ", IJVersion);
+    MD = replace(MD, "MYRESOLUTION", reso);
+    MD = replace(MD, "MYSLICES", "" + myslices);
+    MD = replace(MD, "MYDROPLETS", "" + totalLD);
+    MD = replace(MD, "MYNEUROPIL", "" + numberNP);
+    MD = replace(MD, "MYGIF", FolderOutputRelative + NameFile + "_report.gif");
+    MD = replace(MD, "MYSTOP", mystop);
+    MD = replace(MD, "MYBRAINS", "" + mybrains);
+    MD = replace(MD, "DISTRAWJPG", FolderOutputRelative + NameFile + "_Values_ALL_Distribution.jpg");
+    MD = replace(MD, "DISTRAWcumJPG", FolderOutputRelative + NameFile + "_Values_ALL_Cumul_Distribution.jpg");
+    MD = replace(MD, "DISTJPG", FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Distribution.jpg");
+    MD = replace(MD, "DISTcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Cumul_Distribution.jpg");
+    MD = replace(MD, "DISTIJPG", FolderOutputRelative + NameFile + "_Intensities_ALL_Distribution.jpg");
+    MD = replace(MD, "DISTIcumJPG", FolderOutputRelative + NameFile + "_Intensities_ALL_Cumul_Distribution.jpg");
+    MD = replace(MD, "DISTNPRAWJPG", FolderOutputRelative + NameFile + "_Values_NP_Distribution.jpg");
+    MD = replace(MD, "DISTNPRAWcumJPG", FolderOutputRelative + NameFile + "_Values_NP_Cumul_Distribution.jpg");
+    MD = replace(MD, "DISTNPJPG", FolderOutputRelative + NameFile + "_Corrected_Values_NP_Distribution.jpg");
+    MD = replace(MD, "DISTNPcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_NP_Cumul_Distribution.jpg");
+    MD = replace(MD, "DISTNNPRAWJPG", FolderOutputRelative + NameFile + "_Values_Non-NP_Distribution.jpg");
+    MD = replace(MD, "DISTNNPRAWcumJPG", FolderOutputRelative + NameFile + "_Values_Non-NP_Cumul_Distribution.jpg");
+    MD = replace(MD, "DISTNNPJPG", FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Distribution.jpg");
+    MD = replace(MD, "DISTNNPcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Cumul_Distribution.jpg");
     MD = replace(MD, "DISTNNPIJPG", FolderOutputRelative + NameFile + "_Intensities_Non-NP_Distribution.jpg");
     MD = replace(MD, "DISTNNPIcumJPG", FolderOutputRelative + NameFile + "_Intensities_Non-NP_Cumul_Distribution.jpg");
-
-
-
-
-
-
-
-
-
-
-    //Brain Area : n slices area sum
     MD = replace(MD, "TOTALBRAINSURFACE", "" + TotalBrainSurface);
-
-    //Mean Brain
     MD = replace(MD, "MEANBRAINSURFACE", "" + TotalBrainSurface/myslices);
-
-    //Brain LD Surface : Mean of the % coverage of Brain * Brain Area / 100
     MeanBrainLDSurface = BrainLDSurface / myslices;
     MD = replace(MD, "MEANBRAINLDSURFACE", "" + MeanBrainLDSurface/1000000);
-
-    //Brain LD Mean Surface : Brain LD surface / Brain LD number
     MD = replace(MD, "MEANLDSURFACEBRAIN", "" + BrainLDSurface / totalLD);
-
-    //Brain LD number / surface : Brain LD number / Brain Area
     MD = replace(MD, "BRAINLDPERSURFACE", "" + totalLD / TotalBrainSurface);
-
-    //Neuropil Area : 3*Neuropil
     MD = replace(MD, "TOTALNP", "" + TotalNeuropilSurface);
-
-    //Neuropil LD surface : Mean of the % coverage of neuropil * Neuropil Area / 100
     MD = replace(MD, "NPLDTOTALSURFACE", "" + (NPLDSurface/1000000) / myslices);
-
-    //Neuropil LD Mean Surface : Neuropil LD surface / Neuropi LD number
     MD = replace(MD, "NPLDMEANSURFACE", "" + NPLDSurface / numberNP );
-
-    //Neuropil LD number / surface : Neuropil LD number /  Neuropil Area
     MD = replace(MD, "NPLDPERSURFACE", "" + numberNP / TotalNeuropilSurface);
 
     if (myAnalysis == "Repo"){
         MD = replace(MD, "LD", "REPO");
         MD = replace(MD, "droplets", "REPO");
     }
-
-    //Save MD and CSV
-    File.saveString(MD, myRoot + FP + NameFile + "_REPORT.md");
-    File.saveString(myCSV, FolderOutput + NameFile + "_data.csv");
-
-    //Close all non required images.
-    PathM3 = getDirectory("macros");
-    PathM3 += "Droplets"+File.separator;
-    PathM3 += "Close_Images.java";
-    runMacro(PathM3);
-
-    //Erase ROI
-    roiManager("reset");
+    return MD;
+}
 
 /*
 ================================================================================
