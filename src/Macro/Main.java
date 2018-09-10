@@ -6,6 +6,25 @@ macro "Main"{
 
     /*
     ============================================================================
+                        QC TESTS
+    ============================================================================
+
+    Linux
+    Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018-09-10
+    Lipid Droplets Brain (Whole Tissue): 2018-09-10
+    Lipid Droplets Brain (Manual ROI): 2018-09-10
+    Lipid Droplets Retina (Manual ROI): 2018-09-10
+    REPO (Whole Tissue): 2018-09-10
+
+
+    */
+
+    qcl = "2018-09-10";
+    qcp = "On progress";
+    qcm = "On progress";
+
+    /*
+    ============================================================================
                         PATHS OF ACCESSORY MACROS
     ============================================================================
     */
@@ -57,7 +76,7 @@ macro "Main"{
     */
 
     //Welcome
-    Welcome(tag, lastStableCommit, gitlaburl);
+    Welcome(tag, lastStableCommit, qcl, qcp, qcm, gitlaburl);
 
     /*
     ============================================================================
@@ -208,7 +227,7 @@ macro "Main"{
 ===============================================================================
 */
 
-function Welcome(myTag, myCommit, url){
+function Welcome(myTag, myCommit, myQCl, myQCp, myQCm, url){
     showMessage("WELCOME", "<html>"
 			+"<font size=+3>"
 			+"<h1><font color=rgb(77,172,174)>Lipid Droplets and REPO Analysis</h1>"
@@ -217,6 +236,9 @@ function Welcome(myTag, myCommit, url){
 			+"<ul>"
 			+"<li>Version: " + myTag + "</li>"
 			+"<li>Last stable commit: " + myCommit + "</li>"
+            +"<li>Quality control LINUX: " + myQCl + "</li>"
+            +"<li>Quality control WINDOWS: " + myQCp + "</li>"
+            +"<li>Quality control APPLE: " + myQCp + "</li>"
 			+"</ul>"
 			+"<p><font color=rgb(100,100,100)>Cluet David<br>"
             +"Research Ingeneer,PHD<br>"
