@@ -1,43 +1,56 @@
 macro "Main_GUI"{
+
     /*
     Parameters structure as saved in .csv:
     ======================================
-    0   Name of the analysis
-    1   Extension
-    2   Reference resoltion (micron/pixel) in X
-    3   Reference resoltion (micron/pixel) in Y
-    4   Distance xy in pixels between 2 particles
-    5   Distance in z between 2 particles
-    6   Minimum size in pixel
-    7   Maximum size in pixel
-    8   Maximum size (to exclude big fat bodies)
-    9   Minimum circularity
-    10   Maximum circularity
-    11  Number of Iterations
-    12  Zone for enlargement (in pixel) and erasing
-    13  Number of bins for distributions
-    14  Type of the analysis Zone
-    15  Minimal number of particules to continue iterations
     */
 
     Argument = getArgument();
     Arguments = split(Argument, ",");
 
+    //0   Name of the analysis
     myAnalysistype = Arguments[0];
+
+    //1   Extension
     myExt = Arguments[1];
+
+    //2   Reference resoltion (micron/pixel) in X
     ResWref = parseFloat(Arguments[2]);
+
+    //3   Reference resoltion (micron/pixel) in Y
     ResHref = parseFloat(Arguments[3]);
+
+    //4   Distance xy in pixels between 2 particles
     xythresholdMicron = parseFloat(Arguments[4]) * ResWref * ResHref;
+
+    //5   Distance in z between 2 particles
     zthreshold = parseFloat(Arguments[5]);
+
+    //6   Minimum size in microns
     SizeMinMicron = parseFloat(Arguments[6]) * ResWref * ResHref;
+
+    //7   Maximum size in microns
     SizeMaxMicron = parseFloat(Arguments[7]) * ResWref * ResHref;
+
+    //8   Maximum size (to exclude big fat bodies)
     SizeMaxCMicron = parseFloat(Arguments[8]) * ResWref * ResHref;
+
+    //9   Minimum circularity
     CircMinC = parseFloat(Arguments[9]);
+
+    //10   Maximum circularity
     CircMaxC = parseFloat(Arguments[10]);
+
+    //11  Number of Iterations
     nIteration = parseFloat(Arguments[11]);
+
+    //12  Zone for enlargement (in pixel) and erasing
     CorrectionSize = parseFloat(Arguments[12]);
+
+    //13  Number of bins for distributions
     nBins = parseFloat(Arguments[13]);
-    //Region of Analysis
+
+    //14  Type of the analysis Zone
     myZone = Arguments[14];
     if (myZone == "?"){
         Selections = newArray("Whole tissue with Sub-Selection",
@@ -47,6 +60,8 @@ macro "Main_GUI"{
         Selections = newArray(myZone, "");
         Selections = Array.trim(Selections, 1);
     }
+
+    //15  Minimal number of particules to continue iterations
     minNew = parseFloat(Arguments[15]);
 
     //Initialisation of the Argument
@@ -62,21 +77,16 @@ macro "Main_GUI"{
     Dialog.addNumber("Pixel Width ", ResWref, 3, 5, "micron");
     Dialog.addNumber("Pixel Height: ", ResHref, 3, 5, "micron");
     Dialog.addChoice("Region to process: ", Selections);
-
-
     Dialog.addMessage("Thresholds between particles:");
     Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
     Dialog.addNumber("Z Distance: ", zthreshold, 3, 5, "slices");
-
     Dialog.addMessage("Parameters for the initial low-resolution scan:");
     Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "microns^2");
     Dialog.addNumber("Maximal surface: ", SizeMaxMicron, 3, 7, "microns^2");
-
     Dialog.addMessage("Parameters for the high-resolution scan:");
     Dialog.addNumber("Maximal surface: ", SizeMaxCMicron, 3, 7, "microns^2");
     Dialog.addNumber("Minimal circularity: ", CircMinC, 3, 5, "");
     Dialog.addNumber("Maximal circularity: ", CircMaxC, 3, 5, "");
-
     Dialog.addMessage("This program is based on iterative detection of the the brightest particles.");
     Dialog.addNumber("Number of maximal iterations: ", nIteration);
     Dialog.addNumber("Number of minimal new particle to perform next iteration", minNew);
@@ -84,8 +94,8 @@ macro "Main_GUI"{
     Dialog.addNumber("Number of bins for the distributions: ", nBins, 0, 3, "");
     Dialog.show();
 
+    //Generate the Ergument string for all analyses
     myReuse = Dialog.getChoice();
-
     myExt = Dialog.getString();
     ResWref = Dialog.getNumber();
     ResHref = Dialog.getNumber();
@@ -99,34 +109,29 @@ macro "Main_GUI"{
     }else if (myChoice == "Whole tissue with Sub-Selection"){
         ARGcommon += "BrainNP" + "*";
     }
-
     ARGcommon  += "" + ResWref + "*";
     ARGcommon  += "" + ResHref + "*";
-
     xythreshold = Dialog.getNumber() / (ResWref * ResHref);
     ARGcommon  += "" + xythreshold + "*";
     zthreshold = Dialog.getNumber();
     ARGcommon  += "" + zthreshold + "*";
-
     SizeMin = Dialog.getNumber() / (ResWref * ResHref);
     ARGcommon  += "" + SizeMin + "*";
     SizeMax = Dialog.getNumber() / (ResWref * ResHref);
     ARGcommon  += "" + SizeMax + "*";
-
     SizeMaxC = Dialog.getNumber() / (ResWref * ResHref);
     ARGcommon  += "" + SizeMaxC + "*";
     CircMinC = Dialog.getNumber();
-    ARGcommon  += "" + CircMinC + "*"; //Circ Min
+    ARGcommon  += "" + CircMinC + "*";
     CircMaxC = Dialog.getNumber();
-    ARGcommon  += "" + CircMaxC + "*"; //Circ Maximal
+    ARGcommon  += "" + CircMaxC + "*";
     Iterations = Dialog.getNumber();
-    ARGcommon  += "" + Iterations + "*"; //Iterations
+    ARGcommon  += "" + Iterations + "*";
     minNew = Dialog.getNumber();
     enlargement = Dialog.getNumber();
-    ARGcommon  += "" + enlargement + "*"; //Enlarge
-    nBins = "" + Dialog.getNumber(); //Bins
-    ARGcommon  += "" + nBins + "*"; //Bins
-
+    ARGcommon  += "" + enlargement + "*";
+    nBins = "" + Dialog.getNumber();
+    ARGcommon  += "" + nBins + "*";
     ARGcommon  += "" + myAnalysistype + "*"; //Analysis type
 
     //Generate Finger Print
@@ -162,6 +167,7 @@ macro "Main_GUI"{
     OUTPUT += "" + minNew + "\n";
     OUTPUT += "" + nBins;
 
+    //Transmit parameters to the main macro
     return OUTPUT;
 
 /*
@@ -198,6 +204,6 @@ function fillMD(){
     }
 
     File.saveString(MD, PathFolderInput + FP + "GLOBAL_REPORT.md");
-}
+}//END OF FILL MD
 
-}
+}//END OF MACRO

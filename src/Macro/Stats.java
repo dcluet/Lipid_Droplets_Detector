@@ -74,7 +74,7 @@ macro "Stats"{
         for(s=0; s<ListFiles.length; s++){
             //open the corresponding CSV file
             Path = ListFiles[s];
-            Parent = File.getParent(Path) + File.separator();
+            Parent = File.getParent(Path) + File.separator;
             NameFile = File.getName(Path);
             NameFile = substring(NameFile,
                                     0,
@@ -82,7 +82,7 @@ macro "Stats"{
                                     );
 
 
-            PathOutput = Parent + FP + "_" + NameFile + File.separator();
+            PathOutput = Parent + FP + "_" + NameFile + File.separator;
             PathCSV = PathOutput + NameFile + myExt;
 
             //Update Header
@@ -144,7 +144,7 @@ macro "Stats"{
 
         //Path CSV
         PathResultsFolder=myRoot + FP + "Stats" + File.separator;
-        PathResultsFolderRelative = FP + "Stats" + File.separator;
+        PathResultsFolderRelative = FP + "Stats" + "/";
         File.makeDirectory(PathResultsFolder);
         PathCSV = PathResultsFolder + FP + "Stats" + myExt;
         myf = File.open(PathCSV);

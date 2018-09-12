@@ -9,7 +9,6 @@ macro "Lipid_Droplets"{
 IJVersion = getVersion();
 
 //Arguments
-
 Argument = getArgument();
 Arguments = split(Argument, "*");
 
@@ -26,24 +25,19 @@ CircMaxC = parseFloat(Arguments[9]);
 Iterations = parseFloat(Arguments[10]);
 enlargement = parseFloat(Arguments[11]);
 nBins = parseFloat(Arguments[12]);
-
 myAnalysis = Arguments[13];
-
 Sstart = parseFloat(Arguments[14]);
 Send = parseFloat(Arguments[15]);
 NeuroPilXtext = Arguments[16];
 NeuroPilX = split(NeuroPilXtext, "-");
 NeuroPilYtext = Arguments[17];
 NeuroPilY = split(NeuroPilYtext, "-");
-
 Path = Arguments[18];
 myRoot = Arguments[19];
 myProgress = parseFloat(Arguments[20]);
 FPT = Arguments[21];
 FP = Arguments[22];
-
 minimumFound = parseFloat(Arguments[23]);
-
 channel = Arguments[24];
 
 /*
@@ -80,17 +74,18 @@ PathM3 += "Close_Images.java";
     roiManager("reset");
 
     //Create the Outputfolder
-    Parent = File.getParent(Path) + File.separator();
+    Parent = File.getParent(Path) + File.separator;
     NameFile = File.getName(Path);
     NameFile = substring(NameFile,
                             0,
                             lastIndexOf(NameFile, ".")
                             );
-    FolderOutput = Parent + FP + "_" + NameFile + File.separator();
+    FolderOutput = Parent + FP + "_" + NameFile + File.separator;
 
-    FolderOutputRelative = File.separator() + FP + "_" + NameFile + File.separator();
+    //Hardcoded fileseparator for markdown reader.
+    FolderOutputRelative = FP + "_" + NameFile + "/";
 
-
+    //Create the folder if it doesn t exist
     if (File.exists(FolderOutput)!=1){
         File.makeDirectory(FolderOutput);
     }
@@ -100,7 +95,9 @@ PathM3 += "Close_Images.java";
     PathMD += "Droplets"+File.separator;
     PathMD += "LayOut.md";
     MD = File.openAsString(PathMD);
-    myCSV = "Name" + "\t" + "Slice" + "\t" + "X" + "\t" + "Y" + "\t" + "Area um2" + "\t" + "Corrected um2" + "\t" + "Mean Intensity" + "\n";
+    myCSV = "Name" + "\t" + "Slice" + "\t" + "X" + "\t" + "Y"
+            + "\t" + "Area um2" + "\t" + "Corrected um2"
+            + "\t" + "Mean Intensity" + "\n";
 
     //Command for Bioformat Importer
     CMD1 = "open=[";

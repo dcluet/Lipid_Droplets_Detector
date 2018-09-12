@@ -9,18 +9,27 @@ macro "Main"{
                         QC TESTS
     ============================================================================
 
-    Linux
+    Linux 16.04LTS
+    ~~~~~~~~~~~~~~
     Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018-09-10
     Lipid Droplets Brain (Whole Tissue): 2018-09-10
     Lipid Droplets Brain (Manual ROI): 2018-09-10
     Lipid Droplets Retina (Manual ROI): 2018-09-10
     REPO (Whole Tissue): 2018-09-10
 
+    Windows 10
+    ~~~~~~~~~~
+    Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018-09-11
+    Lipid Droplets Brain (Whole Tissue): 2018-09-11
+    Lipid Droplets Brain (Manual ROI): 2018-09-11
+    Lipid Droplets Retina (Manual ROI): 2018-09-12
+    REPO (Whole Tissue): 2018-09-12
+
 
     */
 
-    qcl = "2018-09-10";
-    qcp = "On progress";
+    qcl = "16.04 LTS 2018/09/10";
+    qcp = "WINDOWS 10 2018/09/12";
     qcm = "On progress";
 
     /*
@@ -75,7 +84,6 @@ macro "Main"{
     ============================================================================
     */
 
-    //Welcome
     Welcome(tag, lastStableCommit, qcl, qcp, qcm, gitlaburl);
 
     /*
@@ -92,18 +100,37 @@ macro "Main"{
     ============================================================================
     */
 
+    //Display GUI and retrieve parameters as a single string
     ResultGUI = runMacro(PathGUI, param);
 
     //Extract key parameters and command line
     myParameters = split(ResultGUI, "\n");
+
+    //Reuse old manual selection?
     myReuse = myParameters[0];
+
+    //Extension of the picture files
     myExt = myParameters[1];
+
+    //Concatenation of all key parameters ready for transmission to sub-macros
     ARGcommon = myParameters[2];
+
+    //Time finger prints
     FP = myParameters[3];
     FPT = myParameters[4];
+
+    //Root folder of the analysis
     PathFolderInput = myParameters[5];
+
+    //Selection type:
+    //              Whole tissue -/+ manual sub-selection
+    //              Manual sub-selection only
     myChoice = myParameters[6];
+
+    //Minimal number of new particles to continue iterations
     minNew = parseFloat(myParameters[7]);
+
+    //Number of bins for the distributions
     nBins = parseFloat(myParameters[8]);
 
     /*
@@ -112,12 +139,14 @@ macro "Main"{
     ============================================================================
     */
 
-    myAnalysis = PathFolderInput + FP + "_Files.txt";
-    myCommands = PathFolderInput + FP + "_Parameters.txt";
-
     //Create text Files
+    //Listing of files to analyze
+    myAnalysis = PathFolderInput + FP + "_Files.txt";
     Listing = File.open(myAnalysis);
     File.close(Listing);
+
+    //Listing of commands
+    myCommands = PathFolderInput + FP + "_Parameters.txt";
     Listing = File.open(myCommands);
     File.close(Listing);
 
@@ -228,21 +257,74 @@ macro "Main"{
 */
 
 function Welcome(myTag, myCommit, myQCl, myQCp, myQCm, url){
+
+    //Display a Welcome message to the user.
+
     showMessage("WELCOME", "<html>"
 			+"<font size=+3>"
 			+"<h1><font color=rgb(77,172,174)>Lipid Droplets and REPO Analysis</h1>"
 			+"<font size=+0>"
 			+"<font color=rgb(0,0,0)>"
 			+"<ul>"
-			+"<li>Version: " + myTag + "</li>"
-			+"<li>Last stable commit: " + myCommit + "</li>"
-            +"<li>Quality control LINUX: " + myQCl + "</li>"
-            +"<li>Quality control WINDOWS: " + myQCp + "</li>"
-            +"<li>Quality control APPLE: " + myQCp + "</li>"
+			+"<li>"
+            +"<font color=rgb(0,0,0)>"
+            +"Version: "
+            +"</font>"
+            +"<font color=rgb(77,172,174)>"
+            +"<b>"
+            + myTag
+            +"</b>"
+            +"</font>"
+            +"</li>"
+
+            +"<li>"
+            +"<font color=rgb(0,0,0)>"
+            +"Last stable commit: "
+            +"</font>"
+            +"<font color=rgb(77,172,174)>"
+            +"<b>"
+            + myCommit
+            +"</b>"
+            +"</font>"
+            +"</li>"
+
+            +"<li>"
+            +"<font color=rgb(0,0,0)>"
+            +"Quality control LINUX: "
+            +"</font>"
+            +"<font color=rgb(77,172,174)>"
+            +"<b>"
+            + myQCl
+            +"</b>"
+            +"</font>"
+            +"</li>"
+
+            +"<li>"
+            +"<font color=rgb(0,0,0)>"
+            +"Quality control WINDOWS: "
+            +"</font>"
+            +"<font color=rgb(77,172,174)>"
+            +"<b>"
+            + myQCp
+            +"</b>"
+            +"</font>"
+            +"</li>"
+
+            +"<li>"
+            +"<font color=rgb(0,0,0)>"
+            +"Quality control APPLE: "
+            +"</font>"
+            +"<font color=rgb(77,172,174)>"
+            +"<b>"
+            + myQCm
+            +"</b>"
+            +"</font>"
+            +"</li>"
+
 			+"</ul>"
-			+"<p><font color=rgb(100,100,100)>Cluet David<br>"
+			+"<p><font color=rgb(100,100,100)><b>Cluet David</b><br>"
             +"Research Ingeneer,PHD<br>"
-            +"<font color=rgb(77,172,174)>CNRS, ENS-Lyon, LBMC</p>"
+            +"<font color=rgb(77,172,174)><b>CNRS, ENS-Lyon, LBMC</b></p>"
 			);
 }//END WELCOME
 
@@ -251,6 +333,9 @@ function Welcome(myTag, myCommit, myQCl, myQCp, myQCm, url){
 */
 
 function EndProcess(Time1, Time2){
+
+    //Display a message that the Analysis is over.
+
     showMessage("", "<html>"
 			+"<font size=+3>"
 			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
@@ -269,6 +354,9 @@ function EndProcess(Time1, Time2){
 */
 
 function DisplayInfo(Message){
+
+    //Display a message.
+
     showMessage("", "<html>"
 			+"<font size=+3>"
 			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
