@@ -1,6 +1,6 @@
 macro "Installation_2018-02-27"{
 
-tag = "v4.1.0"
+tag = "v5.0.0"
 lastStableCommit = "09c54a63"
 myProgram = "Lipid Droplets and REPO Analysis";
 
