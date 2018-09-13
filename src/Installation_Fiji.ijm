@@ -72,7 +72,6 @@ if(repair != -1){
 	File.close(Startup);
 }
 
-
 //The program prompts the user of the success or failure of the installation.
 if(Errors == 0){
 DisplayInfo("", myProgram,

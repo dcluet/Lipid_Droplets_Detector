@@ -30,6 +30,7 @@ Listing = newArray("Lipid_Droplets.java",
                     "Distribution.java",
                     "Get_Parameters.java",
                     "Identify_Files.java",
+                    "macro_AjoutPlugin.java",
                     "Main.java",
                     "Main_GUI.java",
                     "Select_Channel.java",
@@ -71,6 +72,19 @@ if(repair != -1){
 	Startup = File.open(PathSUM);
 	print(Startup, SUM);
 	File.close(Startup);
+}
+
+//Detect if the Animated_Gif.jar plugin is present
+PathPlugin = PathOutput + "macro_AjoutPlugin.java";
+res = runMacro(PathPlugin);
+
+if (res=="missing"){
+    myCommand = "install=";
+    myCommand += PathFolderInput + "Animated_Gif.jar";
+    myCommand += " ";
+    myCommand += "save=";
+    myCommand += getDirectory("plugins") + "Animated_Gif.jar";
+    run("Install... ", myCommand);
 }
 
 
