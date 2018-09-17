@@ -25,20 +25,21 @@ CircMaxC = parseFloat(Arguments[9]);
 Iterations = parseFloat(Arguments[10]);
 enlargement = parseFloat(Arguments[11]);
 nBins = parseFloat(Arguments[12]);
-myAnalysis = Arguments[13];
-Sstart = parseFloat(Arguments[14]);
-Send = parseFloat(Arguments[15]);
-NeuroPilXtext = Arguments[16];
+enhance = parseFloat(Arguments[13]);
+myAnalysis = Arguments[14];
+Sstart = parseFloat(Arguments[15]);
+Send = parseFloat(Arguments[16]);
+NeuroPilXtext = Arguments[17];
 NeuroPilX = split(NeuroPilXtext, "-");
-NeuroPilYtext = Arguments[17];
+NeuroPilYtext = Arguments[18];
 NeuroPilY = split(NeuroPilYtext, "-");
-Path = Arguments[18];
-myRoot = Arguments[19];
-myProgress = parseFloat(Arguments[20]);
-FPT = Arguments[21];
-FP = Arguments[22];
-minimumFound = parseFloat(Arguments[23]);
-channel = Arguments[24];
+Path = Arguments[19];
+myRoot = Arguments[20];
+myProgress = parseFloat(Arguments[21]);
+FPT = Arguments[22];
+FP = Arguments[23];
+minimumFound = parseFloat(Arguments[24]);
+channel = Arguments[25];
 
 /*
 ============================================================================
@@ -258,7 +259,10 @@ PathM3 += "Close_Images.java";
     selectWindow("Raw");
     makeRectangle(0,0,W,H);
     run("Gaussian Blur...", "sigma=1 stack");
-    run("Maximum...", "radius=5 stack");
+    if (enhance==1){
+        //Enhance signal
+        run("Maximum...", "radius=5 stack");
+    }
 
     nROI = 0;
 
@@ -271,7 +275,7 @@ PathM3 += "Close_Images.java";
             setSlice(S);
             makeRectangle(0,0,W,H);
             setAutoThreshold("MaxEntropy dark");
-            run("Analyze Particles...", "size="+SizeMin+"-"+SizeMax+" add slice");
+            run("Analyze Particles...", "size="+ 1 +"-"+SizeMax+" add slice");
         }
 
         myFound = roiManager("count");
@@ -294,7 +298,9 @@ PathM3 += "Close_Images.java";
                             zDistance,
                             enlargement,
                             CircMinC,
-                            SizeMaxC);
+                            SizeMaxC,
+                            SizeMin,
+                            enhance);
 
             //Check if it is worse to continue
             if (nROI+minimumFound>roiManager("count")){
@@ -522,125 +528,96 @@ PathM3 += "Close_Images.java";
 */
 
 function MakeDistribution(){
-    mycolor = "magenta";
-    //Raw Distribution
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet (microns)" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Values_ALL" + "*";
-    ARG2 += AValues + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + TotalBrainSurface;
 
-    runMacro(PathM2, ARG2);
+    Arg1 = newArray(0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                    );
 
-    //Corrected Distribution (per million of pixel of brain surface)
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet size per million microns Brain" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Corrected_Values_ALL" + "*";
-    ARG2 += AValuesCorr + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + TotalBrainSurface;
+    Arg2 = newArray(SizeMaxC * pixelWidth * pixelHeight,
+                    SizeMaxC * pixelWidth * pixelHeight * 20,
+                    20000,
+                    SizeMaxC * pixelWidth * pixelHeight,
+                    SizeMaxC * pixelWidth * pixelHeight * 20,
+                    20000,
+                    SizeMaxC * pixelWidth * pixelHeight,
+                    SizeMaxC * pixelWidth * pixelHeight * 20,
+                    20000
+                    );
 
-    runMacro(PathM2, ARG2);
+    Arg3 = newArray("Droplet (microns)",
+                    "Droplet size per million microns Brain",
+                    "Mean grey values",
+                    "Droplet (microns)",
+                    "Droplet size per million microns Brain",
+                    "Mean grey values",
+                    "Droplet (microns)",
+                    "Droplet size per million microns Brain",
+                    "Mean grey values"
+                    );
 
-    //Intensities
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + 20000 + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Mean grey values" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Intensities_ALL" + "*";
-    ARG2 += IValues + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + TotalBrainSurface;
+    Arg4 = newArray("_Values_ALL",
+                    "_Corrected_Values_ALL",
+                    "_Intensities_ALL",
+                    "_Values_NP",
+                    "_Corrected_Values_NP",
+                    "_Intensities_NP",
+                    "_Values_Non-NP",
+                    "_Corrected_Values_Non-NP",
+                    "_Intensities_Non-NP"
+                    );
 
-    runMacro(PathM2, ARG2);
+    Arg5 = newArray(AValues,
+                    AValuesCorr,
+                    IValues,
+                    NValues,
+                    NValuesCorr,
+                    INValues,
+                    EValues,
+                    EValuesCorr,
+                    IEValues);
 
-    mycolor = "cyan";
-    //Raw Distribution Neuropil
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet (microns)" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Values_NP" + "*";
-    ARG2 += NValues + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + TotalNeuropilSurface;
+    Arg6 = newArray("magenta",
+                    "magenta",
+                    "magenta",
+                    "cyan",
+                    "cyan",
+                    "cyan",
+                    "orange",
+                    "orange",
+                    "orange"
+                    );
 
-    runMacro(PathM2, ARG2);
+    Arg7 = newArray(TotalBrainSurface,
+                    TotalNeuropilSurface,
+                    TotalBrainSurface -TotalNeuropilSurface,
+                    TotalBrainSurface,
+                    TotalNeuropilSurface,
+                    TotalBrainSurface -TotalNeuropilSurface,
+                    TotalBrainSurface,
+                    TotalNeuropilSurface,
+                    TotalBrainSurface -TotalNeuropilSurface);
 
-    //Corrected Distribution for Neuropil
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet size per million microns Brain" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Corrected_Values_NP" + "*";
-    ARG2 += NValuesCorr + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + TotalNeuropilSurface;
+    for(index=0; index<lengthOf(Arg1); index++){
 
-    runMacro(PathM2, ARG2);
+        ARG2 = "" + Arg1[index] + "*";
+        ARG2 += "" + Arg2[index] + "*";
+        ARG2 += "" + nBins + "*";
+        ARG2 += "" + Arg3[index] + "*";
+        ARG2 += "" + FolderOutput + NameFile + "*";
+        ARG2 += "" + Arg4[index] + "*";
+        ARG2 += Arg5[index] + "*";
+        ARG2 += Arg6[index] + "*";
+        ARG2 += "" + Arg7[index];
+        runMacro(PathM2, ARG2);
 
-    //Intensities
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + 20000 + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Mean grey values" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Intensities_NP" + "*";
-    ARG2 += INValues + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + TotalNeuropilSurface;
-
-    runMacro(PathM2, ARG2);
-
-    mycolor = "orange";
-    //Raw Distribution Non-Neuropil
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet (microns)" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Values_Non-NP" + "*";
-    ARG2 += EValues + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
-
-    runMacro(PathM2, ARG2);
-
-    //Corrected Distribution for non-Neuropil
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + (SizeMaxC * pixelWidth * pixelHeight * 20) + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Droplet size per million microns Brain" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Corrected_Values_Non-NP" + "*";
-    ARG2 += EValuesCorr + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
-
-    runMacro(PathM2, ARG2);
-
-    //Intensities
-    ARG2 = "" + 0 + "*";
-    ARG2 += "" + 20000 + "*";
-    ARG2 += "" + nBins + "*";
-    ARG2 += "" + "Mean grey values" + "*";
-    ARG2 += "" + FolderOutput + NameFile + "*";
-    ARG2 += "" + "_Intensities_Non-NP" + "*";
-    ARG2 += IEValues + "*";
-    ARG2 += mycolor + "*";
-    ARG2 += "" + (TotalBrainSurface -TotalNeuropilSurface);
-
-    runMacro(PathM2, ARG2);
+    }
 
 }
 
@@ -886,7 +863,9 @@ function Twins_Killer(myStack,
                         zDistance,
                         enlargement,
                         CircMinC,
-                        SizeMaxC){
+                        SizeMaxC,
+                        SizeMin,
+                        enhance){
 
     /*
         To increase speed I will sort the ROI by name
@@ -916,7 +895,13 @@ function Twins_Killer(myStack,
         Cr = List.getValue("Circ.");
         Sr = getSliceNumber();
 
-        if(Ar>SizeMaxC){
+        if((it==1) && (enhance==0)){
+            SizeMinl = 0;
+        }else{
+            SizeMinl = SizeMin;
+        }
+
+        if((Ar>SizeMaxC) || (Ar<SizeMinl)){
             //Clean false positive
             Erase = 1;
         }else{
@@ -934,7 +919,7 @@ function Twins_Killer(myStack,
                 A = List.getValue("Area");
                 C = List.getValue("Circ.");
                 S = getSliceNumber();
-                if((C<CircMinC)||(A>SizeMaxC)){
+                if((C<CircMinC)||(A>SizeMaxC)||(Ar<SizeMinl)){
                     //Clean false positive
                     roiManager("Select", N);
                     run("Enlarge...", "enlarge=" + enlargement);

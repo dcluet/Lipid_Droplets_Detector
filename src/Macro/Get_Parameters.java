@@ -22,21 +22,23 @@ macro "Get_Parameters"{
     /*
     Parameters structure:
     ====================
-    0   Extension
-    1   Reference resoltion (micron/pixel) in X
-    2   Reference resoltion (micron/pixel) in Y
-    3   Distance xy in pixels between 2 particles
-    4   Distance in z between 2 particles
-    5   Minimum size in pixel
-    6   Maximum size in pixel
-    7   Maximum size (to exclude big fat bodies)
-    8   Minimum circularity
-    9   Maximum circularity
-    10  Number of Iterations
-    11  Zone for enlargement (in pixel) and erasing
-    12  Number of bins for distributions
-    13  Type of the analysis Zone
-    14  Minimal number of particules to continue iterations
+    0   Analysis type
+    1   Extension
+    2   Reference resoltion (micron/pixel) in X
+    3   Reference resoltion (micron/pixel) in Y
+    4   Distance xy in pixels between 2 particles
+    5   Distance in z between 2 particles
+    6   Minimum size in pixel
+    7   Maximum size in pixel
+    8   Maximum size (to exclude big fat bodies)
+    9   Minimum circularity
+    10   Maximum circularity
+    11  Number of Iterations
+    12  Zone for enlargement (in pixel) and erasing
+    13  Number of bins for distributions
+    14  Type of the analysis Zone
+    15  Minimal number of particules to continue iterations
+    16  Enhance signal
     */
 
 

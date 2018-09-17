@@ -64,6 +64,9 @@ macro "Main_GUI"{
     //15  Minimal number of particules to continue iterations
     minNew = parseFloat(Arguments[15]);
 
+    //16 Enhance signal
+    enhance = parseFloat(Arguments[16]);
+
     //Initialisation of the Argument
     ARGcommon = "";
 
@@ -92,6 +95,7 @@ macro "Main_GUI"{
     Dialog.addNumber("Number of minimal new particle to perform next iteration", minNew);
     Dialog.addNumber("Correction factor: ", CorrectionSize, 0, 1, "pixels");
     Dialog.addNumber("Number of bins for the distributions: ", nBins, 0, 3, "");
+    Dialog.addCheckbox("Enhance signal", enhance);
     Dialog.show();
 
     //Generate the Ergument string for all analyses
@@ -109,10 +113,10 @@ macro "Main_GUI"{
     }else if (myChoice == "Whole tissue with Sub-Selection"){
         ARGcommon += "BrainNP" + "*";
     }
-    ARGcommon  += "" + ResWref + "*";
-    ARGcommon  += "" + ResHref + "*";
+    ARGcommon += "" + ResWref + "*";
+    ARGcommon += "" + ResHref + "*";
     xythreshold = Dialog.getNumber() / (ResWref * ResHref);
-    ARGcommon  += "" + xythreshold + "*";
+    ARGcommon += "" + xythreshold + "*";
     zthreshold = Dialog.getNumber();
     ARGcommon  += "" + zthreshold + "*";
     SizeMin = Dialog.getNumber() / (ResWref * ResHref);
@@ -124,15 +128,17 @@ macro "Main_GUI"{
     CircMinC = Dialog.getNumber();
     ARGcommon  += "" + CircMinC + "*";
     CircMaxC = Dialog.getNumber();
-    ARGcommon  += "" + CircMaxC + "*";
+    ARGcommon += "" + CircMaxC + "*";
     Iterations = Dialog.getNumber();
-    ARGcommon  += "" + Iterations + "*";
+    ARGcommon += "" + Iterations + "*";
     minNew = Dialog.getNumber();
     enlargement = Dialog.getNumber();
-    ARGcommon  += "" + enlargement + "*";
+    ARGcommon += "" + enlargement + "*";
     nBins = "" + Dialog.getNumber();
-    ARGcommon  += "" + nBins + "*";
-    ARGcommon  += "" + myAnalysistype + "*"; //Analysis type
+    ARGcommon += "" + nBins + "*";
+    enhance = Dialog.getCheckbox();
+    ARGcommon += "" + enhance + "*";
+    ARGcommon += "" + myAnalysistype + "*"; //Analysis type
 
     //Generate Finger Print
     getDateAndTime(year,
