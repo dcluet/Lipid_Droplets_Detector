@@ -1,4 +1,4 @@
-**Automated Detection of Lipid Droplets in *Drosophila M.* brain**
+**Automated Detection of labeled particles in microscopic stacks of Drosophila M. tissues**
 ===
 
 
@@ -75,11 +75,24 @@ The next window will propose different pre-set analysis modes:
 The settings are saved in the `settings.csv` file located in your `ImageJ/macros/Droplets` folder.
 They contain the key parameters for the analysis and are organized as following:
 
-|Name|Extension of the files to analyze|Reference resolution (micron/pixel) in X|Reference resolution (micron/pixel) in Y|Distance xy in pixels between 2 particles|Distance in z between 2 particles|Minimum size in pixel|Maximum size in pixel|Maximum size (to exclude big fat bodies)|Minimum circularity|Maximum circularity|Number of Iterations|Zone for enlargement (in pixel) and erasing|Number of bins for distributions|Zone of analysis|Minimal number of new Particles|
-|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
-|Lipid Droplets Brain|.czi|0.156|0.156|5|5|7|15000|500|0.5|1|3|5|50|?|50|
-|Lipid Droplets Retina|.czi|0.156|0.156|5|5|6.98|15000|821|82|0.5|1|2|5|50|Manual ROI|50|
-|Repo|.czi|0.156|0.156|5|5|7|15000|500|0.5|1|3|5|50|Whole tissue|50|
+|Name|Lipid Droplets Brain|Lipid Droplets Retina|Repo|
+|----|--------------------|---------------------|----|
+|Extension of the files to analyze|.czi|.czi|.czi|
+|Reference resolution (micron/pixel) in X|0.156|0.156|0.156|
+|Reference resolution (micron/pixel) in Y|0.156|0.156|0.156|
+|Distance xy in pixels between 2 particles|5|5|5|
+|Distance in z between 2 particles|5|5|5|
+|Minimum size in pixel|7|7|164|
+|Maximum size in pixel|15000|15000|15000|
+|Maximum size (to exclude big fat bodies)|500|822|8400|
+|Minimum circularity|0.5|0.5|0.3|
+|Maximum circularity|1|1|1|
+|Number of Iterations|3|2|3|
+|Zone for enlargement (in pixel) and erasing|5|5|5|
+|Number of bins for distributions|50|50|50|
+|Zone of analysis|?|Manual ROI|Whole tissue|
+|Minimal number of new Particles|50|50|5|
+|Enhance signal|true|true|false|
 
 If you respect this structure you can add your own settings.The various parameters will be described below. Once an analysis mode is selected you can modify all parameters using the main GUI.
 
@@ -102,7 +115,7 @@ Parameters
 
 **Thresholds between particles**: As this program is designed to perform analyses on stack images, it requires to remove duplicates of a same particle present on several slices. For this purpose the macro requires **minimal xy and z distances** to distinguish two separated particles. **Concerning the duplicates, only the largest one will be conserved.**
 
-**Parameters of the initial low-resolution scan**: In order to precisely detect all particles of interest and their shape, the program iteratively uses the [“Max-Entropy” threshold method](https://www.sciencedirect.com/science/article/pii/0734189X85901252). Thus at each iteration the program identify the brightest particles. They are stored in the `ROI manager` and removed from the image to allow the detection of less bright particles during the next iteration. This approach permits to precisely characterize the shape and size of the particles, but requires to remove any false positive bright particle. In this aim a first low resolution analysis detects even extremely big particles (**Maximal surface**) but with a minimal threshold (**Minimal surface**).
+**Parameters of the initial low-resolution scan**: In order to precisely detect all particles of interest and their shape, the program iteratively enhance the **solidity** of the bright particles using the `Gaussian Blur...` and `Maximum...` treatments. The [“Max-Entropy” threshold method](https://www.sciencedirect.com/science/article/pii/0734189X85901252), then permits to detect the **particles of interest**. Thus at each iteration the program identify the brightest particles. They are stored in the `ROI manager` and removed from the image to allow the detection of less bright particles during the next iteration. This approach permits to precisely characterize the shape and size of the particles, but requires to remove any false positive bright particle. In this aim a first low resolution analysis detects even extremely big particles (**Maximal surface**) but with a minimal threshold (**Minimal surface**).
 
 *Note that these two parameters are presented in microns in the GUI, but are expressed in pixels (as seen by the user, when performin visual inspection) in the `settings.csv` file.*
 
@@ -111,6 +124,8 @@ Parameters
 - **A specific shape** characterized by the **Minimal** and **Maximal [circularity](https://imagej.nih.gov/ij/docs/guide/146-30.html)**. *Note that this couple should be defined by values between 0 and 1.*
 
 **Iteration parameters**: Depending on the heterogeneity of the labeling of your particles of interest, the **number of iterations** has to be optimized. In order to stop the analysis if this **maximal number of iterations** is too high, a **minimal number of new particles** is set. If the number of newly identified particles is below this value, the analysis stops. Depending on the noise of the labeling it is not enough to remove only the false positive and the discarded duplicates. It could be required to remove a larger zone that the identified shape. For this purpose an enlargement **correction factor** can be applied before the removal from the picture. Finally, the user can indicate the **number of bins** used to draw the distribution curves in the report and statistic files.
+
+For some labeling with small and extremely bright noise, the **enhance signal** option can be unchecked. This will affect the research engine in two ways. First the `Maximum...` treatment will not be applied. Secondly, the **Minimal surface** filter will not be applied during the first iteration. This will allow the program to detect all **small noise particles** and remove them only at the second iteration. Indeed during the development phase, we encountered stacks that generated only **noise particles** during the first iteration, leading to the premature abortion of the program. The **non enhance signal** setting avoids this issue.
 
  Batch analysis
  -
