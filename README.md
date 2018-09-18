@@ -11,7 +11,7 @@
 **Contributors**
 --
 
-| ![LBMC Logo](doc/Logo_LBMC.jpg) ![CNRS Logo](doc/Logo_cnrs.jpg) ![ENS Logo](doc/Logo_ens.jpg) ||
+| ![CNRS Logo](doc/Logo_cnrs.jpg) ![ENS Logo](doc/Logo_ens.jpg) |![LBMC Logo](doc/Logo_LBMC.jpg)|
 |-----------------------------|------------|
 |**CLUET David**|     [david.cluet@ens-lyon.fr](david.cluet@ens-lyon.fr)|
 
@@ -22,7 +22,7 @@ The `LIPID_DROPLETS` macro requires `ImageJ v1.49g` or higher ([Download](https:
 
 For ImageJ, the conversion of the analyzed stacks into animated GIFs requires the ([Gif-Stack-Writer Plugin](https://imagej.nih.gov/ij/plugins/gif-stack-writer.html)) that will be automatically installed, if missing.
 
-To read Markdown files, use the `Markdown Preview Plus` extension for `Chrome`. In the `Extension menu` allow access to files URL.
+To read the analysis report Markdown files, you can use the `Markdown Preview Plus` extension for `Chrome`. In the `Extension menu` allow access to files URL.
 
 **User guide**
 ===
@@ -30,14 +30,14 @@ To read Markdown files, use the `Markdown Preview Plus` extension for `Chrome`. 
 
 **1) INSTALLATION**
 -
-The `LIPID_DROPLETS` macro requires can be automatically installed with all required files in `ImageJ` and `FIJI`. Please follow the specific instructions described below.
+The `LIPID_DROPLETS` macro can be automatically installed with all required files in `ImageJ` and `FIJI`. Please follow the specific instructions described below.
 
 
 ![ImageJ Logo](doc/IJ.jpg)
 -
 1. Open `ImageJ`.
 2. Open the `src` folder of the `LIPID_DROPLETS` macro.
-3. Drag the `Installation.ijm` file on `ImageJ` Menu bar to open it.
+3. Drag the `Installation.ijm` file on the `ImageJ` Menu bar to open it.
 4. In the Menu bar of the macro select the `Macros/Run Macro` option.
 5. The window will be closed automatically and all required files will be installed in the `ImageJ/macros/Droplets` folder. The shortcut `Plugins/Macros/LIPID_DROPLETS` will be added in the Menu bar.
 6. Restart `ImageJ` to refresh the Menu bar.
@@ -55,7 +55,7 @@ The `LIPID_DROPLETS` macro requires can be automatically installed with all requ
 
 **2) UPDATE**
 -
-Follow the same instructions as for the installation process.
+Follow the same instructions as for the initial installation process.
 
 **3) PERFORM AN ANALYSIS**
 -
@@ -64,7 +64,7 @@ Click on the `Plugins/Macros/LIPID_DROPLETS` shortcut.
 
 ![Shortcut](doc/Shortcut.jpg)
 
-The macro is initiated. The welcome widow is prompted.
+The macro is initiated and the welcome window is prompted.
 
 ![Wecome](doc/Wecome.jpg)
 
@@ -72,10 +72,10 @@ The next window will propose different pre-set analysis modes:
 
 ![Modes](doc/Modes.jpg)
 
-The settings are saved in the `settings.csv` file located in your `ImageJ/macros/Droplets` folder.
+The settings are saved in the `settings.csv` file located in your `ImageJ/macros/Droplets/` folder.
 They contain the key parameters for the analysis and are organized as following:
 
-|Name|Lipid Droplets Brain|Lipid Droplets Retina|Repo|
+|Name|Lipid Droplets Brain|Lipid Droplets Retina|Repo Brain|
 |----|--------------------|---------------------|----|
 |Extension of the files to analyze|.czi|.czi|.czi|
 |Reference resolution (micron/pixel) in X|0.156|0.156|0.156|

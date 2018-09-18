@@ -3,7 +3,7 @@ macro "Installation_2018-02-27"{
 
 tag = "v5.0.0"
 lastStableCommit = "fa87603c"
-myProgram = "Lipid Droplets and REPO Analysis";
+myProgram = "Automated Detection of labeled particles <br> in microscopic stacks of Drosophila M. tissues<br>";
 
 
 //IJ version verification and close the macro's window

@@ -6,6 +6,7 @@ Analysis of MYIMAGE
 
 **Analysis**:
 
+- Analysis Mode: **MYANALYSISMODE**
 - Date: **MYDATE**
 - End: **MYSTOP**
 - Operating system: **MYOS**
@@ -39,44 +40,60 @@ Analysis of MYIMAGE
 **Output**
 --
 
-- Number of identified droplets: **MYDROPLETS**
-- Number of droplets in Neuropil: **MYNEUROPIL**
+- Number of identified Particles: **MYDROPLETS**
+- Number of particles in the Manual ROI: **MYNEUROPIL**
 
 Brain slices surface (10^6 microns)
 
 MYBRAINS
 
-|**In a shell nut**||
+|**In a shell nut**| Values             |
 |------------------------------------|------------------------------------|
-| Total Brain Area (10⁶ microns) | **TOTALBRAINSURFACE** |
-| Mean Brain Area (10⁶ microns/slice)| **MEANBRAINSURFACE** |
-| Mean Brain LD Total Area (10⁶ microns/slice) | **MEANBRAINLDSURFACE** |
-| Brain LD Mean Area (microns) | **MEANLDSURFACEBRAIN** |
-| Brain LD number / Area (10⁶ microns) | **BRAINLDPERSURFACE** |
-|------------------------------------|------------------------------------|
-| Total Neuropil Area (10⁶ microns) | **TOTALNP** |
-| Mean Neuropil LD Area (10⁶ microns/slice) | **NPLDTOTALSURFACE**  |
-| Neuropil LD Mean Area (microns) | **NPLDMEANSURFACE**  |
-| Neuropil LD number / Area (10⁶ microns) | **NPLDPERSURFACE**  |
+| Total Tissue Area (10⁶ microns) | **TOTALBRAINSURFACE** |
+| Mean Tissue Area (10⁶ microns/slice)| **MEANBRAINSURFACE** |
+| Mean Tissue Particles Total Area (10⁶ microns/slice) | **MEANBRAINLDSURFACE** |
+| Tissue Particles Mean Area (microns) | **MEANLDSURFACEBRAIN** |
+| Tissue Particles number / Area (10⁶ microns) | **BRAINLDPERSURFACE** |
+| Total Particles Area (10⁶ microns) | **TOTALNP** |
+| Mean Manual Selection Particles Area (10⁶ microns/slice) | **NPLDTOTALSURFACE**  |
+| Manual Selection Particles Mean Area (microns) | **NPLDMEANSURFACE**  |
+| Manual Selection Particles number / Area (10⁶ microns) | **NPLDPERSURFACE**  |
 
-|**RESULT**|![Result](MYGIF)|
-|-------------------------------------|-----------------------------------|
-|**Distribution Surfaces (ALL)**|![Distribution](DISTRAWJPG)|
-|**Distribution Intensities (ALL)**|![Distribution](DISTIJPG)|
-|   |   |
-|**Distribution Surfaces (NON-NEUROPIL)**|![Distribution](DISTNNPRAWJPG)|
-|**Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIJPG)|
-|   |   |
-|**Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWJPG)|
-|**Distribution Intensities (NEUROPIL)**|![Distribution Neuropil](DISTNPIJPG)| |
 
-|**CUMULATIVE DISTRIBUTIONS**||
-|-------------------------------------|-----------------------------------|
-|**Cumulative Distribution Surfaces (ALL)**|![Distribution](DISTRAWcumJPG)|
-|**Cumulative Distribution Intensities (ALL)**|![Distribution](DISTIcumJPG)|
-|   |   |
-|**Cumulative Distribution Surfaces (NON-NEUROPIL)**|![Distribution](DISTNNPRAWcumJPG)|
-|**Cumulative Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIcumJPG)|   |   |
-|   |   |
-|**Cumulative Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWcumJPG)|  
-|**Cumulative Distribution Intensities (NEUROPIL)**|![Distribution Neuropil](DISTNPIcumJPG)| |
+
+
+**Results**
+--
+
+|**Global Overview**|
+|----------|
+|![Result](MYGIF)|
+|**Distribution Surfaces (ALL)**|
+|![Distribution](DISTRAWJPG)|
+|**Distribution Intensities (ALL)**|
+|![Distribution](DISTIJPG)|
+|**Distribution Surfaces (NON-MANUAL SELECTION)**|
+|![Distribution](DISTNNPRAWJPG)|
+|**Distribution Intensities (NON-MANUAL SELECTION)**|
+|![Distribution](DISTNNPIJPG)|
+|**Distribution Surfaces (MANUAL SELECTION)**|
+|![Distribution Neuropil](DISTNPRAWJPG)|
+|**Distribution Intensities (MANUAL SELECTION)**|
+|![Distribution Neuropil](DISTNPIJPG)|
+
+
+
+|**CUMULATIVE DISTRIBUTIONS**|
+|-------------------------------------|
+|**Cumulative Distribution Surfaces (ALL)**|
+|![Distribution](DISTRAWcumJPG)|
+|**Cumulative Distribution Intensities (ALL)**|
+|![Distribution](DISTIcumJPG)   |
+|**Cumulative Distribution Surfaces (NON-MANUAL SELECTION)**|
+|![Distribution](DISTNNPRAWcumJPG)   |
+|**Cumulative Distribution Intensities (NON-MANUAL SELECTION)**|
+|![Distribution](DISTNNPIcumJPG)   |
+|**Cumulative Distribution Surfaces (MANUAL SELECTION)**|  
+|![Distribution Neuropil](DISTNPRAWcumJPG)   |
+|**Cumulative Distribution Intensities (MANUAL SELECTION)**|
+|![Distribution Neuropil](DISTNPIcumJPG)   |

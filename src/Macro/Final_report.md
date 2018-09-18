@@ -39,16 +39,23 @@ MYFILES
 ==
 
 
-|**RAW DISTRIBUTIONS**||
-|-------------------------------------|-----------------------------------|
-|**Distribution Surfaces (ALL)**|![Distribution](DISTRAWJPG)|
-|**Distribution Surfaces corrected (ALL)**|![Distribution](DISTJPG)|
-|**Distribution Intensities (ALL)**|![Distribution](DISTIJPG)|
-|   |   |
-|**Distribution Surfaces (NON-NEUROPIL)**|![Distribution](DISTNNPRAWJPG)|
-|**Distribution Surfaces corrected (NON-NEUROPIL)**|![Distribution](DISTNNPJPG)|
-|**Distribution Intensities (NON-NEUROPIL)**|![Distribution](DISTNNPIJPG)|   |   |
-|   |   |
-|**Distribution Surfaces (NEUROPIL)**|![Distribution Neuropil](DISTNPRAWJPG)|  
-|**Distribution Surfaces corrected (NEUROPIL)**|![Distribution Neuropil](DISTNPJPG)|
-|**Distribution Intensities (NEUROPIL)**|![Distribution Neuropil](DISTNPIJPG)| |
+|**RAW DISTRIBUTIONS**|
+|-------------------------------------|
+|**Distribution Surfaces (ALL)**|
+|![Distribution](DISTRAWJPG)|
+|**Distribution Surfaces corrected (ALL)**|
+|![Distribution](DISTJPG)|
+|**Distribution Intensities (ALL)**|
+|![Distribution](DISTIJPG)|
+|**Distribution Surfaces (NON-MANUAL SELECTION)**|
+|![Distribution](DISTNNPRAWJPG)|
+|**Distribution Surfaces corrected (NON-MANUAL SELECTION)**|
+|![Distribution](DISTNNPJPG)|
+|**Distribution Intensities (NON-MANUAL SELECTION)**|  
+|![Distribution](DISTNNPIJPG)|
+|**Distribution Surfaces (MANUAL SELECTION)**|
+|![Distribution Neuropil](DISTNPRAWJPG)|
+|**Distribution Surfaces corrected (MANUAL SELECTION)**|
+|![Distribution Neuropil](DISTNPJPG)|
+|**Distribution Intensities (MANUAL SELECTION)**|
+|![Distribution Neuropil](DISTNPIJPG)|

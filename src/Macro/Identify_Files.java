@@ -67,7 +67,7 @@ function listFiles(folder, extension, outFilePath) {
 function DisplayInfo(Message){
     showMessage("", "<html>"
 			+"<font size=+3>"
-			+"<h1><font color=rgb(77,172,174)>Lipid Droplets Analysis</h1>"
+			+"<h1><font color=rgb(77,172,174)>Automated Detection of labeled particles <br> in microscopic stacks of Drosophila M. tissues</h1>"
 			+"<font size=+0>"
 			+"<font color=rgb(0,0,0)>"
             +"<p>" + Message + "</p>"

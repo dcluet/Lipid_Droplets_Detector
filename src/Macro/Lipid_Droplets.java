@@ -123,11 +123,15 @@ PathM3 += "Close_Images.java";
         //Keep only the first channel to perform analysis
         selectWindow(channel + myimage);
         rename(myimage);
-
-        if (myAnalysis == "Repo"){
-            rename("Brain");
-        }
     }
+
+    //Crop the Stack
+    selectWindow(myimage);
+    ARG1 = myimage + "\t";
+    ARG1 += "" + Sstart + "\t";
+    ARG1 += "" + Send + "\t";
+
+    runMacro(PathM1, ARG1);
 
     //Recalibrating the area values depending on resoltion.
     RefResolution = ResWref*ResHref;
@@ -168,29 +172,9 @@ PathM3 += "Close_Images.java";
     makeRectangle(0,0,W,H);
     run("Duplicate...", "title=Raw duplicate");
     run("Duplicate...", "title=Intensity duplicate");
-
-    ARG1 = "Raw" + "\t";
-    ARG1 += "" + Sstart + "\t";
-    ARG1 += "" + Send + "\t";
-
-    runMacro(PathM1, ARG1);
-
-    if (myAnalysis == "Repo"){
-        selectWindow("Brain");
-
-        ARG1 = "Brain" + "\t";
-        ARG1 += "" + Sstart + "\t";
-        ARG1 += "" + Send + "\t";
-
-        runMacro(PathM1, ARG1);
-    }
-
-    //Duplicate the stack for Brain detection
+    run("Duplicate...", "title=Brain duplicate");
     selectWindow("Raw");
     myslices = nSlices;
-    if (myAnalysis != "Repo"){
-        run("Duplicate...", "title=Brain duplicate");
-    }
 
     roiManager("reset");
 
@@ -211,11 +195,11 @@ PathM3 += "Close_Images.java";
 
     for (S=1; S<=nSlices; S++){
         setSlice(S);
-        ROIopen(FolderOutput + NameFile + "_Brain_Slices.txt", S-1);
+        ROIopen(FolderOutput + NameFile + "_Tissue_Slices.txt", S-1);
         getStatistics(area);
         ABrains = Array.concat(ABrains, area * pixelWidth * pixelHeight/1000000);
         TotalBrainSurface += area * pixelWidth * pixelHeight/1000000;
-        mybrains += "Brain slice " + S + " : **" + ABrains[S] + "**\n\n";
+        mybrains += "Tissue slice " + S + " : **" + ABrains[S] + "**\n\n";
     }
 
     Array.getStatistics(ABrains, min, max, mean, stdDev);
@@ -374,7 +358,7 @@ PathM3 += "Close_Images.java";
             the txt compression file
         */
         setSlice(S);
-        ROIopen(FolderOutput + NameFile + "_Brain_Slices.txt", S-1);
+        ROIopen(FolderOutput + NameFile + "_Tissue_Slices.txt", S-1);
         run("Draw", "slice");
     }
 
@@ -419,8 +403,37 @@ PathM3 += "Close_Images.java";
     roiManager("Rename", "Neuropil");
     run("Draw", "stack");
 
-    //saveAs("Tiff", Path + "_report.tif");
+    makeRectangle(0, 0, W, H);
 
+    //Save Gif HD
+    if (lastIndexOf(IJVersion,"/") == -1){
+        //ImageJ
+        CMD = "save=[" + FolderOutput + NameFile + "_report_HD.gif]";
+        run("Animated Gif... ",
+            CMD);
+    }else{
+        //FIJI
+        CMD = "name=Report ";
+        CMD += "" + "set_global_lookup_table_options=[Do not use] ";
+        CMD += "" + "optional=[] ";
+        CMD += "" + "image=[No Disposal] ";
+        CMD += "" + "set=500 ";
+        CMD += "" + "number=-1 ";
+        CMD += "" + "transparency=[No Transparency] ";
+        CMD += "" + "red=0 green=0 blue=0 index=0 ";
+        CMD += "" + "filename=[" + FolderOutput + NameFile + "_report_HD.gif]";
+        run("Animated Gif ... ",
+            CMD);
+    }
+
+    makeRectangle(0, 0, W, H);
+
+    //Reduce size
+    run("Scale...",
+        "x=- y=- z=1.0 width=1000 height=1000 depth=" + myslices
+        + " interpolation=None average process create");
+
+    //Save Gif Down sized.
     if (lastIndexOf(IJVersion,"/") == -1){
         //ImageJ
         CMD = "save=[" + FolderOutput + NameFile + "_report.gif]";
@@ -484,7 +497,7 @@ PathM3 += "Close_Images.java";
     mystop = "" + year + "/" + (month+1) + "/" + dayOfMonth + " ";
     mystop += "" + hour + ":" + minute;
 
-    mybrains += "Neuropil : **" + (ANP/1000000) + "**\n\n";
+    mybrains += "Manual Selection: **" + (ANP/1000000) + "**\n\n";
     TotalNeuropilSurface = myslices * ANP/1000000;
 
     BrainLDSurface = 0;
@@ -495,10 +508,10 @@ PathM3 += "Close_Images.java";
         NPLDSurface += AreaLDNPperSlice[np];
         AreaLDperSlice[np] = 100 * AreaLDperSlice[np]/(ABrains[np+1]*1000000);
         AreaLDNPperSlice[np] = 100 * AreaLDNPperSlice[np]/ANP;
-        mybrains += "- Slice " + (np+1) + ": **" + LDperSlice[np] + "** LDs in total.";
-        mybrains += "(" + AreaLDperSlice[np] + "% coverage of Brain)\n";
-        mybrains += " **" + LDNPperSlice[np] + "** in the Neuropil ";
-        mybrains += "(" + AreaLDNPperSlice[np] + "% coverage of Neuropil)\n";
+        mybrains += "- Slice " + (np+1) + ": **" + LDperSlice[np] + "** Particles in total.";
+        mybrains += "(" + AreaLDperSlice[np] + "% coverage of Tissue)\n";
+        mybrains += " **" + LDNPperSlice[np] + "** in the Manual Selection ";
+        mybrains += "(" + AreaLDNPperSlice[np] + "% coverage of Manual Selection)\n";
     }
     mybrains += "\n";
 
@@ -648,6 +661,7 @@ function RemoveUnWanted(MyWindow){
 */
 
 function UpdateMD(MD){
+    MD = replace(MD, "MYANALYSISMODE", myAnalysis);
     MD = replace(MD, "MYSTART", "" + Sstart);
     MD = replace(MD, "MYEND", "" + Send);
     MD = replace(MD, "MYSELECTION", Selection);
@@ -702,10 +716,6 @@ function UpdateMD(MD){
     MD = replace(MD, "NPLDMEANSURFACE", "" + NPLDSurface / numberNP );
     MD = replace(MD, "NPLDPERSURFACE", "" + numberNP / TotalNeuropilSurface);
 
-    if (myAnalysis == "Repo"){
-        MD = replace(MD, "LD", "REPO");
-        MD = replace(MD, "droplets", "REPO");
-    }
     return MD;
 }
 
@@ -806,8 +816,6 @@ function Detect_Brain(myImage, myPath){
 
     newImage("Brain-Shape", "8-bit white", W, H, N);
 
-
-
     for (S=1; S<=nSlices; S++){
 
         selectWindow(myImage);
@@ -823,7 +831,7 @@ function Detect_Brain(myImage, myPath){
 
             Highlander(nROI);
             roiManager("Select", nROI);
-            roiManager("Rename", "Brain slice "+S);
+            roiManager("Rename", "Tissue slice "+S);
 
             selectWindow("Brain-Shape");
             setSlice(S);
@@ -833,7 +841,7 @@ function Detect_Brain(myImage, myPath){
         }else if(roiManager("count") == nROI+1){
 
             roiManager("Select", nROI);
-            roiManager("Rename", "Brain slice "+S);
+            roiManager("Rename", "Tissue slice "+S);
 
             selectWindow("Brain-Shape");
             setSlice(S);
@@ -842,13 +850,13 @@ function Detect_Brain(myImage, myPath){
 
         }else if(roiManager("count") == nROI){
 
-            waitForUser("PROBLEM:\nNO BRAIN DETECTED IN THIS SLICE");
+            waitForUser("PROBLEM:\nNO TISSUE DETECTED IN THIS SLICE");
         }
 
     }
 
     //Save ROIs
-    ROIsave(myPath + "_Brain_Slices.txt", "overwrite");
+    ROIsave(myPath + "_Tissue_Slices.txt", "overwrite");
 
 }
 
@@ -877,7 +885,7 @@ function Twins_Killer(myStack,
         slice 1: 0001
         slice 10: 00010
         ?????
-        I have to rename myself firs and reorder
+        I have to rename myself first and reorder
     */
 
     selectWindow(myStack);

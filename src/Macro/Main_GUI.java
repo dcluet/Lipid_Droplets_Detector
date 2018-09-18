@@ -106,13 +106,7 @@ macro "Main_GUI"{
     resoRef = "" + ResWref + " x " + ResHref + " microns";
     ImResolution = ResWref*ResHref;
     myChoice = Dialog.getChoice();
-    if (myChoice == "Whole tissue"){
-        ARGcommon  += "Brain" + "*";
-    }else if (myChoice == "Manual ROI"){
-        ARGcommon  += "Manual ROI" + "*";
-    }else if (myChoice == "Whole tissue with Sub-Selection"){
-        ARGcommon += "BrainNP" + "*";
-    }
+    ARGcommon += myChoice + "*";
     ARGcommon += "" + ResWref + "*";
     ARGcommon += "" + ResHref + "*";
     xythreshold = Dialog.getNumber() / (ResWref * ResHref);
