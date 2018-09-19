@@ -1,11 +1,47 @@
-**Automated Detection of labeled particles in microscopic stacks of Drosophila M. tissues**
+**Automated Detection of labeled particles in microscopic stacks of *Drosophila M.* tissues**
 ===
 
+**Abstract**
+--
+
+Under development
 
 |![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|![Example distribution](doc/Distribution.jpg)|![Example corrected distribution](doc/CDistribution.jpg)
 |-------------------------------------|-----------------------------------|-----------------------------------|-----------------------------------|
 |**ORIGINAL**   |**TREATED**   |**DISTRIBUTION**   |**STATISTICS ENABLED**   |
 
+
+**License**
+--
+
+Copyright CNRS 2013
+
+
+>This software is a computer program whose purpose is to **automatically detect labeled Particles in microscopic stacks of Drosophila M. tissues**.
+>
+>This software is governed by the CeCILL  license under French law and abiding
+by the rules of distribution of free software. You can use, modify and/ or
+redistribute the software under the terms of the CeCILL license as circulated
+by CEA, CNRS and INRIA at the following URL:
+http://www.cecill.info/index.en.html
+>
+>As a counterpart to the access to the source code and  rights to copy, modify
+and redistribute granted by the license, users are provided only with a limited
+warranty  and the software's author,the holder of the economic rights, and the
+successive licensors have only limited liability.
+>
+>In this respect, the user's attention is drawn to the risks associated with
+loading, using, modifying and/or developing or reproducing the software by the
+user in light of its specific status of free software, that may mean  that it
+is complicated to manipulate, and that also therefore means  that it is
+reserved for developers  and  experienced professionals having in-depth
+computer knowledge. Users are therefore encouraged to load and test the
+software's suitability as regards their requirements in conditions enabling
+the security of their systems and/or data to be ensured and, more generally,
+to use and operate it in the same conditions as regards security.
+>
+>The fact that you are presently reading this means that you have had knowledge
+of the CeCILL license and that you accept its terms.
 
 
 **Contributors**
@@ -16,19 +52,33 @@
 |**CLUET David**|     [david.cluet@ens-lyon.fr](david.cluet@ens-lyon.fr)|
 
 
-**Requirements**
+**Acknowledgments**
 --
+
+Under development
+
+
+**Publication**
+--
+
+Under development
+
+
+
+**User guide**
+===
+
+**1) Requirements**
+-
 The `LIPID_DROPLETS` macro requires `ImageJ v1.49g` or higher ([Download](https://imagej.nih.gov/ij/download.html)).
 
 For ImageJ, the conversion of the analyzed stacks into animated GIFs requires the ([Gif-Stack-Writer Plugin](https://imagej.nih.gov/ij/plugins/gif-stack-writer.html)) that will be automatically installed, if missing.
 
 To read the analysis report Markdown files, you can use the `Markdown Preview Plus` extension for `Chrome`. In the `Extension menu` allow access to files URL.
 
-**User guide**
-===
 
 
-**1) INSTALLATION**
+**2) INSTALLATION**
 -
 The `LIPID_DROPLETS` macro can be automatically installed with all required files in `ImageJ` and `FIJI`. Please follow the specific instructions described below.
 
@@ -53,11 +103,11 @@ The `LIPID_DROPLETS` macro can be automatically installed with all required file
 6. Restart `FIJI` to refresh the Menu bar.
 
 
-**2) UPDATE**
+**3) UPDATE**
 -
 Follow the same instructions as for the initial installation process.
 
-**3) PERFORM AN ANALYSIS**
+**4) PERFORM AN ANALYSIS**
 -
 
 Click on the `Plugins/Macros/LIPID_DROPLETS` shortcut.
@@ -94,7 +144,7 @@ They contain the key parameters for the analysis and are organized as following:
 |Minimal number of new Particles|50|50|5|
 |Enhance signal|true|true|false|
 
-If you respect this structure you can add your own settings.The various parameters will be described below. Once an analysis mode is selected you can modify all parameters using the main GUI.
+If you respect this structure you can add your own settings. The various parameters will be described below. Once an analysis mode is selected you can modify all parameters using the main GUI.
 
 ![GUI](doc/GUI.jpg)
 

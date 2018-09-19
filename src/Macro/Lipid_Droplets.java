@@ -237,6 +237,7 @@ PathM3 += "Close_Images.java";
     selectWindow("Raw");
     makeRectangle(0,0,W,H);
     run("Duplicate...", "title=Report duplicate");
+    run("Enhance Contrast", "saturated=0.35");
     run("RGB Color");
 
     //Process the image to detect the lipid droplets
@@ -348,7 +349,6 @@ PathM3 += "Close_Images.java";
 
     //Draw ROI on Report
     selectWindow("Report");
-
     run("Line Width...", "line=3");
 
     setForegroundColor(175,175,175);
@@ -433,26 +433,11 @@ PathM3 += "Close_Images.java";
         "x=- y=- z=1.0 width=1000 height=1000 depth=" + myslices
         + " interpolation=None average process create");
 
-    //Save Gif Down sized.
-    if (lastIndexOf(IJVersion,"/") == -1){
-        //ImageJ
-        CMD = "save=[" + FolderOutput + NameFile + "_report.gif]";
-        run("Animated Gif... ",
-            CMD);
-    }else{
-        //FIJI
-        CMD = "name=Report ";
-        CMD += "" + "set_global_lookup_table_options=[Do not use] ";
-        CMD += "" + "optional=[] ";
-        CMD += "" + "image=[No Disposal] ";
-        CMD += "" + "set=500 ";
-        CMD += "" + "number=-1 ";
-        CMD += "" + "transparency=[No Transparency] ";
-        CMD += "" + "red=0 green=0 blue=0 index=0 ";
-        CMD += "" + "filename=[" + FolderOutput + NameFile + "_report.gif]";
-        run("Animated Gif ... ",
-            CMD);
-    }
+    //Create Projection
+    run("Z Project...", "projection=[Max Intensity]");
+
+    saveAs("Jpeg",
+            FolderOutput + NameFile + "_report.jpg");
 
     run("Close");
 
@@ -684,7 +669,7 @@ function UpdateMD(MD){
     MD = replace(MD, "MYSLICES", "" + myslices);
     MD = replace(MD, "MYDROPLETS", "" + totalLD);
     MD = replace(MD, "MYNEUROPIL", "" + numberNP);
-    MD = replace(MD, "MYGIF", FolderOutputRelative + NameFile + "_report.gif");
+    MD = replace(MD, "MYGIF", FolderOutputRelative + NameFile + "_report.jpg");
     MD = replace(MD, "MYSTOP", mystop);
     MD = replace(MD, "MYBRAINS", "" + mybrains);
     MD = replace(MD, "DISTRAWJPG", FolderOutputRelative + NameFile + "_Values_ALL_Distribution.jpg");

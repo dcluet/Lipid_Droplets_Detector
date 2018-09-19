@@ -9,27 +9,26 @@ macro "Main"{
                         QC TESTS
     ============================================================================
 
-    Linux 16.04LTS
-    ~~~~~~~~~~~~~~
-    Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018-09-10
-    Lipid Droplets Brain (Whole Tissue): 2018-09-10
-    Lipid Droplets Brain (Manual ROI): 2018-09-10
-    Lipid Droplets Retina (Manual ROI): 2018-09-10
-    REPO (Whole Tissue): 2018-09-10
+    Linux 16.04 LTS
+    ~~~~~~~~~~~~~~~
+    Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018/09/19
+    Lipid Droplets Brain (Whole Tissue): 2018/09/19
+    Lipid Droplets Brain (Manual ROI): 2018/09/19
+    Lipid Droplets Retina (Manual ROI): 2018/09/19
+    REPO (Whole Tissue): 2018/09/19
 
     Windows 10
     ~~~~~~~~~~
-    Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018-09-11
-    Lipid Droplets Brain (Whole Tissue): 2018-09-11
-    Lipid Droplets Brain (Manual ROI): 2018-09-11
-    Lipid Droplets Retina (Manual ROI): 2018-09-12
-    REPO (Whole Tissue): 2018-09-12
-
+    Lipid Droplets Brain (Whole Tissue with Sub-selection):
+    Lipid Droplets Brain (Whole Tissue):
+    Lipid Droplets Brain (Manual ROI):
+    Lipid Droplets Retina (Manual ROI):
+    REPO (Whole Tissue):
 
     */
 
-    qcl = "16.04 LTS 2018/09/10";
-    qcp = "WINDOWS 10 2018/09/12";
+    qcl = "16.04 LTS On Progress";
+    qcp = "WINDOWS 10 On Progress";
     qcm = "On progress";
 
     /*
