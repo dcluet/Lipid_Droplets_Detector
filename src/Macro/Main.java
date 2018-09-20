@@ -1,7 +1,7 @@
 macro "Main"{
     //INFOS
     tag = "v5.0.0"
-    lastStableCommit = "fa87603c"
+    lastStableCommit = "345f8c88"
     gitlaburl = "http://gitlab.biologie.ens-lyon.fr/dcluet/Lipid_Droplets"
 
     /*
