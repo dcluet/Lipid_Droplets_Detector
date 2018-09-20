@@ -72,25 +72,34 @@ macro "Main_GUI"{
 
     //GUI
     Dialog.create("SETTINGS FOR " + myAnalysistype);
-    Dialog.addMessage("Re-use the same initial, final and manual selection of a previous analysis?");
+    Dialog.addMessage("MAIN PARAMETERS:");
     reuse = newArray("NO", "YES");
-    Dialog.addChoice("", reuse, "NO");
+    Dialog.addChoice("Reload previous taylored parameters", reuse, "NO");
     Dialog.addString("Extension of the stacks files: ", myExt, 5);
-    Dialog.addMessage("Initial resolution used for calibration:");
-    Dialog.addNumber("Pixel Width ", ResWref, 3, 5, "micron");
-    Dialog.addNumber("Pixel Height: ", ResHref, 3, 5, "micron");
     Dialog.addChoice("Region to process: ", Selections);
-    Dialog.addMessage("Thresholds between particles:");
-    Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "microns");
+    Dialog.addMessage("INITIAL RESOLUTION USED FOR CALIBRATION:");
+    Dialog.addNumber("Pixel Width ", ResWref, 3, 5, "micron");
+    Dialog.addToSameRow();
+    Dialog.addNumber("Pixel Height: ", ResHref, 3, 5, "micron");
+
+    Dialog.addMessage("THRESHOLDS BETWEEN ISOLATED PARTICLES:");
+    Dialog.addNumber("XY Distance: ", xythresholdMicron, 3, 5, "micron");
+    Dialog.addToSameRow();
     Dialog.addNumber("Z Distance: ", zthreshold, 3, 5, "slices");
-    Dialog.addMessage("Parameters for the initial low-resolution scan:");
+
+    Dialog.addMessage("INITIAL LOW RESOLUTION SCAN:");
     Dialog.addNumber("Minimal surface: ", SizeMinMicron, 3, 7, "microns^2");
+    Dialog.addToSameRow();
     Dialog.addNumber("Maximal surface: ", SizeMaxMicron, 3, 7, "microns^2");
-    Dialog.addMessage("Parameters for the high-resolution scan:");
+
+    Dialog.addMessage("HIGH RESOLUTION SCAN:");
     Dialog.addNumber("Maximal surface: ", SizeMaxCMicron, 3, 7, "microns^2");
+    Dialog.addToSameRow();
     Dialog.addNumber("Minimal circularity: ", CircMinC, 3, 5, "");
+    Dialog.addToSameRow();
     Dialog.addNumber("Maximal circularity: ", CircMaxC, 3, 5, "");
-    Dialog.addMessage("This program is based on iterative detection of the the brightest particles.");
+
+    Dialog.addMessage("PARAMETERS FOR ITERATION ENGINE:");
     Dialog.addNumber("Number of maximal iterations: ", nIteration);
     Dialog.addNumber("Number of minimal new particle to perform next iteration", minNew);
     Dialog.addNumber("Correction factor: ", CorrectionSize, 0, 1, "pixels");
@@ -101,11 +110,12 @@ macro "Main_GUI"{
     //Generate the Ergument string for all analyses
     myReuse = Dialog.getChoice();
     myExt = Dialog.getString();
+    myChoice = Dialog.getChoice();
     ResWref = Dialog.getNumber();
     ResHref = Dialog.getNumber();
     resoRef = "" + ResWref + " x " + ResHref + " microns";
     ImResolution = ResWref*ResHref;
-    myChoice = Dialog.getChoice();
+
     ARGcommon += myChoice + "*";
     ARGcommon += "" + ResWref + "*";
     ARGcommon += "" + ResHref + "*";
