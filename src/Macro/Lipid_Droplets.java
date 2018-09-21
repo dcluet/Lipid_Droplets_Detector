@@ -6,39 +6,95 @@ macro "Lipid_Droplets"{
 ===============================================================================
 */
 
+//Get the version of IJ for the MarkDown Report file
 IJVersion = getVersion();
 
 //Arguments
 Argument = getArgument();
 Arguments = split(Argument, "*");
 
+//Selection zone
 Selection = Arguments[0];
+
+//Resolution of the reference stack
+//Pixel Width in microns
 ResWref = parseFloat(Arguments[1]);
+//Pixel Height in microns
 ResHref = parseFloat(Arguments[2]);
+
+//Minimal distance between 2 particles centers to be considered as separated
 seuil = parseFloat(Arguments[3]);
+
+//Minimal number of slices to consider 2 particles as separated
 zDistance = parseFloat(Arguments[4]);
+
+//Minimal area of the particles of interest
 SizeMin = parseFloat(Arguments[5]);
+
+//maximal size to take into account potential big bright
+//false positive signals
+//Infinity can be a wrong choice -> detect the whole tissue
 SizeMax = parseFloat(Arguments[6]);
+
+//Maximal area of the particles of interest
 SizeMaxC = parseFloat(Arguments[7]);
+
+//Minimal circularity of the particles of interest
 CircMinC = parseFloat(Arguments[8]);
+
+//Maximal circularity of the particles of interest
 CircMaxC = parseFloat(Arguments[9]);
+
+//Number of iterations
 Iterations = parseFloat(Arguments[10]);
+
+//Distance of enlargement (in all directions) when removing the particles from
+//the stack
 enlargement = parseFloat(Arguments[11]);
+
+//Number of bins for the distributions
 nBins = parseFloat(Arguments[12]);
+
+//Precise if the Maximum... treatment is applied
 enhance = parseFloat(Arguments[13]);
+
+//Path of the file contaiing the path of file containing the path of the files
 myAnalysis = Arguments[14];
+
+//Starting slice
 Sstart = parseFloat(Arguments[15]);
+
+//Ending slice
 Send = parseFloat(Arguments[16]);
+
+//Coordinates of the manual selection
+//X coordinates
 NeuroPilXtext = Arguments[17];
 NeuroPilX = split(NeuroPilXtext, "-");
+
+//Y coordinates
 NeuroPilYtext = Arguments[18];
 NeuroPilY = split(NeuroPilYtext, "-");
+
+//Path of the current stack
 Path = Arguments[19];
+
+//Path of the root folder of the analysis
 myRoot = Arguments[20];
+
+//Position of the stack in the listing -> for Progressbar
 myProgress = parseFloat(Arguments[21]);
+
+//Time finger print to be included in reports
 FPT = Arguments[22];
+
+//Time finger print for file names
 FP = Arguments[23];
+
+//Minimal number of particles to continue to next iteration
 minimumFound = parseFloat(Arguments[24]);
+
+//Channel to be treated
 channel = Arguments[25];
 
 /*
@@ -62,6 +118,11 @@ PathM3 = getDirectory("macros");
 PathM3 += "Droplets"+File.separator;
 PathM3 += "Close_Images.java";
 
+//Order the ROIs
+PathM4 = getDirectory("macros");
+PathM4 += "Droplets"+File.separator;
+PathM4 += "Order_ROI.java"
+
 /*
 ===============================================================================
                             CORE PROGRAM
@@ -73,6 +134,12 @@ PathM3 += "Close_Images.java";
 
     //Clean roiManager
     roiManager("reset");
+
+    /*
+    ============================================================================
+                OPEN THE CURRENT FILE, GET PARAMETERS AND CREATE FILES
+    ============================================================================
+    */
 
     //Create the Outputfolder
     Parent = File.getParent(Path) + File.separator;
@@ -96,21 +163,29 @@ PathM3 += "Close_Images.java";
     PathMD += "Droplets"+File.separator;
     PathMD += "LayOut.md";
     MD = File.openAsString(PathMD);
+
+    //Initialize the string for the csv file
     myCSV = "Name" + "\t" + "Slice" + "\t" + "X" + "\t" + "Y"
             + "\t" + "Area um2" + "\t" + "Corrected um2"
             + "\t" + "Mean Intensity" + "\n";
 
-    //Command for Bioformat Importer
+    //Command for Bioformat Importer to open the image
     CMD1 = "open=[";
     CMD1 += Path + "]";
     CMD1 += " autoscale";
     CMD1 += " color_mode=Default";
     CMD1 += " rois_import=[ROI manager]";
     CMD1 += " view=Hyperstack stack_order=XYCZT";
+
     run("Bio-Formats Importer", CMD1);
 
+    //Obtain the stack's name
     myimage = getTitle();
+
+    //Retrieve stack's resolution
     getPixelSize(unit, pixelWidth, pixelHeight);
+
+    //Prepare strings for report
     reso = "" + pixelWidth + " " + unit + " x " + pixelHeight + " " + unit;
     resoRef = "" + ResWref + " " + unit + " x " + ResHref + " " + unit;
 
@@ -122,6 +197,9 @@ PathM3 += "Close_Images.java";
 
         //Keep only the first channel to perform analysis
         selectWindow(channel + myimage);
+
+        //Rename the channel of interest as the original image
+        //-> the program is then common for mono and multi channel stacks
         rename(myimage);
     }
 
@@ -174,81 +252,143 @@ PathM3 += "Close_Images.java";
     run("Duplicate...", "title=Intensity duplicate");
     run("Duplicate...", "title=Brain duplicate");
     selectWindow("Raw");
+
+    //Get the number of slices
     myslices = nSlices;
 
+    /*
+    ============================================================================
+            DETECT AND ANALYZE THE SHAPES OF THE TISSUE WITHIN THE STACK
+    ============================================================================
+    */
+
+    //Ensure no ROI are present in the ROI manager
     roiManager("reset");
 
+    //Detect tissue in all slices
     Detect_Brain("Brain", FolderOutput + NameFile);
 
-    //Create array of Brain areas. Start with 0 to have same index as slices
+    //Create array of tissue areas. Start with 0 to have same index as slices
     ABrains = newArray();
     ABrains = Array.concat(ABrains, 0);
 
+    //Array number of ROI for each slice
     LDperSlice = newArray(nSlices);
+
+    //Array number of ROI in Manual ROI for each slice
     LDNPperSlice = newArray(nSlices);
+
+    //Array total surface of ROI for each slice
     AreaLDperSlice = newArray(nSlices);
+
+    //Array total surface of ROI in Manual ROI for each slice
     AreaLDNPperSlice = newArray(nSlices);
 
+    //Initialize the string variable for the MD report
     mybrains = "";
 
+    //Initialize the total surface of the Brain (all slices)
     TotalBrainSurface = 0;
 
+    //Calculate the total tissue surface within the stack
     for (S=1; S<=nSlices; S++){
+
+        //Select the current slice
         setSlice(S);
+
+        //Open the corresponding tissue ROI
         ROIopen(FolderOutput + NameFile + "_Tissue_Slices.txt", S-1);
+
+        //Get the surface (pixel) of the shape
         getStatistics(area);
+
+        //Append the coorected value (microns) into the tissue area array.
         ABrains = Array.concat(ABrains, area * pixelWidth * pixelHeight/1000000);
+
+        //Update the total surface value (microns)
         TotalBrainSurface += area * pixelWidth * pixelHeight/1000000;
+
+        //Update the report string variable
         mybrains += "Tissue slice " + S + " : **" + ABrains[S] + "**\n\n";
     }
 
-    Array.getStatistics(ABrains, min, max, mean, stdDev);
-    minBrain = min;
+    //Get statistics on tissue shapes area
+    Array.getStatistics(ABrains, min, max, meanTissue, stdDev);
 
-    //Array.show(ABrains);
-
+    //Close the Tissue window (no more needed)
     selectWindow("Brain");
     close();
+
+    //Remove all ROI from ROI manager
     roiManager("reset");
 
-    //Draw Neuropil
+    /*
+    ============================================================================
+                        PREPARE ANALYSIS WITH MANUAL ROI
+    ============================================================================
+    */
+
+    //Add the Manual ROI to the ROI manager
     selectWindow("Raw");
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     roiManager("Add");
+
+    //Get correct Area (microns) and coordinates (as arrays)
     roiManager("Select", 0);
     List.setMeasurements;
     ANP = List.getValue("Area") * pixelWidth * pixelHeight;
     XNP = List.getValue("X");
     YNP = List.getValue("Y");
 
+    //Correct the area using the mean area of the tissue
+    ACorr = ANP/meanTissue;
 
-    ACorr = ANP/ABrains[nSlices];
+    //Update CSV
     myCSV += "" + "Neuropil" + "\t" + nSlices + "\t";
     myCSV +=  "" + XNP + "\t" + YNP + "\t" + ANP + "\t" + ACorr + "\n";
 
+    //Prepare a new image with the shape of the Manual ROI
     newImage("Neuropil", "8-bit white", W, H, 1);
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     setForegroundColor (0,0,0);
     run("Fill");
 
+    //Clean ROI Manager
     roiManager("reset");
 
-    //Prepare Report
+    //Prepare Report Stack
     selectWindow("Raw");
     makeRectangle(0,0,W,H);
     run("Duplicate...", "title=Report duplicate");
     run("Enhance Contrast", "saturated=0.35");
     run("RGB Color");
 
-    //Process the image to detect the lipid droplets
+    /*
+    ============================================================================
+                        PREPARE IMAGE TO DETECT PARTICLES
+    ============================================================================
+    */
+
+    //Select the window in which the detection will be perform
     selectWindow("Raw");
+
+    //Ensure we use the whole image
     makeRectangle(0,0,W,H);
+
+    //Use Gaussian Blur to "solidify" the pixelized particles
     run("Gaussian Blur...", "sigma=1 stack");
     if (enhance==1){
         //Enhance signal
         run("Maximum...", "radius=5 stack");
     }
 
+    /*
+    ============================================================================
+                            ITERATIVE ANALYSIS
+    ============================================================================
+    */
+
+    //Reference number of particles
     nROI = 0;
 
     //Iteratively detect the strongest particles and remove them
@@ -256,26 +396,42 @@ PathM3 += "Close_Images.java";
 
         selectWindow("Raw");
 
+        //Process all slices
         for (S=1; S<=nSlices; S++){
+
+            //Select the current slice
             setSlice(S);
+
+            //Select the whole picture
             makeRectangle(0,0,W,H);
+
+            //Threshold the image to detect the brightest particles
             setAutoThreshold("MaxEntropy dark");
             run("Analyze Particles...", "size="+ 1 +"-"+SizeMax+" add slice");
         }
 
+        //Determine the number of detected particles
         myFound = roiManager("count");
 
+        //If new particles have been found
         if (nROI<myFound){
 
-            //Remove all non brain particles
+            //Determine which image to use as reference to
+            //Remove all unwanted particles
             if (Selection != "Manual ROI"){
+
+                //if the user study the global tissue +/- a Manual ROI
                 myWindow = "Brain-Shape";
+
             }else{
+
+                //if the user study only a Manual ROI
                 myWindow = "Neuropil";
             }
+            //Remove all unwanted particles
             RemoveUnWanted(myWindow);
 
-            //Remove all twins
+            //Remove all twins particles
             Twins_Killer("Raw",
                             nROI,
                             it,
@@ -298,7 +454,13 @@ PathM3 += "Close_Images.java";
     }// End of Iterations
 
 
-    //Reinitialisation of arrays containinf number of LD and total surface
+    /*
+    ============================================================================
+                        IDENTIFY PARTICLES IN THE MANUAL ROI
+    ============================================================================
+    */
+
+    //Initialisation of arrays containing number of particles and total surface
     for(np = 0; np<LDperSlice.length; np++){
         LDperSlice[np] = 0;
         AreaLDperSlice[np] = 0;
@@ -306,28 +468,63 @@ PathM3 += "Close_Images.java";
         AreaLDNPperSlice[np] = 0;
     }
 
+    //Number of particles within the Tissue but OUTSIDE of the MANUAL ROI
     numberNP = 0;
+
+    //Process all ROIs in the ROI Manager
     for(i=0; i<roiManager("count"); i++){
+
+        //Select the window used for the detection
         selectWindow("Raw");
+
+        //SElect current ROI
         roiManager("Select",i);
+
+        //Correct the slice number (first index = 1 -> 0)
         currentSlice = getSliceNumber - 1;
+
+        //Measure the particle
         List.setMeasurements;
+        //Get the corrected (microns) area
         ALD = List.getValue("Area") * pixelWidth * pixelHeight;
+
+        //Update the number of particle for the current slice
         LDperSlice[currentSlice] = LDperSlice[currentSlice] + 1;
+
+        //Update the total area of particle for the slice
         AreaLDperSlice[currentSlice] = AreaLDperSlice[currentSlice] + ALD;
+
+        //Select the window with the shape of the Manual Roi
         selectWindow("Neuropil");
+
+        //Re-select the current ROI
         roiManager("Select",i);
+
+        //Get the name and statistics
         myName = Roi.getName;
         getStatistics(area, mean);
+
+        //If the particle is at least partially in the Manual ROI
         if (mean<255){
+
+            //Select the current ROI
             roiManager("Select",i);
+
+            //Rename the particle by adding the prefix NP
             roiManager("Rename", "NP_"+myName);
+
+            //Update the total number of particles in the Manual ROI
             numberNP += 1;
+
+            //Update the number of particle in the Manual ROI per slice
             LDNPperSlice[currentSlice] = LDNPperSlice[currentSlice] + 1;
+
+            //Update the total surface of particle in the Manual ROI per slice
             AreaLDNPperSlice[currentSlice] = AreaLDNPperSlice[currentSlice] + ALD;
             }
     }
 
+    //Total number of particles
     totalLD = roiManager("count");
 
     /*
@@ -347,56 +544,102 @@ PathM3 += "Close_Images.java";
     INValues = "";
     IEValues = "";
 
-    //Draw ROI on Report
+    /*
+    ============================================================================
+                    CREATE THE REPORT STACK AND MEASURE INTENSITY
+    ============================================================================
+    */
+
+    //Draw the shape of the Tissue on Report stack
     selectWindow("Report");
+
+    //Set linewidth to 3
     run("Line Width...", "line=3");
 
+    //Set drawing color to grey
     setForegroundColor(175,175,175);
+
     for (S=1; S<=nSlices; S++){
         /*
             First slice is one but its corresponding ROI is in line 0 in
             the txt compression file
         */
         setSlice(S);
+
+        //Open the shape of the tissue for the current slice
         ROIopen(FolderOutput + NameFile + "_Tissue_Slices.txt", S-1);
+
+        //Draw the shape
         run("Draw", "slice");
     }
 
+    //Set the drawing color to magenta
     setForegroundColor(255,0,255);
+
+    //Process all ROIs
     for(i=0; i<roiManager("count"); i++){
+
+        //Select the window to measure raw intensity
         selectWindow("Intensity");
+
+        //select the current ROI
         roiManager("Select",i);
+
+        //Get name of the ROI
         roiName=Roi.getName;
+
+        //Get Measures
         List.setMeasurements;
+
+        //Corrected (microns) area and the (X,Y) position of the center
         A = List.getValue("Area") * pixelWidth * pixelHeight;
         X = List.getValue("X");
         Y = List.getValue("Y");
+
+        //Get the intensity
         Intensity = List.getValue("Mean");
-        ACorr = A/ABrains[getSliceNumber];
+
+        //Update the CSV
         myCSV += "" + roiName + "\t" + getSliceNumber + "\t";
         myCSV += "" + X + "\t" + Y + "\t" + A + "\t" + ACorr + "\t";
         myCSV += "" + Intensity + "\n";
+
+        //Update the variables containing the values for ALL particles
         AValues += "" + A + "-";
         AValuesCorr += "" + ACorr + "-";
         IValues += "" + Intensity + "-";
+
+        //Update the variables containing the values for Manual ROI particles
         if (lastIndexOf(roiName,"NP_") != -1){
             //Neuropil only
             NValues += "" + A + "-";
             NValuesCorr += "" + ACorr + "-";
             INValues += "" + Intensity + "-";
         }else{
-            //Non Neuropil only
+            //Update the variables containing the values for
+            //Non Manual ROI particles
             EValues += "" + A + "-";
             EValuesCorr += "" + ACorr + "-";
             IEValues += "" + Intensity + "-";
         }
+
+        //Select the report Stack
         selectWindow("Report");
+
+        //Select the current ROI
         roiManager("Select",i);
+
+        //Draw the particle
         run("Draw", "slice");
     }
 
+    //Set drawing color to cyan
     setForegroundColor(0,255,255);
+
+    //Select the report stack
     selectWindow("Report");
+
+    //Draw the manual ROI
     makeSelection("polygon", NeuroPilX, NeuroPilY);
     roiManager("Add");
     roiManager("Select", roiManager("count")-1);
@@ -409,6 +652,7 @@ PathM3 += "Close_Images.java";
     if (lastIndexOf(IJVersion,"/") == -1){
         //ImageJ
         CMD = "save=[" + FolderOutput + NameFile + "_report_HD.gif]";
+
         run("Animated Gif... ",
             CMD);
     }else{
@@ -422,6 +666,7 @@ PathM3 += "Close_Images.java";
         CMD += "" + "transparency=[No Transparency] ";
         CMD += "" + "red=0 green=0 blue=0 index=0 ";
         CMD += "" + "filename=[" + FolderOutput + NameFile + "_report_HD.gif]";
+
         run("Animated Gif ... ",
             CMD);
     }
@@ -433,14 +678,27 @@ PathM3 += "Close_Images.java";
         "x=- y=- z=1.0 width=1000 height=1000 depth=" + myslices
         + " interpolation=None average process create");
 
-    //Create Projection
-    run("Z Project...", "projection=[Max Intensity]");
+    //Get the number of slices
+    localSliceNumber = nSlices;
+
+    //Create Projection if several slices
+    if(localSliceNumber>1){
+        run("Z Project...", "projection=[Max Intensity]");
+    }
 
     saveAs("Jpeg",
             FolderOutput + NameFile + "_report.jpg");
 
     run("Close");
 
+
+    /*
+    ============================================================================
+                    CREATE THE DISTRIBUTION FILES
+    ============================================================================
+    */
+
+    //Force variables to have at least one values
     if (NValuesCorr == ""){
         NValuesCorr += "" + 0 + "-";
     }
@@ -465,12 +723,15 @@ PathM3 += "Close_Images.java";
         IEValues += "" + 0 + "-";
     }
 
-    //Create the result filesCircMinC, SizeMaxC
+    //Select the window used to detect
     selectWindow("Raw");
+
+    //Select and Deselect the last ROI to enable to save the set
     roiManager("Select", roiManager("count")-1);
     roiManager("Deselect");
     roiManager("Save", FolderOutput + NameFile + "_RoiSet.zip");
 
+    //Get the time finger print of the end of the analysis
     getDateAndTime(year,
                     month,
                     dayOfWeek,
@@ -482,17 +743,22 @@ PathM3 += "Close_Images.java";
     mystop = "" + year + "/" + (month+1) + "/" + dayOfMonth + " ";
     mystop += "" + hour + ":" + minute;
 
+    //Update the variables for the MarkDown Report
     mybrains += "Manual Selection: **" + (ANP/1000000) + "**\n\n";
     TotalNeuropilSurface = myslices * ANP/1000000;
 
+    //initialize the total surface of particles for the tissue and Manual ROI
     BrainLDSurface = 0;
     NPLDSurface = 0;
 
+    //Update values for all slices
     for(np = 0; np<LDperSlice.length; np++){
         BrainLDSurface += AreaLDperSlice[np];
         NPLDSurface += AreaLDNPperSlice[np];
         AreaLDperSlice[np] = 100 * AreaLDperSlice[np]/(ABrains[np+1]*1000000);
         AreaLDNPperSlice[np] = 100 * AreaLDNPperSlice[np]/ANP;
+
+        //Update the variables for the MarkDown Report
         mybrains += "- Slice " + (np+1) + ": **" + LDperSlice[np] + "** Particles in total.";
         mybrains += "(" + AreaLDperSlice[np] + "% coverage of Tissue)\n";
         mybrains += " **" + LDNPperSlice[np] + "** in the Manual Selection ";
@@ -527,6 +793,9 @@ PathM3 += "Close_Images.java";
 
 function MakeDistribution(){
 
+    //Make all Distribution, with specific values, colors,...
+
+    //Min X value
     Arg1 = newArray(0,
                     0,
                     0,
@@ -538,6 +807,7 @@ function MakeDistribution(){
                     0
                     );
 
+    //Max X value
     Arg2 = newArray(SizeMaxC * pixelWidth * pixelHeight,
                     SizeMaxC * pixelWidth * pixelHeight * 20,
                     20000,
@@ -549,6 +819,7 @@ function MakeDistribution(){
                     20000
                     );
 
+    //Label of the X axis
     Arg3 = newArray("Droplet (microns)",
                     "Droplet size per million microns Brain",
                     "Mean grey values",
@@ -560,6 +831,7 @@ function MakeDistribution(){
                     "Mean grey values"
                     );
 
+    //Suffix for the files to be generated
     Arg4 = newArray("_Values_ALL",
                     "_Corrected_Values_ALL",
                     "_Intensities_ALL",
@@ -571,6 +843,7 @@ function MakeDistribution(){
                     "_Intensities_Non-NP"
                     );
 
+    //Values
     Arg5 = newArray(AValues,
                     AValuesCorr,
                     IValues,
@@ -581,6 +854,7 @@ function MakeDistribution(){
                     EValuesCorr,
                     IEValues);
 
+    //Colors
     Arg6 = newArray("magenta",
                     "magenta",
                     "magenta",
@@ -602,6 +876,7 @@ function MakeDistribution(){
                     TotalNeuropilSurface,
                     TotalBrainSurface -TotalNeuropilSurface);
 
+    //Generate all Distributions
     for(index=0; index<lengthOf(Arg1); index++){
 
         ARG2 = "" + Arg1[index] + "*";
@@ -613,6 +888,7 @@ function MakeDistribution(){
         ARG2 += Arg5[index] + "*";
         ARG2 += Arg6[index] + "*";
         ARG2 += "" + Arg7[index];
+
         runMacro(PathM2, ARG2);
 
     }
@@ -624,18 +900,47 @@ function MakeDistribution(){
 */
 
 function RemoveUnWanted(MyWindow){
+
+    //Delete all unwanted ROI (non present in tissue)
+
+    //Analyze all ROI
     for (p=0; p<roiManager("count"); p++){
+
+        //Set the filling color to black
         setForegroundColor(0, 0, 0);
+
+        //Select the reference window
         selectWindow(MyWindow);
+
+        //Select the current ROI
         roiManager("Select", p);
+
+        //Measure the mean grey value of the ROI on the reference window
         List.setMeasurements;
         M = List.getValue("Mean");
+
+        //If the mean if not 0
+        //(== the ROI is not in the black shape of the tissue)
+
         if (M!=0){
+
+            //Select window used to detect the particules of interest
             selectWindow("Raw");
+
+            //Select the current ROI
             roiManager("Select", p);
+
+            //Correct the ROI to ensure elimination of all signal
+            //As we used max-entropy (not all signal is identified)
             run("Enlarge...", "enlarge=" + enlargement);
+
+            //Replace the ROI shape by black
             run("Fill", "slice");
+
+            //Delete the ROI
             roiManager("Delete");
+
+            //Correct the index p as one ROI has been removed
             p = p -1;
         }
     }
@@ -646,6 +951,9 @@ function RemoveUnWanted(MyWindow){
 */
 
 function UpdateMD(MD){
+
+    //Replace all Keywords in the MarkDown report file
+
     MD = replace(MD, "MYANALYSISMODE", myAnalysis);
     MD = replace(MD, "MYSTART", "" + Sstart);
     MD = replace(MD, "MYEND", "" + Send);
@@ -709,27 +1017,56 @@ function UpdateMD(MD){
 */
 
 function Highlander(initial){
-    for (r=nROI; r<roiManager("count"); r++){
+
+    //Keep the biggest ROI present in the ROI manager after a specific index
+
+    //Analyze all ROI after a specific index
+    for (r=initial; r<roiManager("count"); r++){
+
+        //Initialize the boolean for deletion or not
         toDel = 0;
+
+        //Select the current reference ROI
         roiManager("Select", r);
+
+        //Measure the Area
         List.setMeasurements;
         Aref = List.getValue("Area");
+
+        //Analyze all the remaining ROIs
         for (r2 = r+1; r2<roiManager("count"); r2++){
+
+            //Select the current ROI to be compared
             roiManager("Select", r2);
+
+            //Measure the Area
             List.setMeasurements;
             Atest = List.getValue("Area");
+
+            //If the current ROI is smallest than the Reference ROI
+            //the current ROI is deleted
             if (Atest<Aref){
                 roiManager("Select", r2);
                 roiManager("Delete");
+
+                //The r2 index is corrected
+                //to take into account the removal of 1 ROI
                 r2 += -1;
+
+            //If the current ROI is biggest than the Reference ROI
+            //the reference ROI is deleted
             } else {
                 toDel = 1;
             }
         }
 
+        //Deletion of the Reference ROI if needed
         if (toDel==1){
             roiManager("Select", r);
             roiManager("Delete");
+
+            //The r index is corrected
+            //to take into account the removal of 1 ROI
             r += -1;
         }
     }
@@ -740,6 +1077,9 @@ function Highlander(initial){
 */
 
 function ROIsave(path, option){
+
+    //Save ROIs as a string txt file
+
     /*
         Recognized options:
         -"overwrite"
@@ -792,47 +1132,70 @@ function ROIsave(path, option){
 
 function Detect_Brain(myImage, myPath){
 
+    //Detect Tissue in all slices using noise of the labelling
+
+    //Set the drawing color to black
     setForegroundColor(0, 0, 0);
 
+    //Select the current stack
     selectWindow(myImage);
+
+    //Get width, height and number of slices
     W = getWidth();
     H = getHeight();
     N = nSlices;
 
+    //Create a new empty recipient stack
     newImage("Brain-Shape", "8-bit white", W, H, N);
 
+    //Process all slices
     for (S=1; S<=nSlices; S++){
 
+        //Select the current stack
         selectWindow(myImage);
+
+        //Get the initial number of ROI in the ROI manager
         nROI = roiManager("count");
+
+        //Select the current slice
         setSlice(S);
+
+        //Detect the shape of the tissue and add to the ROI manager
         makeRectangle(0,0,getWidth,getHeight);
         run("Gaussian Blur...", "sigma=20 slice");
-        //run("Gaussian Blur...", "sigma=5 slice");
         setAutoThreshold("Huang dark");
         run("Analyze Particles...", "size=100000-Infinity pixel show=Nothing add slice");
 
+        //If more than one ROI is detected
         if (roiManager("count") > nROI+1){
 
+            //Keep only the biggest new ROI
             Highlander(nROI);
+
+            //Rename the ROI corresponding to the current shape of tissue
             roiManager("Select", nROI);
             roiManager("Rename", "Tissue slice "+S);
 
+            //Draw this shape into the recipient stack at the correct slice
             selectWindow("Brain-Shape");
             setSlice(S);
             roiManager("Select", nROI);
             run("Fill", "slice");
 
+        //If only one ROI is detected
         }else if(roiManager("count") == nROI+1){
 
+            //Rename the ROI corresponding to the current shape of tissue
             roiManager("Select", nROI);
             roiManager("Rename", "Tissue slice "+S);
 
+            //Draw this shape into the recipient stack at the correct slice
             selectWindow("Brain-Shape");
             setSlice(S);
             roiManager("Select", nROI);
             run("Fill", "slice");
 
+        //If the tissue is not detected prompt the user
         }else if(roiManager("count") == nROI){
 
             waitForUser("PROBLEM:\nNO TISSUE DETECTED IN THIS SLICE");
@@ -860,6 +1223,9 @@ function Twins_Killer(myStack,
                         SizeMin,
                         enhance){
 
+    //Remove all twins particles
+    //Keep the biggest
+
     /*
         To increase speed I will sort the ROI by name
         The first 4 numbers are the slice.
@@ -873,14 +1239,25 @@ function Twins_Killer(myStack,
         I have to rename myself first and reorder
     */
 
+    //Select the stack used to detect the particles
     selectWindow(myStack);
-    //Rename and sort all found ROIs
-    Order_ROI(it);
 
+    //Rename and sort all found ROIs
+    runMacro(PathM4, "" + it);
+
+    //Process all ROIs
     for (n =0; n< roiManager("count"); n++){
+
+        //Set the filling color to black
         setForegroundColor (0,0,0);
+
+        //Select the Reference ROI
         roiManager("Select", n);
+
+        //Initialize the boolean for deletion of the current ROI
         Erase=0;
+
+        //Obtain geometrical characteristics of the particle
         List.setMeasurements;
         Xr = List.getValue("X");
         Yr = List.getValue("Y");
@@ -888,55 +1265,94 @@ function Twins_Killer(myStack,
         Cr = List.getValue("Circ.");
         Sr = getSliceNumber();
 
+        //Determine if the minimal size threshold is applied or not
         if((it==1) && (enhance==0)){
             SizeMinl = 0;
         }else{
             SizeMinl = SizeMin;
         }
 
+        //Delete if the current ROI is too big or too small
         if((Ar>SizeMaxC) || (Ar<SizeMinl)){
             //Clean false positive
             Erase = 1;
+
         }else{
+            //Else compare to all other ROIs
             for(N=n+1; N<roiManager("count"); N++){
+
+                //Prompt user of progress in the IJ main window
                 message = "Iteration " + it;
                 message += " ROI " + n;
                 message += " out of " + roiManager("count");
                 message += " Batch started " + FPT;
                 showStatus(message);
                 showProgress(myProgress);
+
+                //Select the ROI to be compared
                 roiManager("Select", N);
+
+                //Obtain geometrical characteristics of the particle
                 List.setMeasurements;
                 X = List.getValue("X");
                 Y = List.getValue("Y");
                 A = List.getValue("Area");
                 C = List.getValue("Circ.");
                 S = getSliceNumber();
+
+                //If the particle is too big/small or bad circularity
+                //The current ROI is deleted
                 if((C<CircMinC)||(A>SizeMaxC)||(Ar<SizeMinl)){
                     //Clean false positive
                     roiManager("Select", N);
                     run("Enlarge...", "enlarge=" + enlargement);
                     run("Fill", "slice");
                     roiManager("Delete");
+
+                    //Correct the index N to take into account that one
+                    //ROI was removed
                     N = N -1;
+
                 }else{
+
+                //If the two particles are not in the same slice and
+                //are closer that the Z Threshold
                 if ((abs(S-Sr)<=zDistance) && (abs(S-Sr)>=0)){
+
+                    //Calculate the XY distance between the 2 ROIs
                     d = sqrt( (X-Xr)*(X-Xr) + (Y-Yr)*(Y-Yr) );
+
+                    //If the distance is smaller than the minimal authorized
                     if (d<seuil){
+
+                        //If the new ROI is bigger it become the reference one
+                        //and the other will be deleted
                         if(A>=Ar){
+
+                            //Update the reference geometrical values
                             Xr = X;
                             Yr = Y;
                             Ar = A;
+
+                            //Order to delete the reference ROI
                             Erase = 1;
                         }
+
+                        //If the new ROI is smaller it is deleted
                         if(A<Ar){
+
+                            //Select the current ROI, enlarge and delete
                             roiManager("Select", N);
                             run("Enlarge...", "enlarge=" + enlargement);
                             run("Fill", "slice");
                             roiManager("Delete");
+
+                            //Correct the index N to take into account that one
+                            //ROI was removed
                             N = N -1;
                         }
                     }
+
                 }else if(abs(S-Sr)>zDistance){
                     /*
                         If more than z slices => No need to compare this
@@ -947,24 +1363,32 @@ function Twins_Killer(myStack,
             }
         }
         }
+
+        //Delete the reference ROI if required
         if(Erase==1){
             roiManager("Select", n);
             setForegroundColor (0,0,0);
             run("Fill", "slice");
             roiManager("Delete");
+
+            //Correct the indexes N and n to take into account that one
+            //ROI was removed
             n=n-1;
             N=N-1;
          }
     }
 
-    //Rename the ROI
-    //To increase the speed fill only new particles
+    //Select the window used to detect the particles
     selectWindow(myStack);
     setForegroundColor (0,0,0);
+
+        //To increase the speed fill only new particles
         for(i=0; i<roiManager("count"); i++){
             roiManager("Select",i);
             myName = Roi.getName;
             if(lastIndexOf(myName, "*")==-1){
+
+                //Fill and rename the particle
                 run("Enlarge...", "enlarge=" + enlargement);
                 run("Fill", "slice");
                 newName =myName + "*";
@@ -975,46 +1399,6 @@ function Twins_Killer(myStack,
 
 /*
 ================================================================================
-*/
-
-function Order_ROI(it){
-
-    for (roi=0; roi<roiManager("count"); roi++){
-
-        //Only rename new ones
-        roiManager("Select", roi);
-        myName = Roi.getName;
-        if(lastIndexOf(myName, "_")==-1){
-            S = getSliceNumber();
-            if (S>=10){
-                Prefix = "";
-            }else if(S<10){
-                Prefix = "0";
-            }
-
-            PrefixRoi = "";
-            if (roi<10000){
-                PrefixRoi += "0";
-            }
-            if (roi<1000){
-                PrefixRoi += "0";
-            }
-            if (roi<100){
-                PrefixRoi += "0";
-            }
-            if (roi<10){
-                PrefixRoi += "0";
-            }
-
-            newName = Prefix + S + "_" + it + "_" + PrefixRoi + roi;
-            roiManager("Rename", newName);
-        }
-    }
-    roiManager("sort");
-}//END Order_ROI
-
-/*
-===============================================================================
 */
 
 function ROIopen(path, index){

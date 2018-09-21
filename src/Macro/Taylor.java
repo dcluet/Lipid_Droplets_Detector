@@ -1,16 +1,37 @@
 macro "Taylor"{
 
+    //Retrieve the arguments within an array
     Argument = getArgument();
     Arguments = split(Argument, "\n");
+
+    //Indication of reuse parameters
     myReuse = Arguments[0];
-    myAnalysis = Arguments[1]
+
+    //Path of the file containing the paths of the stacks
+    myAnalysis = Arguments[1];
+
+    //Path of the file containing the parameters of analysis
     myCommands = Arguments[2];
+
+    //Zone(s) to analyze
     myChoice = Arguments[3];
+
+    //Root folder of the Analysis
     PathFolderInput = Arguments[4];
+
+    //Time Finger print for files
     FP = Arguments[5];
+
+    //Time Finger print for reports
     FPT = Arguments[6];
+
+    //Minimal number of particles to continue to next iteration
     minNew = parseFloat(Arguments[7]);
+
+    //Channel to treat
     myChannel = Arguments[8];
+
+    //Common parameters for all stacks
     ARGcommon = Arguments[9];
 
     /*
@@ -38,6 +59,7 @@ macro "Taylor"{
     //Set Freehand tool
     setTool("freehand");
 
+    //Extract the paths of the stacks
     RawList = File.openAsString(myAnalysis);
     FileList = split(RawList, "\n");
     nFiles = FileList.length;
@@ -57,6 +79,8 @@ macro "Taylor"{
 */
 
 function ClassicalSetUp(){
+
+    //Generate taylored parameters for all stacks
 
     for (myFile=0; myFile<FileList.length; myFile++){
 
@@ -127,10 +151,12 @@ function ClassicalSetUp(){
 
         }
 
+        //Display the overlay
         selectWindow(Titre);
         setBatchMode("show");
         setBatchMode(false);
 
+        //Prompt the user to indicate starting and ending slices
         waitForUser(myHeader +"\nSet on the starting slice");
         Sstart = getSliceNumber();
         waitForUser(myHeader +"\nSet on the ending slice");
@@ -141,47 +167,51 @@ function ClassicalSetUp(){
         ARG1 += "" + Sstart + "\t";
         ARG1 += "" + Send + "\t";
 
+        //Update the paramaters of analysis of the current stack
         ARG += "" + Sstart + "*";
         ARG += "" + Send + "*";
         runMacro(PathM1, ARG1);
 
+        //If a Manual ROI is necessary
         if (myChoice != "Whole tissue"){
             do{
+                //Ask the user to draw the ROI
                 setSlice(nSlices);
                 waitForUser(myHeader +"\nDraw the Selection");
                 getSelectionBounds(x, y, width, height);
+
+                //Warning if no ROI is made
                 if (x==0){
                     Warning = "WARNING!<br>";
                     Warning += "No Selection was drawn.";
                     DisplayInfo(Warning);
                 }
+            //Loop to ensure a ROI is done
             }while( (x==0) && (y==0));
         }else{
             makeRectangle(0,0,1,1);
         }
 
+        //Get the coordinates of the Manual ROI
         getSelectionCoordinates(NeuroPilX, NeuroPilY);
 
-
+        //Convert the arrays of X and Y coordinates into string arguments
         NPX = "";
         NPY = "";
         for(i=0; i<NeuroPilX.length; i++){
             NPX += "" + NeuroPilX[i] + "-";
             NPY += "" + NeuroPilY[i] + "-";
         }
+
+        //Update the paramaters of analysis of the current stack
         ARG += NPX + "*";
         ARG += NPY + "*";
-
         ARG += Path + "*";
         ARG += PathFolderInput + "*";
         ARG += "" + (myFile/nFiles) + "*";
         ARG += "" + FPT + "*" + FP + "*";
         ARG += "" + minNew + "*";
         ARG += "" + myChannel;
-
-        //Args = split(ARG, "*");
-        //Array.show(Args);
-        //waitForUser("");
 
         //Update the command file
         File.append(ARG, myCommands);
@@ -200,9 +230,15 @@ function ClassicalSetUp(){
 */
 
 function RecycleSetUp(){
+
+    //Combine current GUI parameters with old taylored parameters
+
     OK = 0;
     do{
+        //Prompt the user to specify a parameter.txt file
         existingSet = File.openDialog("Please indicate which file to use as reference");
+
+        //Check the validity of the file
         if (endsWith(existingSet, "_Parameters.txt") == 0){
             Warning = "WARNING!<br>";
             Warning += "The file is not correct.<br>";
@@ -211,11 +247,15 @@ function RecycleSetUp(){
         }else{
             OK = 1;
         }
+    //Loop to ensure a correct file is given
     }while(OK == 0);
 
+    //Extract the old parameters
     listCommands = File.openAsString(existingSet);
     myCommandsList = split(listCommands, "\n");
 
+    //For all files concatenate "new" global parameter with extracted
+    //old taylored parameters
     for (c=0; c<myCommandsList.length; c++){
         //Use the correct concatenated arguments
         Arguments = split(myCommandsList[c], "*");
@@ -228,6 +268,7 @@ function RecycleSetUp(){
         myRoot = Arguments[19];
         myProgress = parseFloat(Arguments[20]);
 
+        //Generate the paramaters of analysis of the current stack
         ARG = ARGcommon;
         ARG += "" + Sstart + "*";
         ARG += "" + Send + "*";
@@ -240,6 +281,7 @@ function RecycleSetUp(){
         ARG += "" + minNew + "*";
         ARG += "" + myChannel;
 
+        //Update the command file
         File.append(ARG, myCommands);
 
     }

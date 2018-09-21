@@ -31,6 +31,7 @@ Listing = newArray("Lipid_Droplets.java",
                     "Identify_Files.java",
                     "Main.java",
                     "Main_GUI.java",
+                    "Order_ROI.java",
                     "Select_Channel.java",
                     "Stats.java",
                     "Taylor.java",
@@ -57,16 +58,10 @@ for(i=0; i<lengthOf(Listing); i++){
 //Create the shortcut in IJ macro menu for the first installation (Main program)
 PCommandLine = PathFolderInput+ "Command_Line.txt";
 SUM = File.openAsString(PathSUM);
-pos =lastIndexOf(SUM, "//End_Lipid_droplets");
-repair = lastIndexOf(SUM, "Lipid_Droplets.java");
+pos = lastIndexOf(SUM, "//End_Lipid_droplets");
+
 if(pos == -1){
 	SUM = SUM + "\n\n" + File.openAsString(PCommandLine);
-	Startup = File.open(PathSUM);
-	print(Startup, SUM);
-	File.close(Startup);
-}
-if(repair != -1){
-	SUM = replace(SUM, "Lipid_Droplets.java", "Main.java");
 	Startup = File.open(PathSUM);
 	print(Startup, SUM);
 	File.close(Startup);

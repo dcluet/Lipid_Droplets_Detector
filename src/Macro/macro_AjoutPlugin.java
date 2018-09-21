@@ -1,23 +1,36 @@
 macro "AjoutPlugin" {
 
+    //Pathof the ImageJ folder
+    pathImagej = getDirectory("imagej");
 
-pathImagej=getDirectory("imagej");
-Nameplugin="Animated_Gif.jar";
-Resultat = findPlugin(pathImagej, Nameplugin);
+    //Name of the plugin to find
+    Nameplugin="Animated_Gif.jar";
 
-if(Resultat==0){
-	DisplayInfo("Plugin "+Nameplugin+" is missing. It will be automaticaly installed.");
-    return "missing";
-}else{
-	DisplayInfo("Plugin "+Nameplugin+" is installed.");
-    return "here";
-}
+    //Search the plugin in ImageJ folder
+    Resultat = findPlugin(pathImagej, Nameplugin);
 
-//FUNCTIONS________________________________________________________________________________________________________
+    //Inform the user
+    if(Resultat==0){
+    	DisplayInfo("Plugin "+Nameplugin+" is missing. It will be automaticaly installed.");
+        return "missing";
+    }else{
+    	DisplayInfo("Plugin "+Nameplugin+" is installed.");
+        return "here";
+    }
+
+
+/*
+===============================================================================
+                            FUNCTIONS
+===============================================================================
+*/
 
 function findPlugin(logicielpath, PluginName) {
 
+    //Initialize the variable of detection 
 	myres = 0;
+
+    //Start the search
 	list = getFileList(logicielpath);
 	for (i=0; i<list.length; i++) {
 
@@ -31,11 +44,9 @@ function findPlugin(logicielpath, PluginName) {
 				myres=1;
 				i=list.length+1000; //exit
 			}
+        }
 	}
-
-
-
-	}
+    //Return if the file is found or not
 	return myres;
 }
 
@@ -56,33 +67,3 @@ function DisplayInfo(Message){
 
 }
 //End of the macro
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}

@@ -2,6 +2,7 @@ macro "Get_Parameters"{
 
     //Chose analysis type
 
+    //Path of the file of the preset Analysis modes
     PathSettings = getDirectory("macros");
     PathSettings += "Droplets"+File.separator;
     PathSettings += "settings.csv";
@@ -11,11 +12,17 @@ macro "Get_Parameters"{
     //separate lines
     mylines = split(myText, "\n");
 
+    //List of all registered analysis mode
     AnalyisType = newArray();
 
     //Retrieve settings names
+    //first column of each line (header excepted)
     for(line = 1; line <mylines.length; line++){
+
+        //Get the name of the analysis mode
          mycolumns = split(mylines[line], ",");
+
+         //Feed the listing
          AnalyisType = Array.concat(AnalyisType,mycolumns[0]);
     }
 
@@ -41,18 +48,20 @@ macro "Get_Parameters"{
     16  Enhance signal
     */
 
-
+    //Select analysis type window
     Dialog.create("ANALYSIS:");
     Dialog.addMessage("Specify what kind of analysis you are performing:");
     Dialog.addMessage("");
     Dialog.addChoice("ANALYSIS: ", AnalyisType, "Lipid Droplets");
     Dialog.show();
 
+    //Chosen Analysis mode
     myAnalysistype = Dialog.getChoice();
 
     //Retrieve Parameters
     param = ""
 
+    //Identify the line corresponding to the chosen analysis mode
     for(line = 1; line <mylines.length; line++){
          mycolumns = split(mylines[line], ",");
 
@@ -61,5 +70,6 @@ macro "Get_Parameters"{
          }
     }
 
+    //Return the parameters for the main GUI
     return param;
 }

@@ -1,19 +1,32 @@
 macro "Stats"{
 
+    //Deactivate Display
+    setBatchMode(true);
+
+    //Retrieve the arguments into an array
     Argument = getArgument();
     Arguments = split(Argument, "*");
 
+    //Root folder of the analysis
     myRoot = Arguments[0];
+
+    //Name of the file containing the path of the analyzed files
     PathFiles = Arguments[1];
+
+    //Time finger print
     FP = Arguments[2];
+
+    //Number of bins for the distributions
     nBins = parseFloat(Arguments[3]);
 
-    //Open MD
+    //Open the MarkDown statistic report file as a string
     MD = File.openAsString(myRoot + FP + "GLOBAL_REPORT.md")
 
+    //Get the path of the files
     RawListing = File.openAsString(PathFiles);
     ListFiles = split(RawListing, "\n");
 
+    //Array of the different distribution to perform
     ListStats = newArray("_Values_ALL",
                         "_Corrected_Values_ALL",
                         "_Intensities_ALL",
@@ -23,6 +36,8 @@ macro "Stats"{
                         "_Values_Non-NP",
                         "_Corrected_Values_Non-NP",
                         "_Intensities_Non-NP");
+
+    //Array of the color of each curves
     ListColors = newArray("magenta",
                             "magenta",
                             "magenta",
@@ -32,6 +47,8 @@ macro "Stats"{
                             "orange",
                             "orange",
                             "orange");
+
+    //Array of the X axis labels
     ListX = newArray("Droplet (microns)",
                         "Droplet size per million microns Brain",
                         "Mean grey values",
@@ -40,7 +57,9 @@ macro "Stats"{
                         "Mean grey values",
                         "Droplet (microns)",
                         "Droplet size per million microns Brain",
-                        "Mean grey values")
+                        "Mean grey values");
+
+    //array of the keywords to be replaced in the MD report file
     Keyword = newArray("DISTRAWJPG",
                         "DISTJPG",
                         "DISTIJPG",
@@ -50,6 +69,8 @@ macro "Stats"{
                         "DISTNNPRAWJPG",
                         "DISTNNPJPG",
                         "DISTNNPIJPG");
+
+    //Suffix of the files containing the pre-calculated distributions and bins
     Extension = "_Distribution.csv";
 
     /*
@@ -58,15 +79,19 @@ macro "Stats"{
     ============================================================================
     */
 
+    //For each type of distribution
     for(d=0; d<ListStats.length; d++){
 
+        //Initialize the arrays that will contain the values
         arrayBins = newArray(nBins);
         arrayValues = newArray(nBins);
         arrayMeans = newArray(nBins);
         arraySEMs = newArray(nBins);
 
+        //Header of the csv file
         myHeader = "BINS" + "\t";
 
+        //Suffix of all csv files required for this specific distribution
         myExt = ListStats[d] + Extension;
         myFiles = "";
 
@@ -75,13 +100,17 @@ macro "Stats"{
             //open the corresponding CSV file
             Path = ListFiles[s];
             Parent = File.getParent(Path) + File.separator;
+
+            //Get the name without extension of the file
             NameFile = File.getName(Path);
             NameFile = substring(NameFile,
                                     0,
                                     lastIndexOf(NameFile, ".")
                                     );
 
-
+            //Path of the csv file containing the wanted data for:
+            //-the file
+            //-the current distribution type
             PathOutput = Parent + FP + "_" + NameFile + File.separator;
             PathCSV = PathOutput + NameFile + myExt;
 
@@ -97,6 +126,7 @@ macro "Stats"{
             myFiles += "- [**" + NameFile + "**]";
             myFiles += "(" + PathFileMD + ")" + "\n";
 
+            //Open the csv of the file and retrieve data
             currentCSVf = File.openAsString(PathCSV);
             currentCSV = split(currentCSVf, "\n");
 
@@ -120,6 +150,7 @@ macro "Stats"{
                                                  + currentvalues[1] + "\t";
                 }
 
+                //Get Ready for next bin
                 currentBin += 1;
             }
 
@@ -137,16 +168,19 @@ macro "Stats"{
                 arraySEMs[b] = stdDev/sqrt(currentValues.length);
             }
 
-
-
-
         }//END Loop on every stack
 
         //Path CSV
         PathResultsFolder=myRoot + FP + "Stats" + File.separator;
         PathResultsFolderRelative = FP + "Stats" + "/";
+
+        //Create the folder that will contain all the statistical analyses
         File.makeDirectory(PathResultsFolder);
+
+        //Path of the csv file for the current distribution
         PathCSV = PathResultsFolder + FP + "Stats" + myExt;
+
+        //Initiate the file for subsequent append command
         myf = File.open(PathCSV);
         File.close(myf);
 
@@ -176,10 +210,12 @@ macro "Stats"{
         Plot.add("lines", arrayBins, arrayMeans);
         Plot.show();
 
+        //Get properties of the output graph
         T = getTitle();
         W = getWidth();
         H = getHeight();
 
+        //Generate a JPEG file of the graph
         makeRectangle(0,0,W,H);
         run("Copy");
         newImage("Untitled", "RGB white", W, H, 1);
@@ -190,13 +226,18 @@ macro "Stats"{
         selectWindow(T);
         close();
 
+        //Update the MarkDown report
         MD = replace(MD,
                     Keyword[d],
                     PathResultsFolderRelative + FP + "Stats_" + ListStats[d] + "_Distribution.jpg");
 
     }
 
-    MD = replace(MD, "MYFILES", "" + myFiles); //OK
+    //Indicate in the MarkDown report file which files were used for
+    //the statistical analysis
+    MD = replace(MD, "MYFILES", "" + myFiles);
+
+    //Save the MarkDown File
     File.saveString(MD, myRoot + FP + "GLOBAL_REPORT.md");
 
 /*
@@ -206,6 +247,8 @@ macro "Stats"{
 */
 
 function startIndex(RawCSV,keyword){
+
+    //Give the correct line presenting keyword in the csv
     lines = split(RawCSV, "\n");
     res = -1;
 

@@ -1,18 +1,21 @@
 macro "Stack_Editing"{
 
-/*
-    QC PERFORMED 2018-01-17
-    CLUET DAVID
-*/
+//Remove unwanted slices from a stack
 
-//Get arguments
+//Get arguments into an array
 Argument = getArgument();
 Arguments = split(Argument,"\t");
 
+//Name of the stack window
 myStack = Arguments[0];
+
+//Starting slice
 myStart = parseFloat(Arguments[1]);
+
+//Ending slice
 myEnd = parseFloat(Arguments[2]);
 
+    //Select the current Stack
     selectWindow(myStack);
     N=nSlices+1;
 

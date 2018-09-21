@@ -72,7 +72,9 @@ Under development
 -
 The `LIPID_DROPLETS` macro requires `ImageJ v1.49g` or higher ([Download](https://imagej.nih.gov/ij/download.html)).
 
-For ImageJ, the conversion of the analyzed stacks into animated GIFs requires the ([Gif-Stack-Writer Plugin](https://imagej.nih.gov/ij/plugins/gif-stack-writer.html)) that will be automatically installed, if missing.
+To ensure the opening of the various microscope files, this macro requires the [Bio-Formats](https://docs.openmicroscopy.org/bio-formats/5.8.2/users/imagej/) plugin. If your ImageJ program does not feature it,, make sure to install it.
+
+For ImageJ, the conversion of the analyzed stacks into animated GIFs requires the [Gif-Stack-Writer Plugin](https://imagej.nih.gov/ij/plugins/gif-stack-writer.html) that will be automatically installed, if missing.
 
 To read the analysis report Markdown files, you can use the `Markdown Preview Plus` extension for `Chrome`. In the `Extension menu` allow access to files URL.
 

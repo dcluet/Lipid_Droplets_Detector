@@ -52,11 +52,19 @@ macro "Main_GUI"{
 
     //14  Type of the analysis Zone
     myZone = Arguments[14];
+
+    //Generate the array of Selection zone depending on the restrictions
+    //indicated in the settings file
     if (myZone == "?"){
+
         Selections = newArray("Whole tissue with Sub-Selection",
                                 "Whole tissue",
                                 "Manual ROI");
     }else{
+
+        //Here we need to generate an array with several values
+        //Apple version of IJ is not able to initiate an array with ONLY
+        //one string (2018/09/19)
         Selections = newArray(myZone, "");
         Selections = Array.trim(Selections, 1);
     }
@@ -107,7 +115,7 @@ macro "Main_GUI"{
     Dialog.addCheckbox("Enhance signal", enhance);
     Dialog.show();
 
-    //Generate the Ergument string for all analyses
+    //Generate the Argument string for all analyses
     myReuse = Dialog.getChoice();
     myExt = Dialog.getString();
     myChoice = Dialog.getChoice();

@@ -21,6 +21,7 @@ macro "Refresh" {
                         "macro_AjoutPlugin.java",
                         "Main.java",
                         "Main_GUI.java",
+                        "Order_ROI.java",
                         "Select_Channel.java",
                         "Stats.java",
                         "Taylor.java",

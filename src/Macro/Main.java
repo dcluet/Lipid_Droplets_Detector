@@ -217,8 +217,10 @@ macro "Main"{
         //Use the correct concatenated arguments
         ARG = CommandsList[c];
 
-        //Run Lipid_Droplets
+        //Deactivate the display of windows
         setBatchMode(true);
+
+        //Run Lipid_Droplets
         runMacro(PathLD, ARG);
     }
 
