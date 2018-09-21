@@ -47,7 +47,7 @@ Brain slices surface (10^6 microns)
 
 MYBRAINS
 
-|**In a shell nut**| Values             |
+|**In a nutshell**| Values             |
 |------------------------------------|------------------------------------|
 | Total Tissue Area (10⁶ microns) | **TOTALBRAINSURFACE** |
 | Mean Tissue Area (10⁶ microns/slice)| **MEANBRAINSURFACE** |

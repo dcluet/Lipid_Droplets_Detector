@@ -1302,7 +1302,7 @@ function Twins_Killer(myStack,
 
                 //If the particle is too big/small or bad circularity
                 //The current ROI is deleted
-                if((C<CircMinC)||(A>SizeMaxC)||(Ar<SizeMinl)){
+                if((C<CircMinC)||(A>SizeMaxC)||(Ar<SizeMinl)||(C>CircMaxC)){
                     //Clean false positive
                     roiManager("Select", N);
                     run("Enlarge...", "enlarge=" + enlargement);
