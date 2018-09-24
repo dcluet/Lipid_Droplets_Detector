@@ -7,7 +7,7 @@
 Under development
 
 |![Example original](doc/Original.jpg)|![Example treated](doc/Treated.jpg)|![Example distribution](doc/Distribution.jpg)|![Example corrected distribution](doc/CDistribution.jpg)
-|-------------------------------------|-----------------------------------|-----------------------------------|-----------------------------------|
+|:------------------------------------:|:---------------------------------:|:---------------------------------:|:---------------------------------:|
 |**ORIGINAL**   |**TREATED**   |**DISTRIBUTION**   |**STATISTICS ENABLED**   |
 
 
@@ -48,7 +48,7 @@ of the CeCILL license and that you accept its terms.
 --
 
 | ![CNRS Logo](doc/Logo_cnrs.jpg) ![ENS Logo](doc/Logo_ens.jpg) |![LBMC Logo](doc/Logo_LBMC.jpg)|
-|-----------------------------|------------|
+|-----------------------------:|------------|
 |**CLUET David**|     [david.cluet@ens-lyon.fr](david.cluet@ens-lyon.fr)|
 
 
@@ -212,11 +212,11 @@ If the **Whole tissue with Sub-Selection** or **Manual ROI** options have been s
 ===
 
 |**ORIGINAL PICTURE**|
-|--------------------|
+|:------------------:|
 |![Original Picture](doc/Original_Picture.jpg)|
 
 |**TISSUE DETECTION**|**PARTICLES DETECTION**|
-|-------------------|-----------------------|
+|:------------------:|:---------------------:|
 |`run("Gaussian Blur...", "sigma=20 slice");`|`run("Gaussian Blur...", "sigma=1 stack");`|
 |![Step 1](doc/Tissue1.jpg)   |![Step 1](doc/Iteration1.jpg)|
 ||`run("Maximum...", "radius=5 stack");`|
@@ -225,5 +225,5 @@ If the **Whole tissue with Sub-Selection** or **Manual ROI** options have been s
 |![Step 2](doc/Tissue2.jpg)|![Step 3](doc/Iteration3.jpg)|
 
 |**RESULT**|
-|----------|
+|:--------:|
 |![Result](doc/Result.jpg)|

@@ -11,24 +11,24 @@ macro "Main"{
 
     Linux 16.04 LTS
     ~~~~~~~~~~~~~~~
-    Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018/09/19
-    Lipid Droplets Brain (Whole Tissue): 2018/09/19
-    Lipid Droplets Brain (Manual ROI): 2018/09/19
-    Lipid Droplets Retina (Manual ROI): 2018/09/19
-    REPO (Whole Tissue): 2018/09/19
+    Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018/09/21
+    Lipid Droplets Brain (Whole Tissue): 2018/09/21
+    Lipid Droplets Brain (Manual ROI): 2018/09/21
+    Lipid Droplets Retina (Manual ROI): 2018/09/21
+    REPO (Whole Tissue): 2018/09/21
 
     Windows 10
     ~~~~~~~~~~
-    Lipid Droplets Brain (Whole Tissue with Sub-selection):
-    Lipid Droplets Brain (Whole Tissue):
-    Lipid Droplets Brain (Manual ROI):
-    Lipid Droplets Retina (Manual ROI):
-    REPO (Whole Tissue):
+    Lipid Droplets Brain (Whole Tissue with Sub-selection): 2018/09/24
+    Lipid Droplets Brain (Whole Tissue): 2018/09/24
+    Lipid Droplets Brain (Manual ROI): 2018/09/24
+    Lipid Droplets Retina (Manual ROI): 2018/09/24
+    REPO (Whole Tissue): 2018/09/24
 
     */
 
-    qcl = "16.04 LTS On Progress";
-    qcp = "WINDOWS 10 On Progress";
+    qcl = "16.04 LTS 2018/09/21";
+    qcp = "WINDOWS 10 2018/09/24";
     qcm = "On progress";
 
     /*
