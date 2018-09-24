@@ -206,3 +206,24 @@ If the **Whole tissue with Sub-Selection** or **Manual ROI** options have been s
 ![Selection](doc/Selection.jpg)
 
 **These file specific parameters will be saved in a _Parameters.txt file within the root folder of your analysis, allowing later key parameters optimization.**
+
+
+**Research Engine**
+===
+
+|**ORIGINAL PICTURE**|
+|--------------------|
+|![Original Picture](doc/Original_Picture.jpg)|
+
+|**TISSUE DETECTION**|**PARTICLES DETECTION**|
+|-------------------|-----------------------|
+|`run("Gaussian Blur...", "sigma=20 slice");`|`run("Gaussian Blur...", "sigma=1 stack");`|
+|![Step 1](doc/Tissue1.jpg)   |![Step 1](doc/Iteration1.jpg)|
+||`run("Maximum...", "radius=5 stack");`|
+|   |![Step 2](doc/Iteration2.jpg)|
+|`setAutoThreshold("Huang dark");`|`setAutoThreshold("MaxEntropy dark");`|
+|![Step 2](doc/Tissue2.jpg)|![Step 3](doc/Iteration3.jpg)|
+
+|**RESULT**|
+|----------|
+|![Result](doc/Result.jpg)|
