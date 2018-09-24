@@ -104,24 +104,34 @@ channel = Arguments[25];
 */
 
 //Crop the Stack
-PathM1 = getDirectory("macros");
-PathM1 += "Droplets"+File.separator;
-PathM1 += "Stack_Editing.java";
+PathCS = getDirectory("macros");
+PathCS += "Droplets"+File.separator;
+PathCS += "Stack_Editing.java";
 
 //Draw Distribution
-PathM2 = getDirectory("macros");
-PathM2 += "Droplets"+File.separator;
-PathM2 += "Distribution.java";
+PathDD = getDirectory("macros");
+PathDD += "Droplets"+File.separator;
+PathDD += "Distribution.java";
 
 //Close all non required images.
-PathM3 = getDirectory("macros");
-PathM3 += "Droplets"+File.separator;
-PathM3 += "Close_Images.java";
+PathClear = getDirectory("macros");
+PathClear += "Droplets"+File.separator;
+PathClear += "Close_Images.java";
 
-//Order the ROIs
-PathM4 = getDirectory("macros");
-PathM4 += "Droplets"+File.separator;
-PathM4 += "Order_ROI.java"
+//Remove Twins Particles
+PathTK = getDirectory("macros");
+PathTK += "Droplets"+File.separator;
+PathTK += "Twins_Killer.java";
+
+//Detect Tissue
+PathDT = getDirectory("macros");
+PathDT += "Droplets"+File.separator;
+PathDT += "Detect_Tissue.java";
+
+//Remove UnWanted Particles
+PathRUW = getDirectory("macros");
+PathRUW += "Droplets"+File.separator;
+PathRUW += "RemoveUnWanted.java";
 
 /*
 ===============================================================================
@@ -130,7 +140,7 @@ PathM4 += "Order_ROI.java"
 */
 
     //Close all non required images.
-    runMacro(PathM3);
+    runMacro(PathClear);
 
     //Clean roiManager
     roiManager("reset");
@@ -209,7 +219,7 @@ PathM4 += "Order_ROI.java"
     ARG1 += "" + Sstart + "\t";
     ARG1 += "" + Send + "\t";
 
-    runMacro(PathM1, ARG1);
+    runMacro(PathCS, ARG1);
 
     //Recalibrating the area values depending on resoltion.
     RefResolution = ResWref*ResHref;
@@ -266,7 +276,9 @@ PathM4 += "Order_ROI.java"
     roiManager("reset");
 
     //Detect tissue in all slices
-    Detect_Brain("Brain", FolderOutput + NameFile);
+    ARGT = "Brain" + "*";
+    ARGT += FolderOutput + NameFile;
+    runMacro(PathDT, ARGT);
 
     //Create array of tissue areas. Start with 0 to have same index as slices
     ABrains = newArray();
@@ -429,19 +441,25 @@ PathM4 += "Order_ROI.java"
                 myWindow = "Neuropil";
             }
             //Remove all unwanted particles
-            RemoveUnWanted(myWindow);
+            ARGRUW = myWindow + "*" + enlargement;
+            runMacro(PathRUW, ARGRUW);
 
             //Remove all twins particles
-            Twins_Killer("Raw",
-                            nROI,
-                            it,
-                            seuil,
-                            zDistance,
-                            enlargement,
-                            CircMinC,
-                            SizeMaxC,
-                            SizeMin,
-                            enhance);
+            ARG5 = "Raw" + "*";
+            ARG5 += "" + nROI + "*";
+            ARG5 += "" + it + "*";
+            ARG5 += "" + seuil + "*";
+            ARG5 += "" + zDistance + "*";
+            ARG5 += "" + enlargement + "*";
+            ARG5 += "" + CircMinC + "*";
+            ARG5 += "" + SizeMaxC + "*";
+            ARG5 += "" + SizeMin + "*";
+            ARG5 += "" + CircMaxC + "*";
+            ARG5 += "" + enhance + "*";
+            ARG5 += FPT + "*";
+            ARG5 += "" + myProgress;
+
+            runMacro(PathTK, ARG5);
 
             //Check if it is worse to continue
             if (nROI+minimumFound>roiManager("count")){
@@ -777,10 +795,10 @@ PathM4 += "Order_ROI.java"
     File.saveString(myCSV, FolderOutput + NameFile + "_data.csv");
 
     //Close all non required images.
-    PathM3 = getDirectory("macros");
-    PathM3 += "Droplets"+File.separator;
-    PathM3 += "Close_Images.java";
-    runMacro(PathM3);
+    PathClear = getDirectory("macros");
+    PathClear += "Droplets"+File.separator;
+    PathClear += "Close_Images.java";
+    runMacro(PathClear);
 
     //Erase ROI
     roiManager("reset");
@@ -889,61 +907,10 @@ function MakeDistribution(){
         ARG2 += Arg6[index] + "*";
         ARG2 += "" + Arg7[index];
 
-        runMacro(PathM2, ARG2);
+        runMacro(PathDD, ARG2);
 
     }
 
-}
-
-/*
-================================================================================
-*/
-
-function RemoveUnWanted(MyWindow){
-
-    //Delete all unwanted ROI (non present in tissue)
-
-    //Analyze all ROI
-    for (p=0; p<roiManager("count"); p++){
-
-        //Set the filling color to black
-        setForegroundColor(0, 0, 0);
-
-        //Select the reference window
-        selectWindow(MyWindow);
-
-        //Select the current ROI
-        roiManager("Select", p);
-
-        //Measure the mean grey value of the ROI on the reference window
-        List.setMeasurements;
-        M = List.getValue("Mean");
-
-        //If the mean if not 0
-        //(== the ROI is not in the black shape of the tissue)
-
-        if (M!=0){
-
-            //Select window used to detect the particules of interest
-            selectWindow("Raw");
-
-            //Select the current ROI
-            roiManager("Select", p);
-
-            //Correct the ROI to ensure elimination of all signal
-            //As we used max-entropy (not all signal is identified)
-            run("Enlarge...", "enlarge=" + enlargement);
-
-            //Replace the ROI shape by black
-            run("Fill", "slice");
-
-            //Delete the ROI
-            roiManager("Delete");
-
-            //Correct the index p as one ROI has been removed
-            p = p -1;
-        }
-    }
 }
 
 /*
@@ -1013,392 +980,7 @@ function UpdateMD(MD){
 }
 
 /*
-================================================================================
-*/
-
-function Highlander(initial){
-
-    //Keep the biggest ROI present in the ROI manager after a specific index
-
-    //Analyze all ROI after a specific index
-    for (r=initial; r<roiManager("count"); r++){
-
-        //Initialize the boolean for deletion or not
-        toDel = 0;
-
-        //Select the current reference ROI
-        roiManager("Select", r);
-
-        //Measure the Area
-        List.setMeasurements;
-        Aref = List.getValue("Area");
-
-        //Analyze all the remaining ROIs
-        for (r2 = r+1; r2<roiManager("count"); r2++){
-
-            //Select the current ROI to be compared
-            roiManager("Select", r2);
-
-            //Measure the Area
-            List.setMeasurements;
-            Atest = List.getValue("Area");
-
-            //If the current ROI is smallest than the Reference ROI
-            //the current ROI is deleted
-            if (Atest<Aref){
-                roiManager("Select", r2);
-                roiManager("Delete");
-
-                //The r2 index is corrected
-                //to take into account the removal of 1 ROI
-                r2 += -1;
-
-            //If the current ROI is biggest than the Reference ROI
-            //the reference ROI is deleted
-            } else {
-                toDel = 1;
-            }
-        }
-
-        //Deletion of the Reference ROI if needed
-        if (toDel==1){
-            roiManager("Select", r);
-            roiManager("Delete");
-
-            //The r index is corrected
-            //to take into account the removal of 1 ROI
-            r += -1;
-        }
-    }
-}//END HIGHLANDER
-
-/*
 ===============================================================================
-*/
-
-function ROIsave(path, option){
-
-    //Save ROIs as a string txt file
-
-    /*
-        Recognized options:
-        -"overwrite"
-        -"append"
-
-        Structure of the roi:
-        "Name*X0;X1;...;Xn*Y0;Y1;...;Yn"
-    */
-    //create the file if not existing
-    if(File.exists(path)==0){
-        f = File.open(path);
-        File.close(f);
-    }
-
-    //clear the file if overwriting is ordered
-    if(option=="overwrite"){
-        f = File.open(path);
-        File.close(f);
-    }
-
-    //Loop of saving the ROIs
-    for(roi=0; roi<roiManager("count"); roi++){
-        roiManager("Select", roi);
-        Roi.getCoordinates(xpoints, ypoints);
-        Nom = Roi.getName();
-
-        //Convert coordinates arrays as a single string
-        X = "";
-        Y = "";
-
-        for(x=0; x<xpoints.length; x++){
-            X += "" + xpoints[x];
-            Y += "" + ypoints[x];
-
-            if(x!=xpoints.length-1){
-                X += ";";
-                Y += ";";
-            }
-        }
-
-        //Append the roi to the file
-        File.append(Nom + "*" + X + "*" + Y,
-                    path);
-    }
-}
-
-/*
-===============================================================================
-*/
-
-function Detect_Brain(myImage, myPath){
-
-    //Detect Tissue in all slices using noise of the labelling
-
-    //Set the drawing color to black
-    setForegroundColor(0, 0, 0);
-
-    //Select the current stack
-    selectWindow(myImage);
-
-    //Get width, height and number of slices
-    W = getWidth();
-    H = getHeight();
-    N = nSlices;
-
-    //Create a new empty recipient stack
-    newImage("Brain-Shape", "8-bit white", W, H, N);
-
-    //Process all slices
-    for (S=1; S<=nSlices; S++){
-
-        //Select the current stack
-        selectWindow(myImage);
-
-        //Get the initial number of ROI in the ROI manager
-        nROI = roiManager("count");
-
-        //Select the current slice
-        setSlice(S);
-
-        //Detect the shape of the tissue and add to the ROI manager
-        makeRectangle(0,0,getWidth,getHeight);
-        run("Gaussian Blur...", "sigma=20 slice");
-        setAutoThreshold("Huang dark");
-        run("Analyze Particles...", "size=100000-Infinity pixel show=Nothing add slice");
-
-        //If more than one ROI is detected
-        if (roiManager("count") > nROI+1){
-
-            //Keep only the biggest new ROI
-            Highlander(nROI);
-
-            //Rename the ROI corresponding to the current shape of tissue
-            roiManager("Select", nROI);
-            roiManager("Rename", "Tissue slice "+S);
-
-            //Draw this shape into the recipient stack at the correct slice
-            selectWindow("Brain-Shape");
-            setSlice(S);
-            roiManager("Select", nROI);
-            run("Fill", "slice");
-
-        //If only one ROI is detected
-        }else if(roiManager("count") == nROI+1){
-
-            //Rename the ROI corresponding to the current shape of tissue
-            roiManager("Select", nROI);
-            roiManager("Rename", "Tissue slice "+S);
-
-            //Draw this shape into the recipient stack at the correct slice
-            selectWindow("Brain-Shape");
-            setSlice(S);
-            roiManager("Select", nROI);
-            run("Fill", "slice");
-
-        //If the tissue is not detected prompt the user
-        }else if(roiManager("count") == nROI){
-
-            waitForUser("PROBLEM:\nNO TISSUE DETECTED IN THIS SLICE");
-        }
-
-    }
-
-    //Save ROIs
-    ROIsave(myPath + "_Tissue_Slices.txt", "overwrite");
-
-}
-
-/*
-================================================================================
-*/
-
-function Twins_Killer(myStack,
-                        nROI,
-                        it,
-                        seuil,
-                        zDistance,
-                        enlargement,
-                        CircMinC,
-                        SizeMaxC,
-                        SizeMin,
-                        enhance){
-
-    //Remove all twins particles
-    //Keep the biggest
-
-    /*
-        To increase speed I will sort the ROI by name
-        The first 4 numbers are the slice.
-        Thus at each iteration the program will assemble the ROI of each slice
-        When the zDistance is to big I can break the twin_killer loop.
-
-        PB: ImageJ as this format:
-        slice 1: 0001
-        slice 10: 00010
-        ?????
-        I have to rename myself first and reorder
-    */
-
-    //Select the stack used to detect the particles
-    selectWindow(myStack);
-
-    //Rename and sort all found ROIs
-    runMacro(PathM4, "" + it);
-
-    //Process all ROIs
-    for (n =0; n< roiManager("count"); n++){
-
-        //Set the filling color to black
-        setForegroundColor (0,0,0);
-
-        //Select the Reference ROI
-        roiManager("Select", n);
-
-        //Initialize the boolean for deletion of the current ROI
-        Erase=0;
-
-        //Obtain geometrical characteristics of the particle
-        List.setMeasurements;
-        Xr = List.getValue("X");
-        Yr = List.getValue("Y");
-        Ar = List.getValue("Area");
-        Cr = List.getValue("Circ.");
-        Sr = getSliceNumber();
-
-        //Determine if the minimal size threshold is applied or not
-        if((it==1) && (enhance==0)){
-            SizeMinl = 0;
-        }else{
-            SizeMinl = SizeMin;
-        }
-
-        //Delete if the current ROI is too big or too small
-        if((Ar>SizeMaxC) || (Ar<SizeMinl)){
-            //Clean false positive
-            Erase = 1;
-
-        }else{
-            //Else compare to all other ROIs
-            for(N=n+1; N<roiManager("count"); N++){
-
-                //Prompt user of progress in the IJ main window
-                message = "Iteration " + it;
-                message += " ROI " + n;
-                message += " out of " + roiManager("count");
-                message += " Batch started " + FPT;
-                showStatus(message);
-                showProgress(myProgress);
-
-                //Select the ROI to be compared
-                roiManager("Select", N);
-
-                //Obtain geometrical characteristics of the particle
-                List.setMeasurements;
-                X = List.getValue("X");
-                Y = List.getValue("Y");
-                A = List.getValue("Area");
-                C = List.getValue("Circ.");
-                S = getSliceNumber();
-
-                //If the particle is too big/small or bad circularity
-                //The current ROI is deleted
-                if((C<CircMinC)||(A>SizeMaxC)||(Ar<SizeMinl)||(C>CircMaxC)){
-                    //Clean false positive
-                    roiManager("Select", N);
-                    run("Enlarge...", "enlarge=" + enlargement);
-                    run("Fill", "slice");
-                    roiManager("Delete");
-
-                    //Correct the index N to take into account that one
-                    //ROI was removed
-                    N = N -1;
-
-                }else{
-
-                //If the two particles are not in the same slice and
-                //are closer that the Z Threshold
-                if ((abs(S-Sr)<=zDistance) && (abs(S-Sr)>=0)){
-
-                    //Calculate the XY distance between the 2 ROIs
-                    d = sqrt( (X-Xr)*(X-Xr) + (Y-Yr)*(Y-Yr) );
-
-                    //If the distance is smaller than the minimal authorized
-                    if (d<seuil){
-
-                        //If the new ROI is bigger it become the reference one
-                        //and the other will be deleted
-                        if(A>=Ar){
-
-                            //Update the reference geometrical values
-                            Xr = X;
-                            Yr = Y;
-                            Ar = A;
-
-                            //Order to delete the reference ROI
-                            Erase = 1;
-                        }
-
-                        //If the new ROI is smaller it is deleted
-                        if(A<Ar){
-
-                            //Select the current ROI, enlarge and delete
-                            roiManager("Select", N);
-                            run("Enlarge...", "enlarge=" + enlargement);
-                            run("Fill", "slice");
-                            roiManager("Delete");
-
-                            //Correct the index N to take into account that one
-                            //ROI was removed
-                            N = N -1;
-                        }
-                    }
-
-                }else if(abs(S-Sr)>zDistance){
-                    /*
-                        If more than z slices => No need to compare this
-                        one the others -> Break
-                    */
-                    N = 10 * roiManager("count");
-                }
-            }
-        }
-        }
-
-        //Delete the reference ROI if required
-        if(Erase==1){
-            roiManager("Select", n);
-            setForegroundColor (0,0,0);
-            run("Fill", "slice");
-            roiManager("Delete");
-
-            //Correct the indexes N and n to take into account that one
-            //ROI was removed
-            n=n-1;
-            N=N-1;
-         }
-    }
-
-    //Select the window used to detect the particles
-    selectWindow(myStack);
-    setForegroundColor (0,0,0);
-
-        //To increase the speed fill only new particles
-        for(i=0; i<roiManager("count"); i++){
-            roiManager("Select",i);
-            myName = Roi.getName;
-            if(lastIndexOf(myName, "*")==-1){
-
-                //Fill and rename the particle
-                run("Enlarge...", "enlarge=" + enlargement);
-                run("Fill", "slice");
-                newName =myName + "*";
-                roiManager("Rename", newName);
-            }
-        }
-}//END TWIN_KILLER
-
-/*
-================================================================================
 */
 
 function ROIopen(path, index){
