@@ -1,7 +1,7 @@
 macro "Installation_2018-02-27"{
 
-tag = "v5.0.0"
-lastStableCommit = "345f8c88"
+tag = "v5.0.1"
+lastStableCommit = "66961fc1"
 myProgram = "Automated Detection of labeled particles <br> in microscopic stacks of Drosophila M. tissues<br>";
 
 //IJ version verification and close the macro's window
