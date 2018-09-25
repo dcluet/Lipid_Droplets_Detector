@@ -920,62 +920,120 @@ function MakeDistribution(){
 function UpdateMD(MD){
 
     //Replace all Keywords in the MarkDown report file
-
-    MD = replace(MD, "MYANALYSISMODE", myAnalysis);
-    MD = replace(MD, "MYSTART", "" + Sstart);
-    MD = replace(MD, "MYEND", "" + Send);
-    MD = replace(MD, "MYSELECTION", Selection);
-    MD = replace(MD, "MYREFERENCE", "" + resoRef);
-    MD = replace(MD, "XYTHRESHOLD", "" + (seuil* ImResolution) + " microns");
-    MD = replace(MD, "ZTHRESHOLD", "" + (zDistance) + " slices");
-    MD = replace(MD, "MYITERATIONS", "" + Iterations);
-    MD = replace(MD, "MYFACTOR", "" + enlargement + " pixels");
-    MD = replace(MD, "MINSURF", "" + (SizeMin * ImResolution) + " microns");
-    MD = replace(MD, "MAXSURF", "" + (SizeMax * ImResolution) + " microns");
-    MD = replace(MD, "SURFMAXC", "" + (SizeMaxC * ImResolution) + " microns");
-    MD = replace(MD, "MINCIRC", "" + CircMinC);
-    MD = replace(MD, "MAXCIRC", "" + CircMaxC);
-    MD = replace(MD, "MYIMAGE", "" + myimage);
-    MD = replace(MD, "MYDATE", mydate);
-    MD = replace(MD, "MYOS", getInfo("os.name"));
-    MD = replace(MD, "MYJAVA", getInfo("java.version"));
-    MD = replace(MD, "MYIJ", IJVersion);
-    MD = replace(MD, "MYRESOLUTION", reso);
-    MD = replace(MD, "MYSLICES", "" + myslices);
-    MD = replace(MD, "MYDROPLETS", "" + totalLD);
-    MD = replace(MD, "MYNEUROPIL", "" + numberNP);
-    MD = replace(MD, "MYGIF", FolderOutputRelative + NameFile + "_report.jpg");
-    MD = replace(MD, "MYSTOP", mystop);
-    MD = replace(MD, "MYBRAINS", "" + mybrains);
-    MD = replace(MD, "DISTRAWJPG", FolderOutputRelative + NameFile + "_Values_ALL_Distribution.jpg");
-    MD = replace(MD, "DISTRAWcumJPG", FolderOutputRelative + NameFile + "_Values_ALL_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTJPG", FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Distribution.jpg");
-    MD = replace(MD, "DISTcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTIJPG", FolderOutputRelative + NameFile + "_Intensities_ALL_Distribution.jpg");
-    MD = replace(MD, "DISTIcumJPG", FolderOutputRelative + NameFile + "_Intensities_ALL_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTNPRAWJPG", FolderOutputRelative + NameFile + "_Values_NP_Distribution.jpg");
-    MD = replace(MD, "DISTNPRAWcumJPG", FolderOutputRelative + NameFile + "_Values_NP_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTNPJPG", FolderOutputRelative + NameFile + "_Corrected_Values_NP_Distribution.jpg");
-    MD = replace(MD, "DISTNPcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_NP_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTNPIcumJPG", FolderOutputRelative + NameFile + "_Intensities_NP_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTNNPRAWJPG", FolderOutputRelative + NameFile + "_Values_Non-NP_Distribution.jpg");
-    MD = replace(MD, "DISTNNPRAWcumJPG", FolderOutputRelative + NameFile + "_Values_Non-NP_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTNNPJPG", FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTNPIJPG", FolderOutputRelative + NameFile + "_Intensities_NP_Distribution.jpg");
-    MD = replace(MD, "DISTNNPcumJPG", FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Cumul_Distribution.jpg");
-    MD = replace(MD, "DISTNNPIJPG", FolderOutputRelative + NameFile + "_Intensities_Non-NP_Distribution.jpg");
-    MD = replace(MD, "DISTNNPIcumJPG", FolderOutputRelative + NameFile + "_Intensities_Non-NP_Cumul_Distribution.jpg");
-    MD = replace(MD, "TOTALBRAINSURFACE", "" + TotalBrainSurface);
-    MD = replace(MD, "MEANBRAINSURFACE", "" + TotalBrainSurface/myslices);
     MeanBrainLDSurface = BrainLDSurface / myslices;
-    MD = replace(MD, "MEANBRAINLDSURFACE", "" + MeanBrainLDSurface/1000000);
-    MD = replace(MD, "MEANLDSURFACEBRAIN", "" + BrainLDSurface / totalLD);
-    MD = replace(MD, "BRAINLDPERSURFACE", "" + totalLD / TotalBrainSurface);
-    MD = replace(MD, "TOTALNP", "" + TotalNeuropilSurface);
-    MD = replace(MD, "NPLDTOTALSURFACE", "" + (NPLDSurface/1000000) / myslices);
-    MD = replace(MD, "NPLDMEANSURFACE", "" + NPLDSurface / numberNP );
-    MD = replace(MD, "NPLDPERSURFACE", "" + numberNP / TotalNeuropilSurface);
 
+    //Arrays of Keywords and Values
+    myKeywords = newArray("MYIMAGE",
+                        "MYANALYSISMODE",
+                        "MYDATE",
+                        "MYSTOP",
+                        "MYOS",
+                        "MYJAVA",
+                        "MYIJ",
+                        "MYRESOLUTION",
+                        "MYSLICES",
+                        "MYSTART",
+                        "MYEND",
+                        "MYSELECTION",
+                        "MYREFERENCE",
+                        "XYTHRESHOLD",
+                        "ZTHRESHOLD",
+                        "MYITERATIONS",
+                        "MYFACTOR",
+                        "MINSURF",
+                        "MAXSURF",
+                        "SURFMAXC",
+                        "MINCIRC",
+                        "MAXCIRC",
+                        "MYDROPLETS",
+                        "MYNEUROPIL",
+                        "MYBRAINS",
+                        "TOTALBRAINSURFACE",
+                        "MEANBRAINSURFACE",
+                        "MEANBRAINLDSURFACE",
+                        "MEANLDSURFACEBRAIN",
+                        "BRAINLDPERSURFACE",
+                        "TOTALNP",
+                        "NPLDTOTALSURFACE",
+                        "NPLDMEANSURFACE",
+                        "NPLDPERSURFACE",
+                        "MYGIF",
+                        "DISTRAWJPG",
+                        "DISTRAWcumJPG",
+                        "DISTJPG",
+                        "DISTcumJPG",
+                        "DISTIJPG",
+                        "DISTIcumJPG",
+                        "DISTNPRAWJPG",
+                        "DISTNPRAWcumJPG",
+                        "DISTNPJPG",
+                        "DISTNPcumJPG",
+                        "DISTNPIcumJPG",
+                        "DISTNNPRAWJPG",
+                        "DISTNNPRAWcumJPG",
+                        "DISTNNPJPG",
+                        "DISTNPIJPG",
+                        "DISTNNPcumJPG",
+                        "DISTNNPIJPG",
+                        "DISTNNPIcumJPG");
+
+    myValues = newArray("" + myimage,
+                        myAnalysis,
+                        mydate,
+                        mystop,
+                        getInfo("os.name"),
+                        getInfo("java.version"),
+                        IJVersion,
+                        reso,
+                        "" + myslices,
+                        "" + Sstart,
+                        "" + Send,
+                        Selection,
+                        "" + resoRef,
+                        "" + (seuil* ImResolution) + " microns",
+                        "" + (zDistance) + " slices",
+                        "" + Iterations,
+                        "" + enlargement + " pixels",
+                        "" + (SizeMin * ImResolution) + " microns",
+                        "" + (SizeMax * ImResolution) + " microns",
+                        "" + (SizeMaxC * ImResolution) + " microns",
+                        "" + CircMinC,
+                        "" + CircMaxC,
+                        "" + totalLD,
+                        "" + numberNP,
+                        "" + mybrains,
+                        "" + TotalBrainSurface,
+                        "" + TotalBrainSurface/myslices,
+                        "" + MeanBrainLDSurface/1000000,
+                        "" + BrainLDSurface / totalLD,
+                        "" + totalLD / TotalBrainSurface,
+                        "" + TotalNeuropilSurface,
+                        "" + (NPLDSurface/1000000) / myslices,
+                        "" + NPLDSurface / numberNP,
+                        "" + numberNP / TotalNeuropilSurface,
+                        FolderOutputRelative + NameFile + "_report.jpg",
+                        FolderOutputRelative + NameFile + "_Values_ALL_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Values_ALL_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Corrected_Values_ALL_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Intensities_ALL_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Intensities_ALL_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Values_NP_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Values_NP_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Corrected_Values_NP_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Corrected_Values_NP_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Intensities_NP_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Values_Non-NP_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Values_Non-NP_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Intensities_NP_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Corrected_Values_Non-NP_Cumul_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Intensities_Non-NP_Distribution.jpg",
+                        FolderOutputRelative + NameFile + "_Intensities_Non-NP_Cumul_Distribution.jpg");
+
+    for (index=0; index<myKeywords.length; index++){
+        MD = replace(MD, myKeywords[index], myValues[index]);        
+    }
     return MD;
 }
 
