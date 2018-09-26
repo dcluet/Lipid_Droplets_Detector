@@ -179,51 +179,41 @@ Parameters
 
 For some labeling with small and extremely bright noise, the **enhance signal** option can be unchecked. This will affect the research engine in two ways. First the `Maximum...` treatment will not be applied. Secondly, the **Minimal surface** filter will not be applied during the first iteration. This will allow the program to detect all **small noise particles** and remove them only at the second iteration. Indeed during the development phase, we encountered stacks that generated only **noise particles** during the first iteration, leading to the premature abortion of the program. The **non enhance signal** setting avoids this issue.
 
- Batch analysis
- -
+**Batch analysis**
+===
 
- When all parameters are set the program prompts use to identify the **root folder** containing all your stacks.
+|**SCREEN SHOTS**||
+|:---|:----|
+|![Folder](doc/Folder.jpg)|When all parameters are set the program prompts use to identify the **root folder** containing all your stacks.|
+|![Number](doc/Number.jpg)| The macro will analyze the folder and its sub-folder to identify all the files with the correct **extension**. the program then indicates how many files have been found.|
+|**CHANNEL SELECTION**||
+|![Channels](doc/Channels.jpg)|The program will then load in background the first file. If you are using hyperstacks with several channels, the macro will ask you to specify in which channel the particles have to be found.|
+|**TAILORED STACK ANALYSIS**||
+|![Selection](doc/Selection.jpg)| Then the program will ask you for each file to select the **starting** and **ending** slices to be analyzed. If the **Whole tissue** with a **Manual ROI** option has been selected the program ask you to **draw** the sub-selection of interest.<br><br>These file specific parameters will be saved in a _Parameters.txt file within the root folder of your analysis, allowing later key parameters optimization.|
 
-![Folder](doc/Folder.jpg)
 
- The macro will analyze the folder and its sub-folder to identify all the files with the correct **extension**. the program then indicates how many files have been found.
 
-![Number](doc/Number.jpg)
 
-Channel Selection
--
 
-The program will then load in background the first file. If you are using **hyperstacks** with several channels, the macro will ask you to specify in which channel the particles have to be found.
 
-![Channels](doc/Channels.jpg)
-
-Tailored stack analysis
--
-
-Then the program will ask you **for each file** to select the **starting** and **ending** slices to be analyzed.
-If the **Whole tissue with Sub-Selection** or **Manual ROI** options have been selected the program ask you to draw the **sub-selection** of interest.
-
-![Selection](doc/Selection.jpg)
-
-**These file specific parameters will be saved in a _Parameters.txt file within the root folder of your analysis, allowing later key parameters optimization.**
 
 
 **Research Engine**
 ===
 
-|**ORIGINAL PICTURE**|
-|:------------------:|
-|![Original Picture](doc/Original_Picture.jpg)|
-
-|**TISSUE DETECTION**|**PARTICLES DETECTION**|
-|:------------------:|:---------------------:|
-|`run("Gaussian Blur...", "sigma=20 slice");`|`run("Gaussian Blur...", "sigma=1 stack");`|
-|![Step 1](doc/Tissue1.jpg)   |![Step 1](doc/Iteration1.jpg)|
-||`run("Maximum...", "radius=5 stack");`|
-|   |![Step 2](doc/Iteration2.jpg)|
-|`setAutoThreshold("Huang dark");`|`setAutoThreshold("MaxEntropy dark");`|
-|![Step 2](doc/Tissue2.jpg)|![Step 3](doc/Iteration3.jpg)|
-
-|**RESULT**|
-|:--------:|
-|![Result](doc/Result.jpg)|
+||**ORIGINAL PICTURE**||
+|:------------------:|:---------------------:|:---------------------:|
+||![Original Picture](doc/Original_Picture.jpg)||
+|**TISSUE DETECTION**|**PARTICLES DETECTION iteration 1**|**PARTICLES DETECTION iteration 2**|
+|`run("Gaussian Blur...", "sigma=20 slice");`|`run("Gaussian Blur...", "sigma=1 stack");`|`run("Gaussian Blur...", "sigma=1 stack");`|
+|![Step 1](doc/Tissue1.jpg)   |![Step 1](doc/Iteration1.jpg)|![Step 1](doc/Iteration1-2.jpg)|
+||`run("Maximum...", "radius=5 stack");`|`run("Maximum...", "radius=5 stack");`|
+|   |![Step 2](doc/Iteration2.jpg)|![Step 2](doc/Iteration2-2.jpg)|
+|`setAutoThreshold("Huang dark");`|`setAutoThreshold("MaxEntropy dark");`|`setAutoThreshold("MaxEntropy dark");`|
+|![Step 2](doc/Tissue2.jpg)|![Step 3](doc/Iteration3.jpg)|![Step 3](doc/Iteration3-2.jpg)|
+|`run("Analyze Particles...", "size=100000-Infinity pixel show=Nothing add slice");`|`run("Analyze Particles...", "size="+ 1 +"-"+SizeMax+" add slice");`|`run("Analyze Particles...", "size="+ 1 +"-"+SizeMax+" add slice");`|
+|![Step 3](doc/Tissue3.jpg)|![Step 4](doc/Iteration4.jpg)|![Step 4](doc/Iteration4-2.jpg)|
+|**This shape is used to characterize the tissue-embed particles.**|**Removal of all unwanted particles.**|**Removal of all unwanted particles.**|
+|   |**When several slices, removal of duplicates of the same particle.**|**When several slices, removal of duplicates of the same particle.**|
+||**RESULT ON 5 SLICES**||
+||![Result](doc/Result.jpg)||
