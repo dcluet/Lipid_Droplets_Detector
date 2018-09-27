@@ -9,7 +9,7 @@ myProgram = "Automated Detection of labeled particles <br> in microscopic stacks
 //IJ version verification and close the macro's window
 selectWindow("Installation.ijm");
 run("Close");
-requires("1.49g");
+requires("1.51w");
 
 //Initialisation of the error counter
 Errors=0;

@@ -1,4 +1,8 @@
 macro "Main"{
+
+    //Validate IJ version
+    requires("1.51w");
+
     //INFOS
     tag = "v5.0.1"
     lastStableCommit = "66961fc1"
