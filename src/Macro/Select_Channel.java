@@ -69,14 +69,19 @@ macro "Select_Channel.java"{
 
             //Attribute the channel for analysis
             Dialog.create("Choose the channel to use.");
-            Dialog.addChoice("Channels: ",
+            Dialog.addChoice("Main channel: ",
                             channelsNames,
                             channelsNames[0]);
+            Dialog.addChoice("Contrast channel: ",
+                            channelsNames,
+                            channelsNames[1]);
             Dialog.show();
-            myChannel = Dialog.getChoice();
+            myChannel1 = Dialog.getChoice();
+            myChannel2 = Dialog.getChoice();
+            myChannel = myChannel1 + ";" + myChannel2;
 
         }else{
-            myChannel = "C0-";
+            myChannel = "C0-;C0-";
         }
 
         //Close all non required images.

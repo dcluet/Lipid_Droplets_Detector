@@ -95,7 +95,8 @@ FP = Arguments[23];
 minimumFound = parseFloat(Arguments[24]);
 
 //Channel to be treated
-channel = Arguments[25];
+channels = split(Arguments[25], ";");
+channel = channels[0];
 
 /*
 ============================================================================
@@ -1032,7 +1033,7 @@ function UpdateMD(MD){
                         FolderOutputRelative + NameFile + "_Intensities_Non-NP_Cumul_Distribution.jpg");
 
     for (index=0; index<myKeywords.length; index++){
-        MD = replace(MD, myKeywords[index], myValues[index]);        
+        MD = replace(MD, myKeywords[index], myValues[index]);
     }
     return MD;
 }

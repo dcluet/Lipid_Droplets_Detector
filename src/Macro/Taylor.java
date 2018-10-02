@@ -29,7 +29,9 @@ macro "Taylor"{
     minNew = parseFloat(Arguments[7]);
 
     //Channel to treat
-    myChannel = Arguments[8];
+    channels = split(Arguments[8], ";");
+    myChannel = channels[0];
+    myChannelContrast = channels[1];
 
     //Common parameters for all stacks
     ARGcommon = Arguments[9];
@@ -122,8 +124,8 @@ function ClassicalSetUp(){
             run("Split Channels");
 
             //Attribute LUT to increase display resoltion
-            Bodipy = "C1-" + Titre;
-            Tissue = "C2-" + Titre;
+            Bodipy = myChannel + Titre;
+            Tissue = myChannelContrast + Titre;
             selectWindow(Bodipy);
             run("Enhance Contrast", "saturated=0.35");
             run("Green");
@@ -211,7 +213,7 @@ function ClassicalSetUp(){
         ARG += "" + (myFile/nFiles) + "*";
         ARG += "" + FPT + "*" + FP + "*";
         ARG += "" + minNew + "*";
-        ARG += "" + myChannel;
+        ARG += "" + myChannel + ";" + myChannelContrast;
 
         //Update the command file
         File.append(ARG, myCommands);
@@ -279,7 +281,7 @@ function RecycleSetUp(){
         ARG += "" + myProgress + "*";
         ARG += "" + FPT + "*" + FP + "*";
         ARG += "" + minNew + "*";
-        ARG += "" + myChannel;
+        ARG += "" + myChannel + ";" + myChannelContrast;
 
         //Update the command file
         File.append(ARG, myCommands);
