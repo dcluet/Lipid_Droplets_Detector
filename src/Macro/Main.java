@@ -164,18 +164,23 @@ macro "Main"{
 
     /*
     ============================================================================
-                                SELECT THE CHANNEL
+                    SELECT THE CHANNEL AND LOOP OF PARAMETERS CREATION
     ============================================================================
     */
 
     //Launch Channel Selection
-    ArgChannel = myAnalysis + "*";
-    ArgChannel += myReuse;
-    myChannel = runMacro(PathSelChannel, ArgChannel);
+    if (myReuse == "NO"){
+        ArgChannel = myAnalysis + "*";
+        ArgChannel += myReuse;
+        myChannel = runMacro(PathSelChannel, ArgChannel);
+    }else{
+        myChannel = "None;None";
+    }
+
 
     /*
     ============================================================================
-                            LOOP OF PARAMETERS CREATION
+                        LOOP OF PARAMETERS CREATION
     ============================================================================
     */
 

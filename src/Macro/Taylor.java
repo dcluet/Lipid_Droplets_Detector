@@ -67,7 +67,7 @@ macro "Taylor"{
     nFiles = FileList.length;
 
     if (myReuse == "YES"){
-        RecycleSetUp()
+        RecycleSetUp();
     }
 
     if (myReuse == "NO"){
@@ -262,13 +262,18 @@ function RecycleSetUp(){
         //Use the correct concatenated arguments
         Arguments = split(myCommandsList[c], "*");
 
-        Sstart = parseFloat(Arguments[14]);
-        Send = parseFloat(Arguments[15]);
-        NeuroPilXtext = Arguments[16];
-        NeuroPilYtext = Arguments[17];
-        Path = Arguments[18];
-        myRoot = Arguments[19];
-        myProgress = parseFloat(Arguments[20]);
+        Sstart = Arguments[15];
+        Send = Arguments[16];
+        NeuroPilXtext = Arguments[17];
+        NeuroPilYtext = Arguments[18];
+        Path = Arguments[19];
+        myRoot = Arguments[20];
+        myProgress = Arguments[21];
+
+        //Channel to be treated
+        channels = split(Arguments[25], ";");
+        myChannel = channels[0];
+        myChannelContrast = channels[1];
 
         //Generate the paramaters of analysis of the current stack
         ARG = ARGcommon;
