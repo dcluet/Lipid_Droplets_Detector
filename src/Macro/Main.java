@@ -195,6 +195,7 @@ macro "Main"{
     ArgTaylor += "" + minNew + "\n";
     ArgTaylor += myChannel + "\n";
     ArgTaylor += ARGcommon + "\n";
+    
     runMacro(PathTaylor, ArgTaylor);
 
     //Inform user

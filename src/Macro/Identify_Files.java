@@ -77,8 +77,17 @@ function listFiles(folder, extension, outFilePath) {
 
 		if (endsWith(list[i], extension)){
             //Only file with the correct extension is added to the file
-            File.append(""+folder+list[i], outFilePath);
-		}
+            //And without space
+            if(lastIndexOf(folder+list[i], " ") != -1){
+                File.append(""+folder+list[i], outFilePath);
+            }else{
+                Message = "File: "+folder+list[i] + "<br>";
+                Message += "Has been found but path contains<br>";
+                Message += "SPACE CHARACTERS.<br>";
+                Message += "This file will be skipped.";
+                DisplayInfo(Message);
+            }
+    	}
 	}
 }//END LISTFILES
 
